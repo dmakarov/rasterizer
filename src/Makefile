@@ -1,9 +1,6 @@
-
 # Include debugging symbols (-g) or optimize code (-O or -O2).
 
 DEBUG=-g
-
-# CS248 software directory.
 
 LIBS=-L/opt/local/lib -lGL -lGLU -lglut -lglui
 
@@ -14,7 +11,7 @@ OBJS=canvas.o objects.o animgui.o
 
 # The name of the executable.
 
-TARGET=../bin/animgui
+TARGET=../bin/rasterizer
 
 # LINKING.
 
