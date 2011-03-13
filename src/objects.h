@@ -77,7 +77,7 @@ extern AnimObject* objects[MAX_OBJECTS];
    correct values.
 */
  
-unsigned long GetVertices( int id, float frameNumber, Point* holderFrame );
+unsigned int GetVertices( int id, float frameNumber, Point* holderFrame );
 
 /* Function: FindKeyframe
    ----------------------

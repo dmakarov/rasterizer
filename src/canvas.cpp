@@ -19,7 +19,7 @@ void SaveCanvas(char* Filename, Canvas* C)
   /* Save image. */
 
   int Size=C->Width*C->Height;
-  unsigned long *Buffer=C->Pixels;
+  unsigned int *Buffer=C->Pixels;
   for (int i=0;i<Size;i++,Buffer++) {
     char Data=char(GET_RED(*Buffer));
     fwrite(&Data,1,1,Output);

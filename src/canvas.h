@@ -25,7 +25,7 @@ right corner is located at (C->Width-1,C->Height-1). */
 
 #define PIXEL(C,X,Y) ((C)->Pixels[(Y)*(C)->Width+(X)])
 
-typedef unsigned long int RGB8;
+typedef unsigned int RGB8;
 
 typedef struct canvas_struct {
     int Width;

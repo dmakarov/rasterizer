@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
   int buf_size = buf_width * buf_height;
   int i, j;
 
-  renderCanvas->Pixels = (unsigned long *)malloc(buf_size * sizeof(unsigned long));
+  renderCanvas->Pixels = (unsigned int *)malloc(buf_size * sizeof(unsigned int));
 
   //clear the renderCanvas to black
   for (i=0; i<renderCanvas->Width; i++)
