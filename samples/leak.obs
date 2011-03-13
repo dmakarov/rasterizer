@@ -1,0 +1,26 @@
+Number of Objects: 3
+Object Number: 0
+Color: r: 255, g: 255, b: 0
+Number of Vertices: 4
+Number of Keyframes: 1
+Keyframe for Frame 1
+Vertex 0, x: 40, y: 40
+Vertex 1, x: 240, y: 40
+Vertex 2, x: 240, y: 240
+Vertex 3, x: 40, y: 240
+Object Number: 1
+Color: r: 255, g: 255, b: 255
+Number of Vertices: 3
+Number of Keyframes: 1
+Keyframe for Frame 1
+Vertex 0, x: 90, y: 90
+Vertex 1, x: 190, y: 90
+Vertex 2, x: 90, y: 190
+Object Number: 2
+Color: r: 0, g: 0, b: 0
+Number of Vertices: 3
+Number of Keyframes: 1
+Keyframe for Frame 1
+Vertex 0, x: 190, y: 90
+Vertex 1, x: 190, y: 190
+Vertex 2, x: 90, y: 190

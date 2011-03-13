@@ -1,0 +1,62 @@
+Number of Objects: 6
+Object Number: 0
+Color: r: 163, g: 255, b: 151
+Number of Vertices: 4
+Number of Keyframes: 1
+Keyframe for Frame 1
+Vertex 0, x: 49, y: 40
+Vertex 1, x: 49, y: 244
+Vertex 2, x: 222, y: 279
+Vertex 3, x: 222, y: 67
+Object Number: 1
+Color: r: 162, g: 85, b: 255
+Number of Vertices: 4
+Number of Keyframes: 1
+Keyframe for Frame 1
+Vertex 0, x: 264, y: 68
+Vertex 1, x: 264, y: 122
+Vertex 2, x: 355, y: 105
+Vertex 3, x: 331, y: 35
+Object Number: 2
+Color: r: 255, g: 83, b: 190
+Number of Vertices: 3
+Number of Keyframes: 1
+Keyframe for Frame 1
+Vertex 0, x: 474, y: 155
+Vertex 1, x: 317, y: 321
+Vertex 2, x: 586, y: 383
+Object Number: 3
+Color: r: 241, g: 255, b: 252
+Number of Vertices: 6
+Number of Keyframes: 1
+Keyframe for Frame 1
+Vertex 0, x: 475, y: 29
+Vertex 1, x: 431, y: 75
+Vertex 2, x: 522, y: 184
+Vertex 3, x: 550, y: 150
+Vertex 4, x: 553, y: 45
+Vertex 5, x: 494, y: 95
+Object Number: 4
+Color: r: 249, g: 121, b: 255
+Number of Vertices: 10
+Number of Keyframes: 1
+Keyframe for Frame 1
+Vertex 0, x: 71, y: 297
+Vertex 1, x: 69, y: 360
+Vertex 2, x: 122, y: 365
+Vertex 3, x: 127, y: 339
+Vertex 4, x: 185, y: 337
+Vertex 5, x: 198, y: 366
+Vertex 6, x: 266, y: 376
+Vertex 7, x: 253, y: 341
+Vertex 8, x: 204, y: 299
+Vertex 9, x: 41, y: 260
+Object Number: 5
+Color: r: 255, g: 107, b: 82
+Number of Vertices: 4
+Number of Keyframes: 1
+Keyframe for Frame 1
+Vertex 0, x: 266, y: 143
+Vertex 1, x: 348, y: 147
+Vertex 2, x: 253, y: 230
+Vertex 3, x: 309, y: 253

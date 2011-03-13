@@ -1,0 +1,217 @@
+Number of Objects: 6
+Object Number: 0
+Color: r: 136, g: 255, b: 220
+Number of Vertices: 12
+Number of Keyframes: 1
+Keyframe for Frame 1
+Vertex 0, x: 178, y: 117
+Vertex 1, x: 199, y: 99
+Vertex 2, x: 224, y: 91
+Vertex 3, x: 247, y: 91
+Vertex 4, x: 268, y: 94
+Vertex 5, x: 291, y: 109
+Vertex 6, x: 305, y: 121
+Vertex 7, x: 288, y: 135
+Vertex 8, x: 267, y: 142
+Vertex 9, x: 241, y: 145
+Vertex 10, x: 214, y: 140
+Vertex 11, x: 195, y: 133
+Object Number: 1
+Color: r: 64, g: 131, b: 255
+Number of Vertices: 15
+Number of Keyframes: 1
+Keyframe for Frame 1
+Vertex 0, x: 338, y: 121
+Vertex 1, x: 350, y: 112
+Vertex 2, x: 365, y: 106
+Vertex 3, x: 380, y: 99
+Vertex 4, x: 395, y: 96
+Vertex 5, x: 412, y: 96
+Vertex 6, x: 433, y: 101
+Vertex 7, x: 443, y: 106
+Vertex 8, x: 454, y: 118
+Vertex 9, x: 460, y: 131
+Vertex 10, x: 446, y: 137
+Vertex 11, x: 414, y: 144
+Vertex 12, x: 387, y: 141
+Vertex 13, x: 366, y: 138
+Vertex 14, x: 351, y: 132
+Object Number: 2
+Color: r: 255, g: 237, b: 51
+Number of Vertices: 8
+Number of Keyframes: 3
+Keyframe for Frame 1
+Vertex 0, x: 210, y: 109
+Vertex 1, x: 204, y: 116
+Vertex 2, x: 206, y: 124
+Vertex 3, x: 216, y: 127
+Vertex 4, x: 230, y: 123
+Vertex 5, x: 230, y: 116
+Vertex 6, x: 224, y: 108
+Vertex 7, x: 218, y: 105
+Keyframe for Frame 6
+Vertex 0, x: 240, y: 114
+Vertex 1, x: 242, y: 120
+Vertex 2, x: 243, y: 126
+Vertex 3, x: 252, y: 129
+Vertex 4, x: 261, y: 124
+Vertex 5, x: 261, y: 114
+Vertex 6, x: 252, y: 110
+Vertex 7, x: 246, y: 112
+Keyframe for Frame 24
+Vertex 0, x: 243, y: 119
+Vertex 1, x: 244, y: 125
+Vertex 2, x: 256, y: 134
+Vertex 3, x: 278, y: 132
+Vertex 4, x: 286, y: 122
+Vertex 5, x: 276, y: 109
+Vertex 6, x: 261, y: 105
+Vertex 7, x: 249, y: 112
+Object Number: 3
+Color: r: 40, g: 255, b: 94
+Number of Vertices: 8
+Number of Keyframes: 3
+Keyframe for Frame 1
+Vertex 0, x: 386, y: 107
+Vertex 1, x: 377, y: 120
+Vertex 2, x: 382, y: 126
+Vertex 3, x: 398, y: 129
+Vertex 4, x: 411, y: 129
+Vertex 5, x: 414, y: 117
+Vertex 6, x: 404, y: 108
+Vertex 7, x: 392, y: 107
+Keyframe for Frame 6
+Vertex 0, x: 400, y: 118
+Vertex 1, x: 393, y: 121
+Vertex 2, x: 393, y: 128
+Vertex 3, x: 406, y: 134
+Vertex 4, x: 414, y: 133
+Vertex 5, x: 417, y: 122
+Vertex 6, x: 412, y: 118
+Vertex 7, x: 405, y: 117
+Keyframe for Frame 24
+Vertex 0, x: 398, y: 111
+Vertex 1, x: 393, y: 121
+Vertex 2, x: 393, y: 128
+Vertex 3, x: 411, y: 137
+Vertex 4, x: 431, y: 136
+Vertex 5, x: 441, y: 124
+Vertex 6, x: 426, y: 109
+Vertex 7, x: 411, y: 106
+Object Number: 4
+Color: r: 62, g: 15, b: 255
+Number of Vertices: 12
+Number of Keyframes: 1
+Keyframe for Frame 1
+Vertex 0, x: 324, y: 146
+Vertex 1, x: 311, y: 159
+Vertex 2, x: 303, y: 171
+Vertex 3, x: 297, y: 192
+Vertex 4, x: 290, y: 213
+Vertex 5, x: 285, y: 226
+Vertex 6, x: 282, y: 240
+Vertex 7, x: 279, y: 255
+Vertex 8, x: 293, y: 255
+Vertex 9, x: 310, y: 256
+Vertex 10, x: 321, y: 256
+Vertex 11, x: 330, y: 255
+Object Number: 5
+Color: r: 255, g: 139, b: 137
+Number of Vertices: 31
+Number of Keyframes: 3
+Keyframe for Frame 1
+Vertex 0, x: 222, y: 303
+Vertex 1, x: 240, y: 297
+Vertex 2, x: 256, y: 294
+Vertex 3, x: 274, y: 294
+Vertex 4, x: 289, y: 295
+Vertex 5, x: 303, y: 297
+Vertex 6, x: 324, y: 297
+Vertex 7, x: 345, y: 296
+Vertex 8, x: 355, y: 293
+Vertex 9, x: 367, y: 294
+Vertex 10, x: 384, y: 298
+Vertex 11, x: 390, y: 303
+Vertex 12, x: 399, y: 307
+Vertex 13, x: 395, y: 312
+Vertex 14, x: 365, y: 311
+Vertex 15, x: 341, y: 309
+Vertex 16, x: 314, y: 312
+Vertex 17, x: 285, y: 312
+Vertex 18, x: 266, y: 311
+Vertex 19, x: 242, y: 309
+Vertex 20, x: 222, y: 304
+Vertex 21, x: 225, y: 312
+Vertex 22, x: 244, y: 324
+Vertex 23, x: 273, y: 325
+Vertex 24, x: 300, y: 329
+Vertex 25, x: 321, y: 329
+Vertex 26, x: 339, y: 327
+Vertex 27, x: 360, y: 328
+Vertex 28, x: 373, y: 328
+Vertex 29, x: 385, y: 321
+Vertex 30, x: 396, y: 311
+Keyframe for Frame 6
+Vertex 0, x: 222, y: 303
+Vertex 1, x: 243, y: 290
+Vertex 2, x: 258, y: 290
+Vertex 3, x: 271, y: 289
+Vertex 4, x: 291, y: 287
+Vertex 5, x: 312, y: 293
+Vertex 6, x: 336, y: 290
+Vertex 7, x: 354, y: 290
+Vertex 8, x: 368, y: 296
+Vertex 9, x: 384, y: 298
+Vertex 10, x: 389, y: 299
+Vertex 11, x: 395, y: 301
+Vertex 12, x: 399, y: 307
+Vertex 13, x: 395, y: 312
+Vertex 14, x: 368, y: 312
+Vertex 15, x: 342, y: 310
+Vertex 16, x: 322, y: 312
+Vertex 17, x: 304, y: 310
+Vertex 18, x: 282, y: 309
+Vertex 19, x: 258, y: 307
+Vertex 20, x: 222, y: 304
+Vertex 21, x: 225, y: 312
+Vertex 22, x: 246, y: 324
+Vertex 23, x: 271, y: 327
+Vertex 24, x: 298, y: 330
+Vertex 25, x: 326, y: 334
+Vertex 26, x: 347, y: 331
+Vertex 27, x: 366, y: 328
+Vertex 28, x: 381, y: 330
+Vertex 29, x: 392, y: 325
+Vertex 30, x: 396, y: 309
+Keyframe for Frame 24
+Vertex 0, x: 222, y: 303
+Vertex 1, x: 230, y: 285
+Vertex 2, x: 254, y: 279
+Vertex 3, x: 266, y: 276
+Vertex 4, x: 288, y: 271
+Vertex 5, x: 312, y: 268
+Vertex 6, x: 329, y: 268
+Vertex 7, x: 348, y: 272
+Vertex 8, x: 363, y: 280
+Vertex 9, x: 378, y: 284
+Vertex 10, x: 390, y: 294
+Vertex 11, x: 395, y: 301
+Vertex 12, x: 399, y: 307
+Vertex 13, x: 395, y: 312
+Vertex 14, x: 376, y: 335
+Vertex 15, x: 351, y: 345
+Vertex 16, x: 333, y: 347
+Vertex 17, x: 307, y: 346
+Vertex 18, x: 279, y: 344
+Vertex 19, x: 248, y: 333
+Vertex 20, x: 222, y: 304
+Vertex 21, x: 222, y: 329
+Vertex 22, x: 246, y: 357
+Vertex 23, x: 269, y: 368
+Vertex 24, x: 303, y: 369
+Vertex 25, x: 327, y: 371
+Vertex 26, x: 346, y: 371
+Vertex 27, x: 368, y: 366
+Vertex 28, x: 387, y: 357
+Vertex 29, x: 395, y: 334
+Vertex 30, x: 396, y: 309

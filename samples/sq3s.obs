@@ -1,0 +1,62 @@
+Number of Objects: 6
+Object Number: 0
+Color: r: 163, g: 255, b: 151
+Number of Vertices: 4
+Number of Keyframes: 1
+Keyframe for Frame 1
+Vertex 0, x: -12.152, y: -40.08
+Vertex 1, x: -12.152, y: 312.432
+Vertex 2, x: 286.792, y: 372.912
+Vertex 3, x: 286.792, y: 6.57597
+Object Number: 1
+Color: r: 162, g: 85, b: 255
+Number of Vertices: 4
+Number of Keyframes: 1
+Keyframe for Frame 1
+Vertex 0, x: 231.968, y: 60.72
+Vertex 1, x: 231.968, y: 154.032
+Vertex 2, x: 389.216, y: 124.656
+Vertex 3, x: 347.744, y: 3.69599
+Object Number: 2
+Color: r: 255, g: 83, b: 190
+Number of Vertices: 3
+Number of Keyframes: 1
+Keyframe for Frame 1
+Vertex 0, x: 487.957, y: 21.8736
+Vertex 1, x: 162.402, y: 366.091
+Vertex 2, x: 720.2, y: 494.654
+Object Number: 3
+Color: r: 241, g: 255, b: 252
+Number of Vertices: 6
+Number of Keyframes: 1
+Keyframe for Frame 1
+Vertex 0, x: 451.381, y: -60.1088
+Vertex 1, x: 360.142, y: 35.2768
+Vertex 2, x: 548.84, y: 261.299
+Vertex 3, x: 606.901, y: 190.797
+Vertex 4, x: 613.122, y: -26.9312
+Vertex 5, x: 490.779, y: 76.7488
+Object Number: 4
+Color: r: 249, g: 121, b: 255
+Number of Vertices: 10
+Number of Keyframes: 1
+Keyframe for Frame 1
+Vertex 0, x: 17.128, y: 285.352
+Vertex 1, x: 13.672, y: 394.216
+Vertex 2, x: 105.256, y: 402.856
+Vertex 3, x: 113.896, y: 357.928
+Vertex 4, x: 214.12, y: 354.472
+Vertex 5, x: 236.584, y: 404.584
+Vertex 6, x: 354.088, y: 421.864
+Vertex 7, x: 331.624, y: 361.384
+Vertex 8, x: 246.952, y: 288.808
+Vertex 9, x: -34.712, y: 221.416
+Object Number: 5
+Color: r: 255, g: 107, b: 82
+Number of Vertices: 4
+Number of Keyframes: 1
+Keyframe for Frame 1
+Vertex 0, x: 227.304, y: 98.3504
+Vertex 1, x: 431.346, y: 108.304
+Vertex 2, x: 194.956, y: 314.834
+Vertex 3, x: 334.301, y: 372.066

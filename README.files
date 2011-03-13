@@ -1,0 +1,43 @@
+# Files in the package, what they do, and how to build them.
+
+# IMPORTANT FILES AND DIRECTORIES
+
+
+README.files (this file)
+
+README.animgui : Basic instructions on how to use the initial program we give
+  you. Describes how to add vertex points, how to render and save images,
+  and how to create animations and view them. You should definitely read this!
+
+/src/animgui.cpp : The main module of the program that creates the GUI
+  and sets up the editing and rendering canvases. You won't have to change this
+  file unless you want to change the interface, which is not required for this
+  assignment.
+
+/src/canvas.cpp, canvas.h : Provides you with functions that modify and
+  read values from the rendering canvas in a way that is similar to project 1.
+
+/src/objects.cpp, objects.h : The heart of the rendering functions for
+  the program. This is where the Rasterize() function lives, where most of your
+  work will be focused. Read the .h file for a detailed description of the
+  provided functions.
+
+/samples/README.samples : Check out this file for information on the sample
+  .obs files and example results (in /samples/examples).
+
+/docs : Documentation on the GLUI toolkit, if you need it.
+
+
+# BUILDING THE PROGRAM
+#
+
+On Linux:
+
+The executable for this program is called 'animgui' and it sits in the
+/bin directory of the project. The source code you will be touching sits
+in /src, and these files will be described shortly. To build the project,
+type 'make' in the /src directory.
+
+The program depends on GL and glut, which are usually installed by default 
+on most linux systems, and glui (see http://glui.sourceforge.net/).
+

@@ -1,0 +1,22 @@
+# Sample .obs files and .ppm/.fli files.
+# The examples below are in /examples.
+
+sample1.fli: 16 AA samples, 10 frames, 8 samples/frame
+sample2.ppm: 16 AA samples
+sample3.ppm: 8 AA samples
+sample4.fli: 0 AA samples, 7 frames, 16 samples/frame
+sample5.fli: 16 AA samples, 13 frames, 8 samples/frame
+
+Note that for sample5, if you implement full polygon clipping your sample5
+images will look different for the last few frames (the polygon will not
+disappear).
+
+Also, depending on your sampling scheme, your antialiasing may look slightly
+different. This is OK as long as you are consistent and your differences are
+minimal. Don't get too picky as to exact image differences with the motion
+blur images (those provided might vary slightly to those you produce), they
+are just for reference to give you the general idea.
+
+Good luck!
+
+
