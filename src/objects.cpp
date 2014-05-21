@@ -3,17 +3,19 @@
  * Written by Yar Woo (ywoo@cs)
  */
 
-#include "objects.h"
-#include "assert.h"
-#include "canvas.h"
+#include <assert.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <cstring>
 #include <string>
 
 #include <list>
 #include <algorithm>
 #include <functional>
+
+#include "canvas.h"
+#include "objects.h"
 
 //#define DEBUG_RASTERIZER 1
 
