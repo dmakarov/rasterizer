@@ -3,4 +3,4 @@ compiler: gcc
 script: make
 before_install:
  - sudo apt-get update -qq
- - sudo apt-get install -qq libmotif-dev libxp-dev
+ - sudo apt-get install -qq libglui-dev
