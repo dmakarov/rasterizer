@@ -2,7 +2,16 @@
 
 DEBUG=-g
 
-LIBS=-L/opt/local/lib -lGL -lGLU -lglut -lglui
+UNAME := $(shell uname)
+
+ifeq ($(UNAME), Darwin)
+  LIBS := -lglui -framework GLUT -framework OpenGL
+  WARN := -Wall -Wno-deprecated-declarations -Wno-write-strings
+endif
+ifeq ($(UNAME), Linux)
+  LIBS := -lGL -lGLU -lglut -lglui
+  WARN := -Wall -Wno-write-strings
+endif
 
 # The object files comprising the application code.
 # Use spaces to separate multiple files.
@@ -13,16 +22,20 @@ OBJS=canvas.o objects.o animgui.o
 
 TARGET=../bin/rasterizer
 
-# LINKING.
+all: $(TARGET)
 
-$(TARGET): $(OBJS) Makefile
-	$(CXX) -Wall $(DEBUG) -o $@ $(OBJS) $(LIBS) 
+# LINKING.
+$(TARGET): $(OBJS) Makefile ../bin
+	$(CXX) $(DEBUG) -o $@ $(OBJS) $(LIBS) 
+
+../bin:
+	mkdir $@
 
 
 # COMPILATION.
 
 .cpp.o:
-	$(CXX) -Wall -Wno-write-strings -I/opt/local/include $(DEBUG) -c -o $@ $*.cpp
+	$(CXX) $(WARN) $(INCL) $(DEBUG) -c -o $@ $*.cpp
 
 
 # CLEANUP.

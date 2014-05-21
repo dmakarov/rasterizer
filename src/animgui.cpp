@@ -3,13 +3,20 @@
  * written by Yar Woo (ywoo@cs)
  */
 
-#include "objects.h"
-#include "assert.h"
-#include "GL/glut.h"
-#include "glui.h"
+#include <assert.h>
 #include <math.h>
 #include <unistd.h>
 #include <string.h>
+#include <GL/glui.h>
+#ifdef __MACH__
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
+
+#include "objects.h"
 
 #define WINDOW_WIDTH 600
 #define WINDOW_HEIGHT 400
