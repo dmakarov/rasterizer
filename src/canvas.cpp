@@ -20,7 +20,8 @@ void SaveCanvas(char* Filename, Canvas* C)
 
   int Size=C->Width*C->Height;
   unsigned int *Buffer=C->Pixels;
-  for (int i=0;i<Size;i++,Buffer++) {
+  for (int i=0;i<Size;i++,Buffer++)
+  {
     char Data=char(GET_RED(*Buffer));
     fwrite(&Data,1,1,Output);
     Data=char(GET_GREEN(*Buffer));

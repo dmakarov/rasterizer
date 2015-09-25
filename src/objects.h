@@ -23,60 +23,60 @@
 #define MAX_BLUR_SAMPLES 64
 
 typedef struct {
-    float x;
-    float y;
+  float x;
+  float y;
 } Point;
 
 typedef struct {
-    int frameNumber;
-    Point vertices[MAX_VERTICES];
+  int frameNumber;
+  Point vertices[MAX_VERTICES];
 } FrameData;
 
 typedef struct {
-    int numVertices;
-    FrameData keyframes[MAX_KEYFRAMES];
-    int numKeyframes;
-    int r, g, b;
+  int numVertices;
+  FrameData keyframes[MAX_KEYFRAMES];
+  int numKeyframes;
+  int r, g, b;
 } AnimObject;
 
 typedef struct edge_struct {
-    float yy, xx, kk;
-    edge_struct( float yy_ = 0, float xx_ = 0, float kk_ = 0 )
-        :
-        yy( yy_ ),
-        xx( xx_ ),
-        kk( kk_ )
-    {}
-    bool operator<( const edge_struct& edge ) const
-    {
-        return ( xx < edge.xx );
-    }
+  float yy, xx, kk;
+  edge_struct( float yy_ = 0, float xx_ = 0, float kk_ = 0 )
+    :
+    yy( yy_ ),
+    xx( xx_ ),
+    kk( kk_ )
+  {}
+  bool operator<( const edge_struct& edge ) const
+  {
+    return ( xx < edge.xx );
+  }
 } edge_type;
 
 class edge_ymax_le : public std::unary_function< edge_type, bool >
 {
-    float ymax;
+  float ymax;
 public:
-    explicit edge_ymax_le( float yy ) : ymax( yy ) 
-    {}
-    bool operator()( const edge_type& edge ) const
-    {
-        return ( edge.yy <= ymax );
-    }
+  explicit edge_ymax_le( float yy ) : ymax( yy )
+  {}
+  bool operator()( const edge_type& edge ) const
+  {
+    return ( edge.yy <= ymax );
+  }
 };
 
 extern int numObjects;
 extern AnimObject* objects[MAX_OBJECTS];
 
-/* Function: GetVertices 
-   --------------------- 
+/* Function: GetVertices
+   ---------------------
    This function takes in an object ID, a frame number and an array of
    Points and fills in that array with the vertices of that object at
-   that point in time. If the passed frameNumber is between keyframes, 
+   that point in time. If the passed frameNumber is between keyframes,
    GetVertices will automatically interpolate linearly and give you the
    correct values.
 */
- 
+
 unsigned int GetVertices( int id, float frameNumber, Point* holderFrame );
 
 /* Function: FindKeyframe
@@ -107,15 +107,10 @@ int AnyKeyframe(int frameNumber);
    time Rasterize() completes, the canvas should be filled.
 */
 
-void Rasterize(Canvas* renderCanvas, int frameNumber, bool antiAlias,
-	       int numAliasSamples, bool motionBlur, int numBlurSamples);
+void Rasterize(Canvas* renderCanvas, int frameNumber, bool antiAlias, int numAliasSamples, bool motionBlur, int numBlurSamples);
 
 #endif
 
-
-
-
-
-
-
-
+// Local Variables:
+// mode: c++
+// End:
