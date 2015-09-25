@@ -1,6 +1,8 @@
-language: c
-compiler: gcc
+sudo: false
+language: cpp
+compiler: clang
 script: make
-before_install:
- - sudo apt-get update -qq
- - sudo apt-get install -qq libglui-dev
+addons:
+  apt:
+    packages:
+      - libglui-dev
