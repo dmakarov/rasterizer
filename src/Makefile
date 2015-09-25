@@ -26,7 +26,7 @@ all: $(TARGET)
 
 # LINKING.
 $(TARGET): $(OBJS) Makefile ../bin
-	$(CXX) $(DEBUG) -o $@ $(OBJS) $(LIBS) 
+	$(CXX) $(DEBUG) -o $@ $(OBJS) $(LIBS)
 
 ../bin:
 	mkdir $@
@@ -35,7 +35,7 @@ $(TARGET): $(OBJS) Makefile ../bin
 # COMPILATION.
 
 .cpp.o:
-	$(CXX) $(WARN) $(INCL) $(DEBUG) -c -o $@ $*.cpp
+	$(CXX) -std=c++14 $(WARN) $(INCL) $(DEBUG) -c -o $@ $*.cpp
 
 
 # CLEANUP.

@@ -1,15 +1,14 @@
-/* objects.h
+/**
  * Defines the data structures and objects used in the CS248
  * animation/rasterizer assignment
- * written by Yar Woo (ywoo@cs)
  */
 
 #ifndef _OBJECTS_H
 #define _OBJECTS_H
 
-#include "canvas.h"
-
 #include <functional>
+
+#include "canvas.h"
 
 /* These are constants. You can increase them if your animation requires
    it, but do not decrease them, so that we can have data sets that will

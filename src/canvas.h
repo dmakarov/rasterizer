@@ -82,7 +82,7 @@ typedef struct abuffer_struct {
   }
 } Abuffer;
 
-void SaveCanvas(char* Filename, Canvas* C);
+void save_canvas(const char* filename, Canvas* C);
 
 #endif
 

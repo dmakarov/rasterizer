@@ -1,33 +1,32 @@
-#include "canvas.h"
+#include <assert.h>
 #include <stdio.h>
-#include "assert.h"
 
-void SaveCanvas(char* Filename, Canvas* C)
+#include "canvas.h"
+
+void save_canvas(const char* filename, Canvas* C)
 {
-  /* Open file. */
-
-  FILE *Output=fopen(Filename,"wb");
-  assert(Output!=NULL);
+  FILE* output = fopen(filename, "wb");
+  assert(output != NULL);
 
   /* Print header. */
 
-  fprintf(Output,"P6\n");
-  fprintf(Output,"# Comment Line\n");
-  fprintf(Output,"%d %d\n",C->Width,C->Height);
-  fprintf(Output,"255\n");
+  fprintf(output, "P6\n");
+  fprintf(output, "# Comment Line\n");
+  fprintf(output, "%d %d\n", C->Width, C->Height);
+  fprintf(output, "255\n");
 
   /* Save image. */
 
-  int Size=C->Width*C->Height;
-  unsigned int *Buffer=C->Pixels;
-  for (int i=0;i<Size;i++,Buffer++)
+  auto size = C->Width * C->Height;
+  unsigned int* buffer = C->Pixels;
+  for (int i = 0; i < size; i++, buffer++)
   {
-    char Data=char(GET_RED(*Buffer));
-    fwrite(&Data,1,1,Output);
-    Data=char(GET_GREEN(*Buffer));
-    fwrite(&Data,1,1,Output);
-    Data=char(GET_BLUE(*Buffer));
-    fwrite(&Data,1,1,Output);
+    char data = char(GET_RED(*buffer));
+    fwrite(&data, 1, 1, output);
+    data = char(GET_GREEN(*buffer));
+    fwrite(&data, 1, 1, output);
+    data = char(GET_BLUE(*buffer));
+    fwrite(&data, 1, 1, output);
   }
-  fclose(Output);
+  fclose(output);
 }

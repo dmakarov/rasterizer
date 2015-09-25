@@ -1,6 +1,5 @@
 /** animgui.cpp
  *  This file defines the GUI for the CS248 animation/rasterizer assignment
- *  written by Yar Woo (ywoo@cs)
  */
 
 #include <assert.h>
@@ -872,7 +871,7 @@ void DisplayAndSaveCanvas(int id)
     if (strlen(renderOut)!=0)
     {
       sprintf(buf, "%s.ppm", renderOut);
-      SaveCanvas(buf, renderCanvas);
+      save_canvas(buf, renderCanvas);
     }
     glutSetWindow(render_window);
     glutShowWindow();
@@ -892,7 +891,7 @@ void DisplayAndSaveCanvas(int id)
       if (strlen(renderOut)!=0)
       {
         sprintf(buf, "%s.%d.ppm", renderOut, i);
-        SaveCanvas(buf, renderCanvas);
+        save_canvas(buf, renderCanvas);
         sprintf(buf, "%s.%d.ppm", pathless, i);
         fprintf(listFile, "%s\n", buf);
       }
@@ -1001,7 +1000,7 @@ void CommandLineRasterize(int argc, char* argv[])
     printf("Rendering Frame %d\n", i);
     Rasterize(renderCanvas, i, antiAlias, numAliasSamples, motionBlur, numBlurSamples);
     sprintf(buf, "%s.%d.ppm", outputFile, i);
-    SaveCanvas(buf, renderCanvas);
+    save_canvas(buf, renderCanvas);
     sprintf(buf, "%s.%d.ppm", pathless, i);
     fprintf(listFile, "%s\n", buf);
   }

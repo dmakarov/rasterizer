@@ -1,6 +1,5 @@
-/* objects.cpp
+/**
  * This file implements objects.h
- * Written by Yar Woo (ywoo@cs)
  */
 
 #include <assert.h>
@@ -8,13 +7,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstring>
+
+#include <algorithm>
+#include <list>
 #include <string>
 
-#include <list>
-#include <algorithm>
-#include <functional>
-
-#include "canvas.h"
 #include "objects.h"
 
 //#define DEBUG_RASTERIZER 1
