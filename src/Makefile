@@ -35,7 +35,7 @@ $(TARGET): $(OBJS) Makefile ../bin
 # COMPILATION.
 
 .cpp.o:
-	$(CXX) -std=c++14 $(WARN) $(INCL) $(DEBUG) -c -o $@ $*.cpp
+	$(CXX) -std=c++11 $(WARN) $(INCL) $(DEBUG) -c -o $@ $*.cpp
 
 
 # CLEANUP.
