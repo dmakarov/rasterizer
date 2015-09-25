@@ -41,15 +41,15 @@ typedef struct {
 
 typedef struct edge_struct {
   float yy, xx, kk;
-  edge_struct( float yy_ = 0, float xx_ = 0, float kk_ = 0 )
+  edge_struct(float yy_ = 0, float xx_ = 0, float kk_ = 0)
     :
-    yy( yy_ ),
-    xx( xx_ ),
-    kk( kk_ )
+    yy(yy_),
+    xx(xx_),
+    kk(kk_)
   {}
-  bool operator<( const edge_struct& edge ) const
+  bool operator<(const edge_struct& edge) const
   {
-    return ( xx < edge.xx );
+    return (xx < edge.xx);
   }
 } edge_type;
 
@@ -57,11 +57,11 @@ class edge_ymax_le : public std::unary_function< edge_type, bool >
 {
   float ymax;
 public:
-  explicit edge_ymax_le( float yy ) : ymax( yy )
+  explicit edge_ymax_le(float yy) : ymax(yy)
   {}
-  bool operator()( const edge_type& edge ) const
+  bool operator()(const edge_type& edge) const
   {
-    return ( edge.yy <= ymax );
+    return (edge.yy <= ymax);
   }
 };
 
@@ -77,7 +77,7 @@ extern AnimObject* objects[MAX_OBJECTS];
    correct values.
 */
 
-unsigned int GetVertices( int id, float frameNumber, Point* holderFrame );
+unsigned int GetVertices(int id, float frameNumber, Point* holderFrame);
 
 /* Function: FindKeyframe
    ----------------------

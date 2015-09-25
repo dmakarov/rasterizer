@@ -88,7 +88,6 @@ Canvas* renderCanvas;
 
 int main(int argc, char* argv[])
 {
-
   /* This allocates new memory for the canvas */
 
   renderCanvas = (Canvas*)malloc(sizeof(Canvas));
@@ -107,7 +106,6 @@ int main(int argc, char* argv[])
       PIXEL(renderCanvas, i, j) = 0;
     }
   }
-
 
   // if they set command-line arguments, then don't show the GUI
 
@@ -158,30 +156,24 @@ int main(int argc, char* argv[])
 
     GLUI_Panel *save_load_panel = glui->add_panel("Save/Load");
     glui->add_edittext_to_panel(save_load_panel, "Filename", GLUI_EDITTEXT_TEXT, save_load_file);
-    glui->add_button_to_panel(save_load_panel, "Save Object Data", 0,
-                              (GLUI_Update_CB)SaveObjectsCall);
-    glui->add_button_to_panel(save_load_panel, "Load Object Data", 0,
-                              (GLUI_Update_CB)LoadObjectsCall);	
+    glui->add_button_to_panel(save_load_panel, "Save Object Data", 0, (GLUI_Update_CB)SaveObjectsCall);
+    glui->add_button_to_panel(save_load_panel, "Load Object Data", 0, (GLUI_Update_CB)LoadObjectsCall);
 
     glui->add_column(true);
 
     GLUI_Panel *render_panel = glui->add_panel("Rendering");
     glui->add_edittext_to_panel(render_panel, "Render Out:", GLUI_EDITTEXT_TEXT, renderOut);
     glui->add_checkbox_to_panel(render_panel, "Antialias", &antiAlias, -1, AntiAliasChanged);
-    num_alias_samples_editor = glui->add_edittext_to_panel(render_panel,
-                                                           "Number Of Samples",
-                                                           GLUI_EDITTEXT_INT, &numAliasSamples);
+    num_alias_samples_editor = glui->add_edittext_to_panel(render_panel, "Number Of Samples", GLUI_EDITTEXT_INT, &numAliasSamples);
     num_alias_samples_editor->disable();
     num_alias_samples_editor->set_int_val(1);
-    num_alias_samples_editor->set_int_limits(1, MAX_ALIAS_SAMPLES);	
+    num_alias_samples_editor->set_int_limits(1, MAX_ALIAS_SAMPLES);
 
-    alias_func_edit = glui->add_edittext_to_panel( render_panel, "Filter:", GLUI_EDITTEXT_TEXT, aafilter_function );
+    alias_func_edit = glui->add_edittext_to_panel(render_panel, "Filter:", GLUI_EDITTEXT_TEXT, aafilter_function);
     alias_func_edit->disable();
 
     glui->add_checkbox_to_panel(render_panel, "Motion Blur", &motionBlur, -1, MotionBlurChanged);
-    num_blur_samples_editor = glui->add_edittext_to_panel(render_panel,
-                                                          "Number Of Samples",
-                                                          GLUI_EDITTEXT_INT, &numBlurSamples);
+    num_blur_samples_editor = glui->add_edittext_to_panel(render_panel, "Number Of Samples", GLUI_EDITTEXT_INT, &numBlurSamples);
     num_blur_samples_editor->disable();
     num_blur_samples_editor->set_int_val(1);
     num_blur_samples_editor->set_int_limits(1, MAX_BLUR_SAMPLES);
@@ -199,8 +191,7 @@ int main(int argc, char* argv[])
     end_frame_editor->set_int_val(100);
     end_frame_editor->set_int_limits(1, 100);
 
-    glui->add_button_to_panel(render_panel, "Render!", 0,
-                              (GLUI_Update_CB)DisplayAndSaveCanvas);
+    glui->add_button_to_panel(render_panel, "Render!", 0, (GLUI_Update_CB)DisplayAndSaveCanvas);
 
     glutMainLoop();
   }
@@ -212,8 +203,8 @@ void myGlutDisplay(void)
 {
   int i, j;
 
-  glClearColor( 0.f, 0.f, 0.f, 0.f );
-  glClear( GL_COLOR_BUFFER_BIT );
+  glClearColor(0.f, 0.f, 0.f, 0.f);
+  glClear(GL_COLOR_BUFFER_BIT);
 
   if (AnyKeyframe(currFrameNumber))
   {
@@ -221,7 +212,7 @@ void myGlutDisplay(void)
     glLineWidth(20);
     glColor3d(1, 0, 0);
     glBegin(GL_LINE_STRIP);
-	
+
     glVertex2d(0, 0);
     glVertex2d(0, -WINDOW_HEIGHT);
     glVertex2d(WINDOW_WIDTH, -WINDOW_HEIGHT);
@@ -260,7 +251,7 @@ void myGlutDisplay(void)
     if (selectedObject == i) //now draw the vertices on top of the lines
     {
       glBegin(GL_LINES);
-      for (j=0; j<objects[i]->numVertices; j++)	
+      for (j=0; j<objects[i]->numVertices; j++)
       {
         // selected vertex?
         if (j == selectedVertex)
@@ -280,7 +271,7 @@ void myGlutDisplay(void)
     }
   }
 
-  if ( rotation_centerX > -1 )
+  if (rotation_centerX > -1)
   {
     glBegin(GL_LINES);
     glColor3d(0.5, 0.5, 0.5);
@@ -349,26 +340,25 @@ void myKeyboardFunc(unsigned char key, int x, int y)
   }
 }
 
-void
-polygon_scaling( int mx, int my )
+void polygon_scaling(int mx, int my)
 {
-  if ( selectedVertex == -1 ) return;
+  if (selectedVertex == -1) return;
 
   mx -= rotation_centerX;
   my -= rotation_centerY;
 
-  if ( fabs( prev_rotationX - mx ) < 10 && fabs( prev_rotationY - my ) < 10 ) return;
+  if (std::abs(prev_rotationX - mx) < 10 && std::abs(prev_rotationY - my) < 10) return;
 
-  float dm = sqrt( mx*mx + my*my );
-  float dp = sqrt( prev_rotationX*prev_rotationX + prev_rotationY*prev_rotationY );
+  float dm = sqrt(mx*mx + my*my);
+  float dp = sqrt(prev_rotationX*prev_rotationX + prev_rotationY*prev_rotationY);
 
   Point* vert = objects[selectedObject]->keyframes[FindKeyframe(selectedObject, currFrameNumber)].vertices;
   int vertno = objects[selectedObject]->numVertices;
 
-  float sx = ( dm > dp ) ? 1.2 : 0.8;
-  float sy = ( dm > dp ) ? 1.2 : 0.8;
+  float sx = (dm > dp) ? 1.2 : 0.8;
+  float sy = (dm > dp) ? 1.2 : 0.8;
 
-  for ( int ii = 0; ii < vertno; ++ii )
+  for (int ii = 0; ii < vertno; ++ii)
   {
     vert[ii].x -= rotation_centerX;
     vert[ii].y -= rotation_centerY;
@@ -381,35 +371,34 @@ polygon_scaling( int mx, int my )
   prev_rotationY = my;
 }
 
-void
-polygon_rotation( int mx, int my )
+void polygon_rotation(int mx, int my)
 {
-  if ( selectedVertex == -1 ) return;
+  if (selectedVertex == -1) return;
 
   mx -= rotation_centerX;
   my -= rotation_centerY;
 
-  if ( fabs( prev_rotationX - mx ) < 10 && fabs( prev_rotationY - my ) < 10 ) return;
-  if ( (mx < 0 && prev_rotationX > 0) || (mx > 0 && prev_rotationX < 0) )
+  if (std::abs(prev_rotationX - mx) < 10 && std::abs(prev_rotationY - my) < 10) return;
+  if ((mx < 0 && prev_rotationX > 0) || (mx > 0 && prev_rotationX < 0))
   {
     prev_rotationX = mx;
     prev_rotationY = my;
     return;
   }
 
-  float ro = sqrtf( mx*mx + my*my );
-  float al = asinf( my / ro );
-  ro = sqrtf( prev_rotationX*prev_rotationX + prev_rotationY*prev_rotationY );
-  float be = asinf( prev_rotationY / ro );
-  float sign = ( (al > be && mx > 0) || (al < be && mx < 0) ) ? 1.0 : -1.0;
+  float ro = sqrtf(mx*mx + my*my);
+  float al = asinf(my / ro);
+  ro = sqrtf(prev_rotationX*prev_rotationX + prev_rotationY*prev_rotationY);
+  float be = asinf(prev_rotationY / ro);
+  float sign = ((al > be && mx > 0) || (al < be && mx < 0)) ? 1.0 : -1.0;
   float te = sign * 3.14159 / 18;
-  float sn = sinf( te );
-  float cs = cosf( te );
+  float sn = sinf(te);
+  float cs = cosf(te);
 
   Point* vert = objects[selectedObject]->keyframes[FindKeyframe(selectedObject, currFrameNumber)].vertices;
   int vertno = objects[selectedObject]->numVertices;
 
-  for ( int ii = 0; ii < vertno; ++ii )
+  for (int ii = 0; ii < vertno; ++ii)
   {
     vert[ii].x -= rotation_centerX;
     vert[ii].y -= rotation_centerY;
@@ -426,12 +415,12 @@ void myMotionFunc(int mx, int my)
 {
   int frameID;
 
-  if ( draw_curve )
+  if (draw_curve)
   {
     if (currObject->numVertices == MAX_VERTICES) return;
     int px = currObject->keyframes[0].vertices[currObject->numVertices - 1].x;
     int py = currObject->keyframes[0].vertices[currObject->numVertices - 1].y;
-    if ( fabs( px - mx ) > 7 || fabs( py - my ) > 7 ) // sqrt( (px-mx)*(px-mx) + (py-my)*(py-my) ) > 5 )
+    if (std::abs(px - mx) > 7 || std::abs(py - my) > 7) // sqrt((px-mx)*(px-mx) + (py-my)*(py-my)) > 5)
     {
       currObject->keyframes[0].vertices[currObject->numVertices].x = mx;
       currObject->keyframes[0].vertices[currObject->numVertices].y = my;
@@ -476,16 +465,16 @@ void myMotionFunc(int mx, int my)
     assert(frameID!=-1);
   }
 
-  if ( scale_polygon )
+  if (scale_polygon)
   {
-    polygon_scaling( mx, my );
+    polygon_scaling(mx, my);
     CheckDeleteKeyframeStatus();
     glutPostRedisplay();
     return;
   }
-  if ( rotate_polygon )
+  if (rotate_polygon)
   {
-    polygon_rotation( mx, my );
+    polygon_rotation(mx, my);
     CheckDeleteKeyframeStatus();
     glutPostRedisplay();
     return;
@@ -537,15 +526,14 @@ void AssignRandomColor(AnimObject* obj)
   }
 }
 
-bool
-select_object( int button, int mx, int my )
+bool select_object(int button, int mx, int my)
 {
   bool foundVertex = false;
-  for ( int i=0; i<numObjects; i++)
+  for (int i=0; i<numObjects; i++)
   {
     Point vertices[MAX_VERTICES];
     GetVertices(i, currFrameNumber, vertices);
-    for ( int j=0; j<objects[i]->numVertices; j++)
+    for (int j=0; j<objects[i]->numVertices; j++)
     {
       Point vert = vertices[j];
       if (fabs(vert.x - mx)<5 && fabs(vert.y - (my))<5) //check for proximity
@@ -567,13 +555,11 @@ select_object( int button, int mx, int my )
   return foundVertex;
 }
 
-
-void
-myMouseFunc( int button, int state, int mx, int my )
+void myMouseFunc(int button, int state, int mx, int my)
 {
   int modifier = glutGetModifiers();
 
-  if ( state == GLUT_UP )
+  if (state == GLUT_UP)
   {
     rotate_polygon = false;
     scale_polygon = false;
@@ -581,7 +567,7 @@ myMouseFunc( int button, int state, int mx, int my )
     goto end;
   }
 
-  switch ( modifier )
+  switch (modifier)
   {
   case GLUT_ACTIVE_SHIFT:
     {
@@ -611,7 +597,7 @@ myMouseFunc( int button, int state, int mx, int my )
     break;
   case GLUT_ACTIVE_CTRL:
     {
-      if ( select_object( button, mx, my ) && ( rotation_centerX != -1 ) )
+      if (select_object(button, mx, my) && (rotation_centerX != -1))
       {
         scale_polygon = false;
         rotate_polygon = true;
@@ -627,7 +613,7 @@ myMouseFunc( int button, int state, int mx, int my )
     break;
   case GLUT_ACTIVE_CTRL | GLUT_ACTIVE_SHIFT:
     {
-      if ( select_object( button, mx, my ) && ( rotation_centerX != -1 ) )
+      if (select_object(button, mx, my) && (rotation_centerX != -1))
       {
         scale_polygon = true;
         rotate_polygon = false;
@@ -657,7 +643,7 @@ myMouseFunc( int button, int state, int mx, int my )
 
       //now, if there's a vertex in the area, select it
 
-      if ( ! select_object( button, mx, my ) )
+      if (! select_object(button, mx, my))
       {
         selectedObject = -1;
         selectedVertex = -1;
@@ -710,7 +696,7 @@ void DeleteKeyframeCall(int id)
 {
   int i, j, frameID=-1;
   if (!AnyKeyframe(currFrameNumber) || currFrameNumber == 1) return;
-	
+
   for (i=0; i<numObjects; i++)
   {
     if ((frameID=FindKeyframe(i, currFrameNumber))!=-1)
@@ -918,7 +904,7 @@ void DisplayAndSaveCanvas(int id)
 
     fclose(listFile);
   }
-	
+
 
 }
 
@@ -926,8 +912,8 @@ void DisplayAndSaveCanvas(int id)
 //from rendering a bunch of points to explicitly rendering pixels.
 void RenderDisplay()
 {
-  glClearColor( 0.f, 0.f, 0.f, 0.f );
-  glClear( GL_COLOR_BUFFER_BIT );
+  glClearColor(0.f, 0.f, 0.f, 0.f);
+  glClear(GL_COLOR_BUFFER_BIT);
   glRasterPos2s(0,0);
   glPixelZoom(1.0, -1.0);
   glDrawPixels(renderCanvas->Width, renderCanvas->Height, GL_RGBA, GL_UNSIGNED_BYTE, renderCanvas->Pixels);
@@ -1020,5 +1006,4 @@ void CommandLineRasterize(int argc, char* argv[])
     fprintf(listFile, "%s\n", buf);
   }
   fclose(listFile);
-
 }

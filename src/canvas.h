@@ -31,18 +31,18 @@ typedef struct canvas_struct {
   int Width;
   int Height;
   RGB8 *Pixels;
-  canvas_struct( int ww = 0, int hh = 0 )
-    : Width( ww ), Height( hh ), Pixels(0)
+  canvas_struct(int ww = 0, int hh = 0)
+    : Width(ww), Height(hh), Pixels(0)
   {}
-  void init( RGB8 color )
+  void init(RGB8 color)
   {
-    for ( int jj = 0; jj < Height; ++jj )
-      for ( int ii = 0; ii < Width; ++ii )
+    for (int jj = 0; jj < Height; ++jj)
+      for (int ii = 0; ii < Width; ++ii)
         Pixels[Width * jj + ii] = color;
   }
-  RGB8 get( int xx, int yy )
+  RGB8 get(int xx, int yy)
   {
-    return ( Pixels[Width * yy + xx] );
+    return (Pixels[Width * yy + xx]);
   }
 } Canvas;
 
@@ -55,30 +55,30 @@ typedef struct {
 typedef struct abuffer_struct {
   int Width, Height;
   RGB32* pixel;
-  abuffer_struct( int ww = 0, int hh = 0 )
-    : Width( ww ), Height( hh ), pixel(0)
+  abuffer_struct(int ww = 0, int hh = 0)
+    : Width(ww), Height(hh), pixel(0)
   {}
   void init()
   {
     if (!pixel) return;
-    for ( int jj = 0; jj < Height; ++jj )
-      for ( int ii = 0; ii < Width; ++ii )
+    for (int jj = 0; jj < Height; ++jj)
+      for (int ii = 0; ii < Width; ++ii)
         pixel[Width * jj + ii].rr =
           pixel[Width * jj + ii].gg =
           pixel[Width * jj + ii].bb = 0;
   }
-  void add( int xx, int yy, RGB8 color, int weight = 1 )
+  void add(int xx, int yy, RGB8 color, int weight = 1)
   {
-    pixel[Width * yy + xx].rr += ( 0xFF & ( color       ) ) * weight;
-    pixel[Width * yy + xx].gg += ( 0xFF & ( color >>  8 ) ) * weight;
-    pixel[Width * yy + xx].bb += ( 0xFF & ( color >> 16 ) ) * weight;
+    pixel[Width * yy + xx].rr += (0xFF & (color      )) * weight;
+    pixel[Width * yy + xx].gg += (0xFF & (color >>  8)) * weight;
+    pixel[Width * yy + xx].bb += (0xFF & (color >> 16)) * weight;
   }
-  RGB8 get( int xx, int yy, int kk )
+  RGB8 get(int xx, int yy, int kk)
   {
     RGB8 rr = pixel[Width * yy + xx].rr / kk;
     RGB8 gg = pixel[Width * yy + xx].gg / kk;
     RGB8 bb = pixel[Width * yy + xx].bb / kk;
-    return ( rr + ( gg << 8 ) + ( bb << 16 ) );
+    return (rr + (gg << 8) + (bb << 16));
   }
 } Abuffer;
 
