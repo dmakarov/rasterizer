@@ -2,6 +2,10 @@
 
 [<img src="https://travis-ci.org/dmakarov/rasterizer.png?branch=master">](https://travis-ci.org/dmakarov/rasterizer)
 
+Prerequisites:
+
+On Mac OS X install ```glui``` (e.g. ```brew install glui```).
+
 Functionality:
 
 This program implements a rasterizer.  The rasterizer is capable of
