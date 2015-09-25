@@ -1,6 +1,9 @@
-# rasterizer
+#+TITLE: rasterizer
+#+STARTUP: inlineimages
 
-[<img src="https://travis-ci.org/dmakarov/rasterizer.png?branch=master">](https://travis-ci.org/dmakarov/rasterizer)
+#+BEGIN_HTML
+  <a href="https://travis-ci.org/dmakarov/rasterizer"><img src="https://travis-ci.org/dmakarov/rasterizer.png?branch=master"></a>
+#+END_HTML
 
 Prerequisites:
 
@@ -267,7 +270,6 @@ wonderful CS248 TAs.
 That should be it! Check objects.h for more implementation-specific
 details.
 
+* Screenshots
 
-
-
-
+  [[./imgs/sample9.png]]
