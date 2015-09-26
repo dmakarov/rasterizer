@@ -85,7 +85,17 @@ public:
 struct Canvas {
   int Width;
   int Height;
-  RGB8 *Pixels;
+  int originalX;
+  int originalY;
+  int prev_rotationX;
+  int prev_rotationY;
+  int rotation_centerX = -1;
+  int rotation_centerY;
+  int selectedVertex = -1;
+  bool rotate_polygon = false;
+  bool scale_polygon = false;
+  bool draw_curve = false;
+  RGB8* Pixels;
   AnimObject* currObject;
   std::vector<AnimObject*> objects;
 
@@ -102,18 +112,18 @@ struct Canvas {
   {
     return (Pixels[Width * yy + xx]);
   }
-  void load_objects(char* filename);
-  void save_objects(char* filename);
+  void load_objects(const char* filename);
+  void save_objects(const char* filename);
   void delete_object(int id);
-  void delete_keyframe(int id);
-  void edit_screen_display();
+  void delete_keyframe(int id, int frame);
+  void edit_screen_display(int frame, int selectedObject);
   void render();
   void save(const char* filename) const;
-  void polygon_scaling(int mx, int my);
-  void polygon_rotation(int mx, int my);
-  bool mouse(int button, int state, int mx, int my);
-  bool motion(int mx, int my);
-  bool select_object(int button, int mx, int my);
+  void polygon_scaling(int mx, int my, int frame, int selectedObject);
+  void polygon_rotation(int mx, int my, int frame, int selectedObject);
+  bool mouse(int button, int state, int mx, int my, int frame, int selectedObject);
+  bool motion(int mx, int my, int frame, int selectedObject);
+  bool select_object(int button, int mx, int my, int frame, int selectedObject);
 
   /** Function: Rasterize
    -------------------
@@ -122,7 +132,7 @@ struct Canvas {
    time Rasterize() completes, the canvas should be filled.
   */
 
-  void rasterize(int frameNumber, bool antiAlias, int numAliasSamples, bool motionBlur, int numBlurSamples);
+  void rasterize(int frame, bool antiAlias, int numAliasSamples, bool motionBlur, int numBlurSamples, const char* aafilter_function);
   void scan_convert(Point* vertex, int vertno, RGB8 color);
 
   /** Function: FindKeyframe
@@ -192,7 +202,3 @@ typedef struct abuffer_struct {
 } Abuffer;
 
 #endif
-
-// Local Variables:
-// mode: c++
-// End:

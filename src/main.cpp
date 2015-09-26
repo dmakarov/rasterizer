@@ -30,39 +30,25 @@ GLUI_EditText* alias_func_edit;
 GLUI_Spinner* frame_spinner;
 GLUI_Button* delete_keyframe_button;
 
-char renderOut[sizeof(GLUI_String)]; // the filename(s) to render to
-char save_load_file[sizeof(GLUI_String)];
 char aafilter_function[sizeof(GLUI_String)];
+char save_load_file[sizeof(GLUI_String)];
+char renderOut[sizeof(GLUI_String)]; // the filename(s) to render to
 int main_window;
 int render_window;
-int isAnimating; // updated when the Animate button is checked
 int currFrameNumber;
 int singMult; // whether you're rendering single or multiple frames
 int antiAlias;
 int numAliasSamples;
-int motionBlur;
+int motion_blur_enabled;
 int numBlurSamples;
 int startFrame;
 int endFrame;
 int selectedObject = -1;
-int selectedVertex = -1;
-int originalX;
-int originalY;
-int rotation_centerX = -1;
-int rotation_centerY;
-int prev_rotationX;
-int prev_rotationY;
-
-bool rotate_polygon = false;
-bool scale_polygon = false;
-bool draw_curve = false;
-bool isKeyFrame = false;
-
-Canvas* renderCanvas;
+Canvas* canvas;
 
 static void CheckDeleteKeyframeStatus()
 {
-  if (!renderCanvas->AnyKeyframe(currFrameNumber) || currFrameNumber == 1)
+  if (!canvas->AnyKeyframe(currFrameNumber) || currFrameNumber == 1)
   {
     delete_keyframe_button->disable();
   }
@@ -78,7 +64,7 @@ static void UpdateInfo(int selectedObject)
   if (selectedObject != -1)
   {
     sprintf(buf1, "Object ID: %d", selectedObject);
-    sprintf(buf2, "Vertices: %d", renderCanvas->objects[selectedObject]->numVertices);
+    sprintf(buf2, "Vertices: %d", canvas->objects[selectedObject]->numVertices);
     object_id_statictext->set_text(buf1);
     object_verts_statictext->set_text(buf2);
   }
@@ -91,7 +77,7 @@ static void UpdateInfo(int selectedObject)
 
 static void edit_screen_display_callback(void)
 {
-  renderCanvas->edit_screen_display();
+  canvas->edit_screen_display(currFrameNumber, selectedObject);
 }
 
 static void myKeyboardFunc(unsigned char key, int x, int y)
@@ -99,7 +85,7 @@ static void myKeyboardFunc(unsigned char key, int x, int y)
   switch(key)
   {
   case 8:
-  case 127: renderCanvas->delete_object(selectedObject); selectedObject = -1; break;
+  case 127: canvas->delete_object(selectedObject); selectedObject = -1; break;
   case '.': frame_spinner->set_int_val(currFrameNumber + 1); break;
   case ',': frame_spinner->set_int_val(currFrameNumber - 1); break;
   }
@@ -107,7 +93,7 @@ static void myKeyboardFunc(unsigned char key, int x, int y)
 
 static void myMotionFunc(int mx, int my)
 {
-  if (renderCanvas->motion(mx, my))
+  if (canvas->motion(mx, my, currFrameNumber, selectedObject))
   {
     CheckDeleteKeyframeStatus();
     glutPostRedisplay();
@@ -116,7 +102,7 @@ static void myMotionFunc(int mx, int my)
 
 static void myMouseFunc(int button, int state, int mx, int my)
 {
-  if (renderCanvas->mouse(button, state, mx, my))
+  if (canvas->mouse(button, state, mx, my, currFrameNumber, selectedObject))
   {
     UpdateInfo(selectedObject);
     glutPostRedisplay();
@@ -130,7 +116,7 @@ static void FrameChangedCall(int id)
 
 static void DeleteKeyframeCall(int id)
 {
-  renderCanvas->delete_keyframe(id);
+  canvas->delete_keyframe(id, currFrameNumber);
   CheckDeleteKeyframeStatus();
 }
 
@@ -139,7 +125,7 @@ static void SaveObjectsCall(int id)
   char buf[1024];
   if (strlen(save_load_file)==0) return;
   sprintf(buf, "%s.obs", save_load_file);
-  renderCanvas->save_objects(buf);
+  canvas->save_objects(buf);
 }
 
 static void LoadObjectsCall(int id)
@@ -148,7 +134,7 @@ static void LoadObjectsCall(int id)
   if (strlen(save_load_file)==0) return;
 
   sprintf(buf, "%s.obs", save_load_file);
-  renderCanvas->load_objects(buf);
+  canvas->load_objects(buf);
   glutPostRedisplay();
 }
 
@@ -182,14 +168,10 @@ static void AntiAliasChanged(int id)
 
 static void MotionBlurChanged(int id)
 {
-  if (motionBlur == 0)
-  {
-    num_blur_samples_editor->disable();
-  }
-  else
-  {
+  if (motion_blur_enabled)
     num_blur_samples_editor->enable();
-  }
+  else
+    num_blur_samples_editor->disable();
 }
 
 static void ParseFilename(char* filename, char* pathless)
@@ -209,11 +191,11 @@ static void DisplayAndSaveCanvas(int id)
   char buf[1024], pathless[1024];
   if (singMult == 0)
   {
-    renderCanvas->rasterize(currFrameNumber, antiAlias, numAliasSamples, motionBlur, numBlurSamples);
+    canvas->rasterize(currFrameNumber, antiAlias, numAliasSamples, motion_blur_enabled, numBlurSamples, aafilter_function);
     if (strlen(renderOut) != 0)
     {
       sprintf(buf, "%s.ppm", renderOut);
-      renderCanvas->save(buf);
+      canvas->save(buf);
     }
     glutPostWindowRedisplay(render_window);
     glutSetWindow(render_window);
@@ -229,11 +211,11 @@ static void DisplayAndSaveCanvas(int id)
 
     for (int i = startFrame; i <= endFrame; ++i)
     {
-      renderCanvas->rasterize(i, antiAlias, numAliasSamples, motionBlur, numBlurSamples);
+      canvas->rasterize(i, antiAlias, numAliasSamples, motion_blur_enabled, numBlurSamples, aafilter_function);
       if (strlen(renderOut) != 0)
       {
         sprintf(buf, "%s.%d.ppm", renderOut, i);
-        renderCanvas->save(buf);
+        canvas->save(buf);
         sprintf(buf, "%s.%d.ppm", pathless, i);
         fprintf(listFile, "%s\n", buf);
       }
@@ -249,13 +231,13 @@ static void DisplayAndSaveCanvas(int id)
 static void render_window_display_callback()
 {
   std::cout << "render canvas" << std::endl;
-  renderCanvas->render();
+  canvas->render();
 }
 
 static void CommandLineRasterize(int argc, char* argv[])
 {
   int i = 1; //step through the command line
-  int motionBlur = 0, antiAlias = 0;
+  int motion_blur_enabled = 0, antiAlias = 0;
   int numAliasSamples = 0, numBlurSamples = 0;
   int startFrame, endFrame;
   char inputFile[1024], outputFile[1024], pathless[1024], buf[1024];
@@ -278,7 +260,7 @@ static void CommandLineRasterize(int argc, char* argv[])
 
   if (strncmp(argv[i], "-m", 2)==0)
   {
-    motionBlur = 1;
+    motion_blur_enabled = 1;
     if (sscanf(argv[i], "-m%d", &numBlurSamples)==0)
     {
       printf("Incorrect arguments. Type 'animgui -help' for more info\n");
@@ -315,12 +297,12 @@ static void CommandLineRasterize(int argc, char* argv[])
   {
     printf("Number of samples: %d\n", numAliasSamples);
   }
-  printf("Motion blur: %s\n", motionBlur?"On":"Off");
-  if (motionBlur)
+  printf("Motion blur: %s\n", motion_blur_enabled?"On":"Off");
+  if (motion_blur_enabled)
   {
     printf("Number of samples: %d\n", numBlurSamples);
   }
-  renderCanvas->load_objects(inputFile);
+  canvas->load_objects(inputFile);
 
   ParseFilename(outputFile, pathless);
   sprintf(buf, "%s.list", outputFile);
@@ -330,9 +312,9 @@ static void CommandLineRasterize(int argc, char* argv[])
   for (i = startFrame; i <= endFrame; ++i)
   {
     printf("Rendering Frame %d\n", i);
-    renderCanvas->rasterize(i, antiAlias, numAliasSamples, motionBlur, numBlurSamples);
+    canvas->rasterize(i, antiAlias, numAliasSamples, motion_blur_enabled, numBlurSamples, aafilter_function);
     sprintf(buf, "%s.%d.ppm", outputFile, i);
-    renderCanvas->save(buf);
+    canvas->save(buf);
     sprintf(buf, "%s.%d.ppm", pathless, i);
     fprintf(listFile, "%s\n", buf);
   }
@@ -342,16 +324,13 @@ static void CommandLineRasterize(int argc, char* argv[])
 int main(int argc, char* argv[])
 {
   /* This allocates new memory for the canvas */
-  renderCanvas = new Canvas(WINDOW_WIDTH, WINDOW_HEIGHT);
-
+  canvas = new Canvas(WINDOW_WIDTH, WINDOW_HEIGHT);
   // if they set command-line arguments, then don't show the GUI
-
   if (argc > 1)
   {
     CommandLineRasterize(argc, argv);
     return 0;
   }
-
   /* This initializes all of the GLUT stuff */
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
@@ -378,7 +357,7 @@ int main(int argc, char* argv[])
 
   glui->set_main_gfx_window(main_window);
 
-  GLUI_Panel* info_panel = glui->add_panel("Object Info");
+  GLUI_Panel* info_panel = glui->add_panel("Info");
   object_id_statictext = glui->add_statictext_to_panel(info_panel, "Object ID:");
   object_verts_statictext = glui->add_statictext_to_panel(info_panel, "Vertices:");
   info_panel->set_alignment(GLUI_ALIGN_LEFT);
@@ -391,11 +370,13 @@ int main(int argc, char* argv[])
   anim_panel->set_alignment(GLUI_ALIGN_LEFT);
 
   GLUI_Panel* save_load_panel = glui->add_panel("Save/Load");
-  glui->add_edittext_to_panel(save_load_panel, "Filename", GLUI_EDITTEXT_TEXT, save_load_file);
-  glui->add_button_to_panel(save_load_panel, "Save Object Data", 0, (GLUI_Update_CB)SaveObjectsCall);
-  glui->add_button_to_panel(save_load_panel, "Load Object Data", 0, (GLUI_Update_CB)LoadObjectsCall);
+  auto save_load_text = glui->add_edittext_to_panel(save_load_panel, "Filename", GLUI_EDITTEXT_TEXT, save_load_file);
+  save_load_text->set_w(200);
+  glui->add_button_to_panel(save_load_panel, "Save Object", 0, (GLUI_Update_CB)SaveObjectsCall);
+  glui->add_button_to_panel(save_load_panel, "Load Object", 0, (GLUI_Update_CB)LoadObjectsCall);
+  save_load_panel->set_alignment(GLUI_ALIGN_LEFT);
 
-  glui->add_column(true);
+  glui->add_column(false);
 
   GLUI_Panel* render_panel = glui->add_panel("Rendering");
   glui->add_edittext_to_panel(render_panel, "Render Out:", GLUI_EDITTEXT_TEXT, renderOut);
@@ -408,7 +389,7 @@ int main(int argc, char* argv[])
   alias_func_edit = glui->add_edittext_to_panel(render_panel, "Filter:", GLUI_EDITTEXT_TEXT, aafilter_function);
   alias_func_edit->disable();
 
-  glui->add_checkbox_to_panel(render_panel, "Motion Blur", &motionBlur, -1, MotionBlurChanged);
+  glui->add_checkbox_to_panel(render_panel, "Motion Blur", &motion_blur_enabled, -1, MotionBlurChanged);
   num_blur_samples_editor = glui->add_edittext_to_panel(render_panel, "Number Of Samples", GLUI_EDITTEXT_INT, &numBlurSamples);
   num_blur_samples_editor->disable();
   num_blur_samples_editor->set_int_val(1);
