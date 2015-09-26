@@ -46,16 +46,12 @@ int endFrame;
 int selectedObject = -1;
 Canvas* canvas;
 
-static void CheckDeleteKeyframeStatus()
+static void check_delete_keyframe_status()
 {
-  if (!canvas->AnyKeyframe(currFrameNumber) || currFrameNumber == 1)
-  {
-    delete_keyframe_button->disable();
-  }
-  else
-  {
+  if (currFrameNumber != 1 && canvas->any_keyframe(currFrameNumber))
     delete_keyframe_button->enable();
-  }
+  else
+    delete_keyframe_button->disable();
 }
 
 static void UpdateInfo(int selectedObject)
@@ -64,7 +60,7 @@ static void UpdateInfo(int selectedObject)
   if (selectedObject != -1)
   {
     sprintf(buf1, "Object ID: %d", selectedObject);
-    sprintf(buf2, "Vertices: %d", canvas->objects[selectedObject]->numVertices);
+    sprintf(buf2, "Vertices: %d", canvas->get_num_vertices(selectedObject));
     object_id_statictext->set_text(buf1);
     object_verts_statictext->set_text(buf2);
   }
@@ -95,7 +91,7 @@ static void myMotionFunc(int mx, int my)
 {
   if (canvas->motion(mx, my, currFrameNumber, selectedObject))
   {
-    CheckDeleteKeyframeStatus();
+    check_delete_keyframe_status();
     glutPostRedisplay();
   }
 }
@@ -111,13 +107,13 @@ static void myMouseFunc(int button, int state, int mx, int my)
 
 static void FrameChangedCall(int id)
 {
-  CheckDeleteKeyframeStatus();
+  check_delete_keyframe_status();
 }
 
 static void DeleteKeyframeCall(int id)
 {
   canvas->delete_keyframe(id, currFrameNumber);
-  CheckDeleteKeyframeStatus();
+  check_delete_keyframe_status();
 }
 
 static void SaveObjectsCall(int id)

@@ -82,7 +82,7 @@ public:
   }
 };
 
-struct Canvas {
+class Canvas {
   int Width;
   int Height;
   int originalX;
@@ -96,10 +96,11 @@ struct Canvas {
   bool scale_polygon = false;
   bool draw_curve = false;
   RGB8* Pixels;
-  AnimObject* currObject;
+  AnimObject* currObject = nullptr;
   std::vector<AnimObject*> objects;
 
-  Canvas(int ww = 0, int hh = 0) : Width(ww), Height(hh), Pixels(0), currObject(nullptr)
+public:
+  Canvas(int ww = 0, int hh = 0) : Width(ww), Height(hh)
   {
     Pixels = new unsigned int[Width * Height];
     std::fill(Pixels, Pixels + Width * Height, 0);
@@ -121,9 +122,9 @@ struct Canvas {
   void save(const char* filename) const;
   void polygon_scaling(int mx, int my, int frame, int selectedObject);
   void polygon_rotation(int mx, int my, int frame, int selectedObject);
-  bool mouse(int button, int state, int mx, int my, int frame, int selectedObject);
+  bool mouse(int button, int state, int mx, int my, int frame, int& selectedObject);
   bool motion(int mx, int my, int frame, int selectedObject);
-  bool select_object(int button, int mx, int my, int frame, int selectedObject);
+  bool select_object(int button, int mx, int my, int frame, int& selectedObject);
 
   /** Function: Rasterize
    -------------------
@@ -131,9 +132,7 @@ struct Canvas {
    bunch of arguments showing how the frame should be rasterized. By the
    time Rasterize() completes, the canvas should be filled.
   */
-
   void rasterize(int frame, bool antiAlias, int numAliasSamples, bool motionBlur, int numBlurSamples, const char* aafilter_function);
-  void scan_convert(Point* vertex, int vertno, RGB8 color);
 
   /** Function: FindKeyframe
       ----------------------
@@ -145,15 +144,21 @@ struct Canvas {
       FindKeyframe(0, 10) will return 2, and FindKeyframe(0, 20) will return
       -1.
   */
-  int FindKeyframe(int id, int frameNumber);
+  int FindKeyframe(int id, int frame);
 
   /** Function: AnyKeyframe
       ---------------------
       This function just returns 0 if no objects have a keyframe at
       <frameNumber> and 1 otherwise.
   */
-  int AnyKeyframe(int frameNumber);
+  bool any_keyframe(int frame);
 
+  int get_num_vertices(int object_num)
+  {
+    return objects[object_num]->numVertices;
+  }
+
+private:
   /** Function: GetVertices
       ---------------------
       This function takes in an object ID, a frame number and an array of
@@ -163,6 +168,7 @@ struct Canvas {
       correct values.
   */
   unsigned int GetVertices(int id, float frameNumber, Point* holderFrame);
+  void scan_convert(Point* vertex, int vertno, RGB8 color);
 };
 
 // This is a structure to hold canvas pixels with 32 bit per RGB component.

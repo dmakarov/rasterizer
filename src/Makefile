@@ -34,7 +34,7 @@ $(TARGET): $(OBJS) Makefile ../bin
 
 # COMPILATION.
 
-.cpp.o:
+.cpp.o: canvas.hpp
 	$(CXX) -std=c++11 $(WARN) $(INCL) $(DEBUG) -c -o $@ $*.cpp
 
 

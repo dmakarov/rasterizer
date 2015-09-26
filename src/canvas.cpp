@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <algorithm>
+#include <iostream>
 #include <list>
 #include <string>
 
@@ -518,20 +519,20 @@ void Canvas::scan_convert(Point* vertex, int vertno, RGB8 color)
   delete [] edge_table;
 } // scan_convert
 
-int Canvas::FindKeyframe(int id, int frameNumber)
+int Canvas::FindKeyframe(int id, int frame)
 {
   for (int i = 0; i < objects[id]->numKeyframes; ++i)
-    if (objects[id]->keyframes[i].frameNumber == frameNumber)
+    if (objects[id]->keyframes[i].frameNumber == frame)
       return i;
   return -1;
 }
 
-int Canvas::AnyKeyframe(int frameNumber)
+bool Canvas::any_keyframe(int frame)
 {
   for (int i = 0; i < objects.size(); ++i)
-    if (FindKeyframe(i, frameNumber) != -1)
-      return 1;
-  return 0;
+    if (FindKeyframe(i, frame) != -1)
+      return true;
+  return false;
 }
 
 /* Function: GetVertices
@@ -586,7 +587,7 @@ void Canvas::edit_screen_display(int frame, int selectedObject)
   glClearColor(0.f, 0.f, 0.f, 0.f);
   glClear(GL_COLOR_BUFFER_BIT);
 
-  if (AnyKeyframe(frame))
+  if (any_keyframe(frame))
   {
     //is this a keyframe? add a nifty red border if it is
     glLineWidth(20);
@@ -849,17 +850,17 @@ bool Canvas::motion(int mx, int my, int frame, int selectedObject)
   return true;
 }
 
-bool Canvas::select_object(int button, int mx, int my, int frame, int selectedObject)
+bool Canvas::select_object(int button, int mx, int my, int frame, int& selectedObject)
 {
   bool foundVertex = false;
   for (int i = 0; i < objects.size(); ++i)
   {
     Point vertices[MAX_VERTICES];
     GetVertices(i, frame, vertices);
-    for (int j=0; j<objects[i]->numVertices; j++)
+    for (int j = 0; j < objects[i]->numVertices; ++j)
     {
       Point vert = vertices[j];
-      if (fabs(vert.x - mx)<5 && fabs(vert.y - (my))<5) //check for proximity
+      if (fabs(vert.x - mx) < 5 && fabs(vert.y - (my)) < 5) // check for proximity
       {
         foundVertex = true;
         selectedObject = i;
@@ -878,7 +879,7 @@ bool Canvas::select_object(int button, int mx, int my, int frame, int selectedOb
   return foundVertex;
 }
 
-bool Canvas::mouse(int button, int state, int mx, int my, int frame, int selectedObject)
+bool Canvas::mouse(int button, int state, int mx, int my, int frame, int& selectedObject)
 {
   int modifier = glutGetModifiers();
 
@@ -947,7 +948,7 @@ bool Canvas::mouse(int button, int state, int mx, int my, int frame, int selecte
   default:
     {
       // if we're in the middle of drawing something, then end it
-      if (currObject!=NULL)
+      if (currObject)
       {
         //if we don't have a polygon
 
@@ -961,9 +962,7 @@ bool Canvas::mouse(int button, int state, int mx, int my, int frame, int selecte
         }
         currObject = NULL;
       }
-
-      //now, if there's a vertex in the area, select it
-
+      // if there's a vertex in the area, select it
       if (!select_object(button, mx, my, frame, selectedObject))
       {
         selectedObject = -1;
@@ -977,10 +976,10 @@ bool Canvas::mouse(int button, int state, int mx, int my, int frame, int selecte
 
 void Canvas::delete_keyframe(int id, int frame)
 {
-  int frameID = -1;
-  if (!AnyKeyframe(frame) || frame == 1)
+  if (frame == 1 || !any_keyframe(frame))
     return;
 
+  int frameID = -1;
   for (int i = 0; i < objects.size(); ++i)
     if ((frameID = FindKeyframe(i, frame)) != -1)
     {
