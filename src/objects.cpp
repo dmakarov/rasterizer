@@ -12,7 +12,7 @@
 #include <list>
 #include <string>
 
-#include "objects.h"
+#include "objects.hpp"
 
 //#define DEBUG_RASTERIZER 1
 

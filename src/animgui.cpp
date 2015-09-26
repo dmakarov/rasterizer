@@ -15,7 +15,7 @@
 #include <GL/glut.h>
 #endif
 
-#include "objects.h"
+#include "objects.hpp"
 
 #define WINDOW_WIDTH 600
 #define WINDOW_HEIGHT 400
@@ -84,119 +84,6 @@ int main_window, render_window;
 
 AnimObject* currObject = NULL;
 Canvas* renderCanvas;
-
-int main(int argc, char* argv[])
-{
-  /* This allocates new memory for the canvas */
-
-  renderCanvas = (Canvas*)malloc(sizeof(Canvas));
-  int buf_width = renderCanvas->Width = WINDOW_WIDTH;
-  int buf_height = renderCanvas->Height = WINDOW_HEIGHT;
-  int buf_size = buf_width * buf_height;
-  int i, j;
-
-  renderCanvas->Pixels = (unsigned int *)malloc(buf_size * sizeof(unsigned int));
-
-  //clear the renderCanvas to black
-  for (i=0; i<renderCanvas->Width; i++)
-  {
-    for (j=0; j<renderCanvas->Height; j++)
-    {
-      PIXEL(renderCanvas, i, j) = 0;
-    }
-  }
-
-  // if they set command-line arguments, then don't show the GUI
-
-  if (argc>1)
-  {
-    CommandLineRasterize(argc, argv);
-  }
-  else
-  {
-    /* This initializes all of the GLUT stuff */
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-    glutInitWindowPosition(50, 50);
-    glutInitWindowSize(WINDOW_WIDTH,WINDOW_HEIGHT);
-
-    main_window = glutCreateWindow("Edit Screen");
-    glOrtho(0, WINDOW_WIDTH, -WINDOW_HEIGHT, 0, -1, 1);
-    glutDisplayFunc(myGlutDisplay);
-    glutMouseFunc(myMouseFunc);
-    glutMotionFunc(myMotionFunc);
-    glutKeyboardFunc(myKeyboardFunc);
-
-    render_window = glutCreateWindow("Render Window");
-    glutPositionWindow(100, 100);
-    glOrtho(0, WINDOW_WIDTH, -WINDOW_HEIGHT, 0, -1, 1);
-    glutDisplayFunc(RenderDisplay);
-    glutHideWindow();
-
-    glutSetWindow(main_window);
-
-    /* Now create all of the stupid widgets that we need */
-    GLUI *glui = GLUI_Master.create_glui("GLUI", 0, 50, WINDOW_HEIGHT+100);
-
-    glui->set_main_gfx_window(main_window);
-
-    GLUI_Panel *info_panel = glui->add_panel("Object Info");
-    object_id_statictext = glui->add_statictext_to_panel(info_panel, "Object ID:");
-    object_verts_statictext = glui->add_statictext_to_panel(info_panel, "Vertices:");
-    info_panel->set_alignment(GLUI_ALIGN_LEFT);
-
-    GLUI_Panel *anim_panel = glui->add_panel("Animation");
-
-    delete_keyframe_button = glui->add_button_to_panel(anim_panel, "Delete Keyframe", 0, (GLUI_Update_CB)DeleteKeyframeCall);
-    delete_keyframe_button->disable();
-    frame_spinner = glui->add_spinner_to_panel(anim_panel, "Frame", GLUI_SPINNER_INT, &currFrameNumber, -1, FrameChangedCall);
-    frame_spinner->set_int_limits(1, MAX_FRAMES, GLUI_LIMIT_CLAMP);
-    anim_panel->set_alignment(GLUI_ALIGN_LEFT);
-
-    GLUI_Panel *save_load_panel = glui->add_panel("Save/Load");
-    glui->add_edittext_to_panel(save_load_panel, "Filename", GLUI_EDITTEXT_TEXT, save_load_file);
-    glui->add_button_to_panel(save_load_panel, "Save Object Data", 0, (GLUI_Update_CB)SaveObjectsCall);
-    glui->add_button_to_panel(save_load_panel, "Load Object Data", 0, (GLUI_Update_CB)LoadObjectsCall);
-
-    glui->add_column(true);
-
-    GLUI_Panel *render_panel = glui->add_panel("Rendering");
-    glui->add_edittext_to_panel(render_panel, "Render Out:", GLUI_EDITTEXT_TEXT, renderOut);
-    glui->add_checkbox_to_panel(render_panel, "Antialias", &antiAlias, -1, AntiAliasChanged);
-    num_alias_samples_editor = glui->add_edittext_to_panel(render_panel, "Number Of Samples", GLUI_EDITTEXT_INT, &numAliasSamples);
-    num_alias_samples_editor->disable();
-    num_alias_samples_editor->set_int_val(1);
-    num_alias_samples_editor->set_int_limits(1, MAX_ALIAS_SAMPLES);
-
-    alias_func_edit = glui->add_edittext_to_panel(render_panel, "Filter:", GLUI_EDITTEXT_TEXT, aafilter_function);
-    alias_func_edit->disable();
-
-    glui->add_checkbox_to_panel(render_panel, "Motion Blur", &motionBlur, -1, MotionBlurChanged);
-    num_blur_samples_editor = glui->add_edittext_to_panel(render_panel, "Number Of Samples", GLUI_EDITTEXT_INT, &numBlurSamples);
-    num_blur_samples_editor->disable();
-    num_blur_samples_editor->set_int_val(1);
-    num_blur_samples_editor->set_int_limits(1, MAX_BLUR_SAMPLES);
-
-    GLUI_RadioGroup *singMultRadioGroup = glui->add_radiogroup_to_panel(render_panel, &singMult, -1, SingMultChanged);
-    glui->add_radiobutton_to_group(singMultRadioGroup, "This Frame Only");
-    glui->add_radiobutton_to_group(singMultRadioGroup, "Multiple Frames");
-    start_frame_editor = glui->add_edittext_to_panel(render_panel, "Start Frame:", GLUI_EDITTEXT_INT, &startFrame);
-    start_frame_editor->disable();
-    start_frame_editor->set_int_val(1);
-    start_frame_editor->set_int_limits(1, 100);
-
-    end_frame_editor = glui->add_edittext_to_panel(render_panel, "End Frame:", GLUI_EDITTEXT_INT, &endFrame);
-    end_frame_editor->disable();
-    end_frame_editor->set_int_val(100);
-    end_frame_editor->set_int_limits(1, 100);
-
-    glui->add_button_to_panel(render_panel, "Render!", 0, (GLUI_Update_CB)DisplayAndSaveCanvas);
-
-    glutMainLoop();
-  }
-
-  return 0;
-}
 
 void myGlutDisplay(void)
 {
@@ -871,7 +758,7 @@ void DisplayAndSaveCanvas(int id)
     if (strlen(renderOut)!=0)
     {
       sprintf(buf, "%s.ppm", renderOut);
-      save_canvas(buf, renderCanvas);
+      renderCanvas->save(buf);
     }
     glutSetWindow(render_window);
     glutShowWindow();
@@ -891,7 +778,7 @@ void DisplayAndSaveCanvas(int id)
       if (strlen(renderOut)!=0)
       {
         sprintf(buf, "%s.%d.ppm", renderOut, i);
-        save_canvas(buf, renderCanvas);
+        renderCanvas->save(buf);
         sprintf(buf, "%s.%d.ppm", pathless, i);
         fprintf(listFile, "%s\n", buf);
       }
@@ -995,14 +882,110 @@ void CommandLineRasterize(int argc, char* argv[])
   FILE* listFile = fopen(buf, "w");
   assert(listFile!=NULL);
 
-  for (i=startFrame; i<=endFrame; i++)
+  for (i = startFrame; i <= endFrame; ++i)
   {
     printf("Rendering Frame %d\n", i);
     Rasterize(renderCanvas, i, antiAlias, numAliasSamples, motionBlur, numBlurSamples);
     sprintf(buf, "%s.%d.ppm", outputFile, i);
-    save_canvas(buf, renderCanvas);
+    renderCanvas->save(buf);
     sprintf(buf, "%s.%d.ppm", pathless, i);
     fprintf(listFile, "%s\n", buf);
   }
   fclose(listFile);
+}
+
+int main(int argc, char* argv[])
+{
+  /* This allocates new memory for the canvas */
+  renderCanvas = new Canvas(WINDOW_WIDTH, WINDOW_HEIGHT);
+
+  // if they set command-line arguments, then don't show the GUI
+
+  if (argc > 1)
+  {
+    CommandLineRasterize(argc, argv);
+    return 0;
+  }
+
+  /* This initializes all of the GLUT stuff */
+  glutInit(&argc, argv);
+  glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+  glutInitWindowPosition(50, 50);
+  glutInitWindowSize(WINDOW_WIDTH,WINDOW_HEIGHT);
+
+  main_window = glutCreateWindow("Edit Screen");
+  glOrtho(0, WINDOW_WIDTH, -WINDOW_HEIGHT, 0, -1, 1);
+  glutDisplayFunc(myGlutDisplay);
+  glutMouseFunc(myMouseFunc);
+  glutMotionFunc(myMotionFunc);
+  glutKeyboardFunc(myKeyboardFunc);
+
+  render_window = glutCreateWindow("Render Window");
+  glutPositionWindow(100, 100);
+  glOrtho(0, WINDOW_WIDTH, -WINDOW_HEIGHT, 0, -1, 1);
+  glutDisplayFunc(RenderDisplay);
+  glutHideWindow();
+
+  glutSetWindow(main_window);
+
+  /* Now create all of the stupid widgets that we need */
+  GLUI *glui = GLUI_Master.create_glui("GLUI", 0, 50, WINDOW_HEIGHT+100);
+
+  glui->set_main_gfx_window(main_window);
+
+  GLUI_Panel *info_panel = glui->add_panel("Object Info");
+  object_id_statictext = glui->add_statictext_to_panel(info_panel, "Object ID:");
+  object_verts_statictext = glui->add_statictext_to_panel(info_panel, "Vertices:");
+  info_panel->set_alignment(GLUI_ALIGN_LEFT);
+
+  GLUI_Panel *anim_panel = glui->add_panel("Animation");
+
+  delete_keyframe_button = glui->add_button_to_panel(anim_panel, "Delete Keyframe", 0, (GLUI_Update_CB)DeleteKeyframeCall);
+  delete_keyframe_button->disable();
+  frame_spinner = glui->add_spinner_to_panel(anim_panel, "Frame", GLUI_SPINNER_INT, &currFrameNumber, -1, FrameChangedCall);
+  frame_spinner->set_int_limits(1, MAX_FRAMES, GLUI_LIMIT_CLAMP);
+  anim_panel->set_alignment(GLUI_ALIGN_LEFT);
+
+  GLUI_Panel *save_load_panel = glui->add_panel("Save/Load");
+  glui->add_edittext_to_panel(save_load_panel, "Filename", GLUI_EDITTEXT_TEXT, save_load_file);
+  glui->add_button_to_panel(save_load_panel, "Save Object Data", 0, (GLUI_Update_CB)SaveObjectsCall);
+  glui->add_button_to_panel(save_load_panel, "Load Object Data", 0, (GLUI_Update_CB)LoadObjectsCall);
+
+  glui->add_column(true);
+
+  GLUI_Panel *render_panel = glui->add_panel("Rendering");
+  glui->add_edittext_to_panel(render_panel, "Render Out:", GLUI_EDITTEXT_TEXT, renderOut);
+  glui->add_checkbox_to_panel(render_panel, "Antialias", &antiAlias, -1, AntiAliasChanged);
+  num_alias_samples_editor = glui->add_edittext_to_panel(render_panel, "Number Of Samples", GLUI_EDITTEXT_INT, &numAliasSamples);
+  num_alias_samples_editor->disable();
+  num_alias_samples_editor->set_int_val(1);
+  num_alias_samples_editor->set_int_limits(1, MAX_ALIAS_SAMPLES);
+
+  alias_func_edit = glui->add_edittext_to_panel(render_panel, "Filter:", GLUI_EDITTEXT_TEXT, aafilter_function);
+  alias_func_edit->disable();
+
+  glui->add_checkbox_to_panel(render_panel, "Motion Blur", &motionBlur, -1, MotionBlurChanged);
+  num_blur_samples_editor = glui->add_edittext_to_panel(render_panel, "Number Of Samples", GLUI_EDITTEXT_INT, &numBlurSamples);
+  num_blur_samples_editor->disable();
+  num_blur_samples_editor->set_int_val(1);
+  num_blur_samples_editor->set_int_limits(1, MAX_BLUR_SAMPLES);
+
+  GLUI_RadioGroup *singMultRadioGroup = glui->add_radiogroup_to_panel(render_panel, &singMult, -1, SingMultChanged);
+  glui->add_radiobutton_to_group(singMultRadioGroup, "This Frame Only");
+  glui->add_radiobutton_to_group(singMultRadioGroup, "Multiple Frames");
+  start_frame_editor = glui->add_edittext_to_panel(render_panel, "Start Frame:", GLUI_EDITTEXT_INT, &startFrame);
+  start_frame_editor->disable();
+  start_frame_editor->set_int_val(1);
+  start_frame_editor->set_int_limits(1, 100);
+
+  end_frame_editor = glui->add_edittext_to_panel(render_panel, "End Frame:", GLUI_EDITTEXT_INT, &endFrame);
+  end_frame_editor->disable();
+  end_frame_editor->set_int_val(100);
+  end_frame_editor->set_int_limits(1, 100);
+
+  glui->add_button_to_panel(render_panel, "Render!", 0, (GLUI_Update_CB)DisplayAndSaveCanvas);
+
+  glutMainLoop();
+
+  return 0;
 }

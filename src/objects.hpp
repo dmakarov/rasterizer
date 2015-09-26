@@ -3,12 +3,12 @@
  * animation/rasterizer assignment
  */
 
-#ifndef _OBJECTS_H
-#define _OBJECTS_H
+#ifndef _OBJECTS_HPP
+#define _OBJECTS_HPP
 
 #include <functional>
 
-#include "canvas.h"
+#include "canvas.hpp"
 
 /* These are constants. You can increase them if your animation requires
    it, but do not decrease them, so that we can have data sets that will

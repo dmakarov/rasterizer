@@ -1,22 +1,24 @@
-#ifndef _CANVAS_H
-#define _CANVAS_H
+#ifndef _CANVAS_HPP
+#define _CANVAS_HPP
+
+#include <algorithm>
 
 /* MACROS. */
 
 /* The following macros retrieve the primary color components from one
    canvas pixel P. */
 
-#define GET_RED(P)   ((P)&0xFF)
-#define GET_GREEN(P) (((P)>>8)&0xFF)
-#define GET_BLUE(P)  (((P)>>16)&0xFF)
+#define GET_RED(P)   (((P)      ) & 0xFF)
+#define GET_GREEN(P) (((P) >>  8) & 0xFF)
+#define GET_BLUE(P)  (((P) >> 16) & 0xFF)
 
 /* The following macros set the primary color components of the canvas
    pixel P to C. C must lie between 0 and 255 (both endpoints
    inclusive). */
 
-#define SET_RED(P,C)   (P=(((P)&0xFFFFFF00)|(C)))
-#define SET_GREEN(P,C) (P=(((P)&0xFFFF00FF)|((C)<<8)))
-#define SET_BLUE(P,C)  (P=(((P)&0xFF00FFFF)|((C)<<16)))
+#define SET_RED(P,C)   (P = (((P) & 0xFFFFFF00) | ((C)      )))
+#define SET_GREEN(P,C) (P = (((P) & 0xFFFF00FF) | ((C) <<  8)))
+#define SET_BLUE(P,C)  (P = (((P) & 0xFF00FFFF) | ((C) << 16)))
 
 /* The following macro retrieves the pixel at coordinates (X,Y) of the
    canvas C (where C is a pointer to a canvas structure). (0,0) are the
@@ -27,24 +29,25 @@
 
 typedef unsigned int RGB8;
 
-typedef struct canvas_struct {
+struct Canvas {
   int Width;
   int Height;
   RGB8 *Pixels;
-  canvas_struct(int ww = 0, int hh = 0)
-    : Width(ww), Height(hh), Pixels(0)
-  {}
+  Canvas(int ww = 0, int hh = 0) : Width(ww), Height(hh), Pixels(0)
+  {
+    Pixels = new unsigned int[Width * Height];
+    std::fill(Pixels, Pixels + Width * Height, 0);
+  }
   void init(RGB8 color)
   {
-    for (int jj = 0; jj < Height; ++jj)
-      for (int ii = 0; ii < Width; ++ii)
-        Pixels[Width * jj + ii] = color;
+    std::fill(Pixels, Pixels + Width * Height, color);
   }
   RGB8 get(int xx, int yy)
   {
     return (Pixels[Width * yy + xx]);
   }
-} Canvas;
+  void save(const char* filename) const;
+};
 
 // This is a structure to hold canvas pixels with 32 bit per RGB component.
 
@@ -81,8 +84,6 @@ typedef struct abuffer_struct {
     return (rr + (gg << 8) + (bb << 16));
   }
 } Abuffer;
-
-void save_canvas(const char* filename, Canvas* C);
 
 #endif
 

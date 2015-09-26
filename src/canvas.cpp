@@ -1,9 +1,9 @@
 #include <assert.h>
-#include <stdio.h>
+#include <cstdio>
 
-#include "canvas.h"
+#include "canvas.hpp"
 
-void save_canvas(const char* filename, Canvas* C)
+void Canvas::save(const char* filename) const
 {
   FILE* output = fopen(filename, "wb");
   assert(output != NULL);
@@ -12,13 +12,13 @@ void save_canvas(const char* filename, Canvas* C)
 
   fprintf(output, "P6\n");
   fprintf(output, "# Comment Line\n");
-  fprintf(output, "%d %d\n", C->Width, C->Height);
+  fprintf(output, "%d %d\n", Width, Height);
   fprintf(output, "255\n");
 
   /* Save image. */
 
-  auto size = C->Width * C->Height;
-  unsigned int* buffer = C->Pixels;
+  auto size = Width * Height;
+  unsigned int* buffer = Pixels;
   for (int i = 0; i < size; i++, buffer++)
   {
     char data = char(GET_RED(*buffer));
