@@ -16,7 +16,7 @@ endif
 # The object files comprising the application code.
 # Use spaces to separate multiple files.
 
-OBJS=canvas.o objects.o animgui.o
+OBJS=canvas.o main.o
 
 # The name of the executable.
 
