@@ -29,7 +29,6 @@ extern int prev_rotationX;
 extern int prev_rotationY;
 extern int originalX;
 extern int originalY;
-extern AnimObject* currObject;
 extern bool rotate_polygon;
 extern bool scale_polygon;
 extern bool draw_curve;

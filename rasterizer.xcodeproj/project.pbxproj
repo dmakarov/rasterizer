@@ -10,7 +10,6 @@
 		7496E00C1BB6F970009A242A /* canvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = canvas.cpp; path = src/canvas.cpp; sourceTree = "<group>"; };
 		7496E00D1BB6F970009A242A /* canvas.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = canvas.hpp; path = src/canvas.hpp; sourceTree = "<group>"; };
 		7496E00E1BB6F970009A242A /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = src/main.cpp; sourceTree = "<group>"; };
-		7496E00F1BB6F970009A242A /* objects.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = objects.hpp; path = src/objects.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -20,7 +19,6 @@
 				7496E00C1BB6F970009A242A /* canvas.cpp */,
 				7496E00D1BB6F970009A242A /* canvas.hpp */,
 				7496E00E1BB6F970009A242A /* main.cpp */,
-				7496E00F1BB6F970009A242A /* objects.hpp */,
 			);
 			sourceTree = "<group>";
 		};

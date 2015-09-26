@@ -20,43 +20,44 @@
 #define WINDOW_HEIGHT 400
 
 /* Here are les globals, mainly for les widgets */
-
 GLUI_StaticText* object_id_statictext;
 GLUI_StaticText* object_verts_statictext;
-GLUI_Spinner *frame_spinner;
-GLUI_Button *delete_keyframe_button;
-GLUI_EditText* start_frame_editor, *end_frame_editor;
-GLUI_EditText* num_alias_samples_editor, *num_blur_samples_editor;
+GLUI_EditText* num_alias_samples_editor;
+GLUI_EditText* num_blur_samples_editor;
+GLUI_EditText* start_frame_editor;
+GLUI_EditText* end_frame_editor;
 GLUI_EditText* alias_func_edit;
+GLUI_Spinner* frame_spinner;
+GLUI_Button* delete_keyframe_button;
 
-int isAnimating; // updated when the Animate button is checked
-int currFrameNumber;
 char renderOut[sizeof(GLUI_String)]; // the filename(s) to render to
 char save_load_file[sizeof(GLUI_String)];
 char aafilter_function[sizeof(GLUI_String)];
+int main_window;
+int render_window;
+int isAnimating; // updated when the Animate button is checked
+int currFrameNumber;
 int singMult; // whether you're rendering single or multiple frames
 int antiAlias;
 int numAliasSamples;
 int motionBlur;
 int numBlurSamples;
-int startFrame, endFrame;
-
-bool isKeyFrame = false;
-
+int startFrame;
+int endFrame;
 int selectedObject = -1;
 int selectedVertex = -1;
-int originalX, originalY;
+int originalX;
+int originalY;
+int rotation_centerX = -1;
+int rotation_centerY;
+int prev_rotationX;
+int prev_rotationY;
 
 bool rotate_polygon = false;
-int rotation_centerX = -1, rotation_centerY;
-int prev_rotationX, prev_rotationY;
-
 bool scale_polygon = false;
 bool draw_curve = false;
+bool isKeyFrame = false;
 
-int main_window, render_window;
-
-AnimObject* currObject = NULL;
 Canvas* renderCanvas;
 
 void CheckDeleteKeyframeStatus()
@@ -99,8 +100,8 @@ static void myKeyboardFunc(unsigned char key, int x, int y)
   {
   case 8:
   case 127: renderCanvas->delete_object(selectedObject); selectedObject = -1; break;
-  case '.': frame_spinner->set_int_val(currFrameNumber+1); break;
-  case ',': frame_spinner->set_int_val(currFrameNumber-1); break;
+  case '.': frame_spinner->set_int_val(currFrameNumber + 1); break;
+  case ',': frame_spinner->set_int_val(currFrameNumber - 1); break;
   }
 }
 
@@ -194,7 +195,6 @@ static void ParseFilename(char* filename, char* pathless)
   }
   pathless[j] = '\0';
 }
-
 
 static void DisplayAndSaveCanvas(int id)
 {
