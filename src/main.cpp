@@ -60,7 +60,7 @@ bool isKeyFrame = false;
 
 Canvas* renderCanvas;
 
-void CheckDeleteKeyframeStatus()
+static void CheckDeleteKeyframeStatus()
 {
   if (!renderCanvas->AnyKeyframe(currFrameNumber) || currFrameNumber == 1)
   {
@@ -72,7 +72,7 @@ void CheckDeleteKeyframeStatus()
   }
 }
 
-void UpdateInfo(int selectedObject)
+static void UpdateInfo(int selectedObject)
 {
   char buf1[1024], buf2[1024];
   if (selectedObject != -1)
