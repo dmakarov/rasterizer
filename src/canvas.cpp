@@ -16,9 +16,6 @@
 
 #include "canvas.hpp"
 
-extern void CheckDeleteKeyframeStatus();
-extern void UpdateInfo(int selectedObject);
-
 extern char aafilter_function[];
 extern int currFrameNumber;
 extern int selectedObject;
@@ -801,13 +798,13 @@ void Canvas::polygon_rotation(int mx, int my)
   prev_rotationY = my;
 }
 
-void Canvas::motion(int mx, int my)
+bool Canvas::motion(int mx, int my)
 {
   int frameID;
 
   if (draw_curve)
   {
-    if (currObject->numVertices == MAX_VERTICES) return;
+    if (currObject->numVertices == MAX_VERTICES) return false;
     int px = currObject->keyframes[0].vertices[currObject->numVertices - 1].x;
     int py = currObject->keyframes[0].vertices[currObject->numVertices - 1].y;
     if (std::abs(px - mx) > 7 || std::abs(py - my) > 7) // sqrt((px-mx)*(px-mx) + (py-my)*(py-my)) > 5)
@@ -816,16 +813,14 @@ void Canvas::motion(int mx, int my)
       currObject->keyframes[0].vertices[currObject->numVertices].y = my;
       currObject->numVertices++;
     }
-    CheckDeleteKeyframeStatus();
-    glutPostRedisplay();
-    return;
+    return true;
   }
 
-  if (selectedObject == -1) return;
+  if (selectedObject == -1) return false;
 
   if ((frameID = FindKeyframe(selectedObject, currFrameNumber)) == -1) //look for a keyframe at this frame
   {
-    if (objects[selectedObject]->numKeyframes == MAX_KEYFRAMES) return;
+    if (objects[selectedObject]->numKeyframes == MAX_KEYFRAMES) return false;
     //if we don't find it, then create a new one in the right place
     int insertLoc, i;
     Point vertices[MAX_VERTICES];
@@ -858,16 +853,12 @@ void Canvas::motion(int mx, int my)
   if (scale_polygon)
   {
     polygon_scaling(mx, my);
-    CheckDeleteKeyframeStatus();
-    glutPostRedisplay();
-    return;
+    return true;
   }
   if (rotate_polygon)
   {
     polygon_rotation(mx, my);
-    CheckDeleteKeyframeStatus();
-    glutPostRedisplay();
-    return;
+    return true;
   }
 
   rotation_centerX = -1;
@@ -888,8 +879,7 @@ void Canvas::motion(int mx, int my)
     originalX = mx;
     originalY = my;
   }
-  CheckDeleteKeyframeStatus();
-  glutPostRedisplay();
+  return true;
 }
 
 bool Canvas::select_object(int button, int mx, int my)
@@ -921,7 +911,7 @@ bool Canvas::select_object(int button, int mx, int my)
   return foundVertex;
 }
 
-void Canvas::mouse(int button, int state, int mx, int my)
+bool Canvas::mouse(int button, int state, int mx, int my)
 {
   int modifier = glutGetModifiers();
 
@@ -930,7 +920,7 @@ void Canvas::mouse(int button, int state, int mx, int my)
     rotate_polygon = false;
     scale_polygon = false;
     draw_curve = false;
-    goto end;
+    return true;
   }
 
   switch (modifier)
@@ -952,7 +942,7 @@ void Canvas::mouse(int button, int state, int mx, int my)
         currObject->keyframes[0].frameNumber = 1;
         AssignRandomColor(currObject);
       }
-      if (currObject->numVertices == MAX_VERTICES) return;
+      if (currObject->numVertices == MAX_VERTICES) return false;
       currObject->keyframes[0].vertices[currObject->numVertices].x = mx;
       currObject->keyframes[0].vertices[currObject->numVertices].y = my;
       currObject->numVertices++;
@@ -1015,11 +1005,7 @@ void Canvas::mouse(int button, int state, int mx, int my)
     }
     rotation_centerX = -1;
   }
-
- end:
-
-  UpdateInfo(selectedObject);
-  glutPostRedisplay();
+  return true;
 }
 
 void Canvas::delete_keyframe(int id)

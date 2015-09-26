@@ -107,12 +107,20 @@ static void myKeyboardFunc(unsigned char key, int x, int y)
 
 static void myMotionFunc(int mx, int my)
 {
-  renderCanvas->motion(mx, my);
+  if (renderCanvas->motion(mx, my))
+  {
+    CheckDeleteKeyframeStatus();
+    glutPostRedisplay();
+  }
 }
 
 static void myMouseFunc(int button, int state, int mx, int my)
 {
-  renderCanvas->mouse(button, state, mx, my);
+  if (renderCanvas->mouse(button, state, mx, my))
+  {
+    UpdateInfo(selectedObject);
+    glutPostRedisplay();
+  }
 }
 
 static void FrameChangedCall(int id)

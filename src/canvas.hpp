@@ -111,8 +111,8 @@ struct Canvas {
   void save(const char* filename) const;
   void polygon_scaling(int mx, int my);
   void polygon_rotation(int mx, int my);
-  void motion(int mx, int my);
-  void mouse(int button, int state, int mx, int my);
+  bool mouse(int button, int state, int mx, int my);
+  bool motion(int mx, int my);
   bool select_object(int button, int mx, int my);
 
   /** Function: Rasterize
