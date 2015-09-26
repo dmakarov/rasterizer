@@ -21,44 +21,40 @@
 #define MAX_ALIAS_SAMPLES 64
 #define MAX_BLUR_SAMPLES 64
 
-typedef struct {
+struct Point {
   float x;
   float y;
-} Point;
+};
 
-typedef struct {
-  int frameNumber;
+struct FrameData {
   Point vertices[MAX_VERTICES];
-} FrameData;
+  int frameNumber;
+};
 
-typedef struct {
-  int numVertices;
+struct AnimObject {
   FrameData keyframes[MAX_KEYFRAMES];
+  int numVertices;
   int numKeyframes;
   int r, g, b;
-} AnimObject;
+};
 
-typedef struct edge_struct {
+struct Edge {
   float yy, xx, kk;
-  edge_struct(float yy_ = 0, float xx_ = 0, float kk_ = 0)
-    :
-    yy(yy_),
-    xx(xx_),
-    kk(kk_)
+  Edge(float yy_ = 0, float xx_ = 0, float kk_ = 0) : yy(yy_), xx(xx_), kk(kk_)
   {}
-  bool operator<(const edge_struct& edge) const
+  bool operator<(const Edge& edge) const
   {
     return (xx < edge.xx);
   }
-} edge_type;
+};
 
-class edge_ymax_le : public std::unary_function< edge_type, bool >
+class edge_ymax_le : public std::unary_function<Edge, bool>
 {
   float ymax;
 public:
   explicit edge_ymax_le(float yy) : ymax(yy)
   {}
-  bool operator()(const edge_type& edge) const
+  bool operator()(const Edge& edge) const
   {
     return (edge.yy <= ymax);
   }

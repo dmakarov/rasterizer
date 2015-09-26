@@ -3,6 +3,7 @@
  */
 
 #include <assert.h>
+#include <iostream>
 #include <math.h>
 #include <unistd.h>
 #include <string.h>
@@ -54,17 +55,17 @@ GLUI_EditText* start_frame_editor, *end_frame_editor;
 GLUI_EditText* num_alias_samples_editor, *num_blur_samples_editor;
 GLUI_EditText* alias_func_edit;
 
-int isAnimating; //this is the live variable that updates when the Animate button is checked
-int currFrameNumber; //this is the live variable that represents the frame number
-char renderOut[sizeof(GLUI_String)]; //this is the live variable that represents the filename(s) to render to
+int isAnimating; // updated when the Animate button is checked
+int currFrameNumber;
+char renderOut[sizeof(GLUI_String)]; // the filename(s) to render to
 char save_load_file[sizeof(GLUI_String)];
 char aafilter_function[sizeof(GLUI_String)];
-int singMult;	//this is the live variable that represents whether you're rendering single or multiple frames
+int singMult; // whether you're rendering single or multiple frames
 int antiAlias;
 int numAliasSamples;
 int motionBlur;
 int numBlurSamples;
-int startFrame, endFrame; //this is the live variable that represents the start/end frames
+int startFrame, endFrame;
 
 bool isKeyFrame = false;
 int colorToPick = 0;
@@ -750,19 +751,18 @@ void ParseFilename(char* filename, char* pathless)
 
 void DisplayAndSaveCanvas(int id)
 {
-  int i;
   char buf[1024], pathless[1024];
   if (singMult == 0)
   {
     Rasterize(renderCanvas, currFrameNumber, antiAlias, numAliasSamples, motionBlur, numBlurSamples);
-    if (strlen(renderOut)!=0)
+    if (strlen(renderOut) != 0)
     {
       sprintf(buf, "%s.ppm", renderOut);
       renderCanvas->save(buf);
     }
+    glutPostWindowRedisplay(render_window);
     glutSetWindow(render_window);
     glutShowWindow();
-    glutPostRedisplay();
     glutSetWindow(main_window);
   }
   else
@@ -770,42 +770,32 @@ void DisplayAndSaveCanvas(int id)
     ParseFilename(renderOut, pathless);
     sprintf(buf, "%s.list", renderOut);
     FILE* listFile = fopen(buf, "w");
-    assert(listFile!=NULL);
+    assert(listFile != NULL);
 
-    for (i=startFrame; i<=endFrame; i++)
+    for (int i = startFrame; i <= endFrame; ++i)
     {
       Rasterize(renderCanvas, i, antiAlias, numAliasSamples, motionBlur, numBlurSamples);
-      if (strlen(renderOut)!=0)
+      if (strlen(renderOut) != 0)
       {
         sprintf(buf, "%s.%d.ppm", renderOut, i);
         renderCanvas->save(buf);
         sprintf(buf, "%s.%d.ppm", pathless, i);
         fprintf(listFile, "%s\n", buf);
       }
+      glutPostWindowRedisplay(render_window);
       glutSetWindow(render_window);
       glutShowWindow();
-      glutPostRedisplay();
       glutSetWindow(main_window);
     }
-
     fclose(listFile);
   }
-
-
 }
 
-//Change made Oct 15 2008 by Myers Abe Davis:  I changed RenderDisplay
-//from rendering a bunch of points to explicitly rendering pixels.
-void RenderDisplay()
+void RenderWindowDisplayCallback()
 {
-  glClearColor(0.f, 0.f, 0.f, 0.f);
-  glClear(GL_COLOR_BUFFER_BIT);
-  glRasterPos2s(0,0);
-  glPixelZoom(1.0, -1.0);
-  glDrawPixels(renderCanvas->Width, renderCanvas->Height, GL_RGBA, GL_UNSIGNED_BYTE, renderCanvas->Pixels);
-  glutSwapBuffers();
+  std::cout << "render canvas" << std::endl;
+  renderCanvas->render();
 }
-
 
 void CommandLineRasterize(int argc, char* argv[])
 {
@@ -817,7 +807,7 @@ void CommandLineRasterize(int argc, char* argv[])
 
   if (strcmp(argv[i], "-help")==0)
   {
-    printf("Usage: animgui [-a<#samples>] [-m<#samples>] <startframe> <endframe> <infile> <outfile>\n");
+    printf("Usage: rasterizer [-a<#samples>] [-m<#samples>] <startframe> <endframe> <infile> <outfile>\n");
     return;
   }
 
@@ -911,7 +901,7 @@ int main(int argc, char* argv[])
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
   glutInitWindowPosition(50, 50);
-  glutInitWindowSize(WINDOW_WIDTH,WINDOW_HEIGHT);
+  glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 
   main_window = glutCreateWindow("Edit Screen");
   glOrtho(0, WINDOW_WIDTH, -WINDOW_HEIGHT, 0, -1, 1);
@@ -923,37 +913,36 @@ int main(int argc, char* argv[])
   render_window = glutCreateWindow("Render Window");
   glutPositionWindow(100, 100);
   glOrtho(0, WINDOW_WIDTH, -WINDOW_HEIGHT, 0, -1, 1);
-  glutDisplayFunc(RenderDisplay);
+  glutDisplayFunc(RenderWindowDisplayCallback);
   glutHideWindow();
 
   glutSetWindow(main_window);
 
-  /* Now create all of the stupid widgets that we need */
-  GLUI *glui = GLUI_Master.create_glui("GLUI", 0, 50, WINDOW_HEIGHT+100);
+  /* Now create the widgets that we need */
+  GLUI* glui = GLUI_Master.create_glui("Rasterizer", 0, 50, WINDOW_HEIGHT + 100);
 
   glui->set_main_gfx_window(main_window);
 
-  GLUI_Panel *info_panel = glui->add_panel("Object Info");
+  GLUI_Panel* info_panel = glui->add_panel("Object Info");
   object_id_statictext = glui->add_statictext_to_panel(info_panel, "Object ID:");
   object_verts_statictext = glui->add_statictext_to_panel(info_panel, "Vertices:");
   info_panel->set_alignment(GLUI_ALIGN_LEFT);
 
-  GLUI_Panel *anim_panel = glui->add_panel("Animation");
-
+  GLUI_Panel* anim_panel = glui->add_panel("Animation");
   delete_keyframe_button = glui->add_button_to_panel(anim_panel, "Delete Keyframe", 0, (GLUI_Update_CB)DeleteKeyframeCall);
   delete_keyframe_button->disable();
   frame_spinner = glui->add_spinner_to_panel(anim_panel, "Frame", GLUI_SPINNER_INT, &currFrameNumber, -1, FrameChangedCall);
   frame_spinner->set_int_limits(1, MAX_FRAMES, GLUI_LIMIT_CLAMP);
   anim_panel->set_alignment(GLUI_ALIGN_LEFT);
 
-  GLUI_Panel *save_load_panel = glui->add_panel("Save/Load");
+  GLUI_Panel* save_load_panel = glui->add_panel("Save/Load");
   glui->add_edittext_to_panel(save_load_panel, "Filename", GLUI_EDITTEXT_TEXT, save_load_file);
   glui->add_button_to_panel(save_load_panel, "Save Object Data", 0, (GLUI_Update_CB)SaveObjectsCall);
   glui->add_button_to_panel(save_load_panel, "Load Object Data", 0, (GLUI_Update_CB)LoadObjectsCall);
 
   glui->add_column(true);
 
-  GLUI_Panel *render_panel = glui->add_panel("Rendering");
+  GLUI_Panel* render_panel = glui->add_panel("Rendering");
   glui->add_edittext_to_panel(render_panel, "Render Out:", GLUI_EDITTEXT_TEXT, renderOut);
   glui->add_checkbox_to_panel(render_panel, "Antialias", &antiAlias, -1, AntiAliasChanged);
   num_alias_samples_editor = glui->add_edittext_to_panel(render_panel, "Number Of Samples", GLUI_EDITTEXT_INT, &numAliasSamples);
@@ -970,7 +959,7 @@ int main(int argc, char* argv[])
   num_blur_samples_editor->set_int_val(1);
   num_blur_samples_editor->set_int_limits(1, MAX_BLUR_SAMPLES);
 
-  GLUI_RadioGroup *singMultRadioGroup = glui->add_radiogroup_to_panel(render_panel, &singMult, -1, SingMultChanged);
+  GLUI_RadioGroup* singMultRadioGroup = glui->add_radiogroup_to_panel(render_panel, &singMult, -1, SingMultChanged);
   glui->add_radiobutton_to_group(singMultRadioGroup, "This Frame Only");
   glui->add_radiobutton_to_group(singMultRadioGroup, "Multiple Frames");
   start_frame_editor = glui->add_edittext_to_panel(render_panel, "Start Frame:", GLUI_EDITTEXT_INT, &startFrame);

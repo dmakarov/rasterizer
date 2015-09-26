@@ -1,7 +1,25 @@
 #include <assert.h>
 #include <cstdio>
 
+#ifdef __MACH__
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
+
 #include "canvas.hpp"
+
+void Canvas::render()
+{
+  glClearColor(0.f, 0.f, 0.f, 0.f);
+  glClear(GL_COLOR_BUFFER_BIT);
+  glRasterPos2s(0, 0);
+  glPixelZoom(1.0, -1.0);
+  glDrawPixels(Width, Height, GL_RGBA, GL_UNSIGNED_BYTE, Pixels);
+  glutSwapBuffers();
+}
 
 void Canvas::save(const char* filename) const
 {

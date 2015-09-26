@@ -2,6 +2,7 @@
 #define _CANVAS_HPP
 
 #include <algorithm>
+#include <functional>
 
 /* MACROS. */
 
@@ -33,6 +34,7 @@ struct Canvas {
   int Width;
   int Height;
   RGB8 *Pixels;
+
   Canvas(int ww = 0, int hh = 0) : Width(ww), Height(hh), Pixels(0)
   {
     Pixels = new unsigned int[Width * Height];
@@ -46,6 +48,7 @@ struct Canvas {
   {
     return (Pixels[Width * yy + xx]);
   }
+  void render();
   void save(const char* filename) const;
 };
 

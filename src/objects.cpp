@@ -169,7 +169,7 @@ validate_aet( std::list< edge_type >& el )
 #endif
 
 
-void add_edge(std::list< edge_type >* et, Point* lo, Point* hi, int bias)
+void add_edge(std::list<Edge>* et, Point* lo, Point* hi, int bias)
 {
   float slope = (hi->x - lo->x) / (hi->y - lo->y);
   float ymin = ceilf(lo->y);
@@ -179,7 +179,7 @@ void add_edge(std::list< edge_type >* et, Point* lo, Point* hi, int bias)
     xmin = hi->x;
   }
   int bucket = ymin - bias;
-  et[bucket].push_back(edge_type(hi->y, xmin, slope));
+  et[bucket].push_back(Edge(hi->y, xmin, slope));
 
   DOUT(("EDGE (%6.2f, %6.2f)--(%6.2f, %6.2f) @ %d\n",
          lo->x, lo->y, hi->x, hi->y, bucket ));
@@ -221,7 +221,7 @@ void scan_convert(Canvas* canvas, Point* vertex, int vertno, RGB8 color)
   DOUT(("THE EDGE TABLE [%f,%f] size %d, bias %d\n", ymin, ymax, range, bias));
 
   // build the edge table
-  std::list< edge_type >* edge_table = new std::list< edge_type >[range];
+  std::list<Edge>* edge_table = new std::list<Edge>[range];
 
   for (int ii = 0; ii < vertno; ++ii)
   {
@@ -243,7 +243,7 @@ void scan_convert(Canvas* canvas, Point* vertex, int vertno, RGB8 color)
 
   // initialize active edge table
 
-  std::list< edge_type > aet;
+  std::list<Edge> aet;
 
   // while(not empty AET and ET)
 
@@ -253,7 +253,7 @@ void scan_convert(Canvas* canvas, Point* vertex, int vertno, RGB8 color)
 
     // move from ET to AET y_min == y edges
 
-    std::list< edge_type >::iterator li;
+    std::list<Edge>::iterator li;
     for (li = edge_table[jj].begin(); li != edge_table[jj].end(); ++li)
     {
       aet.push_back(*li);
@@ -303,7 +303,7 @@ void scan_convert(Canvas* canvas, Point* vertex, int vertno, RGB8 color)
         // scissor
         if (0 <= line && line < canvas->Height)
         {
-          std::list< edge_type >::iterator lj = li;
+          std::list<Edge>::iterator lj = li;
           ++lj;
 
           DOUT(("SPAN %3d: %d <-> %d\n", line, (int)ceilf(li->xx), (int)lj->xx));
