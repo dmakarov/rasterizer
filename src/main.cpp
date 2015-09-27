@@ -73,7 +73,7 @@ static void update_info(int selected_object)
 
 static void edit_screen_display_callback()
 {
-  canvas->edit_screen_display(current_frame, selected_object);
+  canvas->display(current_frame, selected_object);
 }
 
 static void myKeyboardFunc(unsigned char key, int x, int y)
@@ -88,7 +88,6 @@ static void myKeyboardFunc(unsigned char key, int x, int y)
   }
   if (post_redisplay)
   {
-    std::cout << "post 1" << std::endl;
     glutPostRedisplay();
   }
 }
@@ -98,7 +97,6 @@ static void myMotionFunc(int mx, int my)
   if (canvas->motion(mx, my, current_frame, selected_object))
   {
     check_delete_keyframe_status();
-    std::cout << "post 2" << std::endl;
     glutPostRedisplay();
   }
 }
@@ -108,7 +106,6 @@ static void myMouseFunc(int button, int state, int mx, int my)
   if (canvas->mouse(button, state, mx, my, current_frame, selected_object))
   {
     update_info(selected_object);
-    std::cout << "post 3" << std::endl;
     glutPostRedisplay();
   }
 }
@@ -138,7 +135,6 @@ static void LoadObjectsCall(int id)
   if (strlen(save_load_file) == 0) return;
   sprintf(buf, "%s.obs", save_load_file);
   canvas->load_objects(buf);
-  std::cout << "post 4" << std::endl;
   glutPostRedisplay();
 }
 
@@ -192,7 +188,6 @@ static void ParseFilename(char* filename, char* pathless)
 
 static void DisplayAndSaveCanvas(int id)
 {
-  std::cout << "display and save canvas" << std::endl;
   char buf[1024], pathless[1024];
   if (singMult == 0)
   {
@@ -202,7 +197,6 @@ static void DisplayAndSaveCanvas(int id)
       sprintf(buf, "%s.ppm", renderOut);
       canvas->save(buf);
     }
-    std::cout << "post 5" << std::endl;
     glutPostWindowRedisplay(render_window);
     glutSetWindow(render_window);
     glutShowWindow();
@@ -225,7 +219,6 @@ static void DisplayAndSaveCanvas(int id)
         sprintf(buf, "%s.%d.ppm", pathless, i);
         fprintf(listFile, "%s\n", buf);
       }
-      std::cout << "post 6" << std::endl;
       glutPostWindowRedisplay(render_window);
       glutSetWindow(render_window);
       glutShowWindow();
@@ -237,7 +230,6 @@ static void DisplayAndSaveCanvas(int id)
 
 static void render_window_display_callback()
 {
-  std::cout << "render canvas" << std::endl;
   canvas->render();
 }
 
@@ -417,7 +409,6 @@ int main(int argc, char* argv[])
 
   glui->add_button_to_panel(render_panel, "Render!", 0, (GLUI_Update_CB)DisplayAndSaveCanvas);
 
-  std::cout << "glut main loop" << std::endl;
   glutMainLoop();
 
   return 0;

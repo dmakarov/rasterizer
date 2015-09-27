@@ -98,7 +98,7 @@ class Canvas {
   std::vector<AnimObject*> objects;
 
 public:
-  Canvas(int ww = 0, int hh = 0) : Width(ww), Height(hh)
+  Canvas(int w = 0, int h = 0) : Width(w), Height(h)
   {
     Pixels = new RGB8[Width * Height];
     std::fill(Pixels, Pixels + Width * Height, 0);
@@ -108,31 +108,36 @@ public:
     delete [] Pixels;
   }
   void render();
+  void display(int frame, int selected_object) const;
   void save(const char* filename) const;
   void load_objects(const char* filename);
   void save_objects(const char* filename);
   void delete_keyframe(int id, int frame);
-  void edit_screen_display(int frame, int selectedObject);
   bool delete_object(int id);
-  bool mouse(int button, int state, int mx, int my, int frame, int& selectedObject);
-  bool motion(int mx, int my, int frame, int selectedObject);
-
-  /** Function: Rasterize
-   -------------------
-   This function takes in a pointer to a canvas, a frame number, and a
-   bunch of arguments showing how the frame should be rasterized. By the
-   time Rasterize() completes, the canvas should be filled.
-  */
+  bool motion(int mx, int my, int frame, int selected_object);
+  bool mouse(int button, int state, int mx, int my, int frame, int& selected_object);
+  /**
+   *  This function takes a frame number, and a bunch of arguments
+   *  showing how the frame should be rasterized.  By the time
+   *  rasterize() completes, the canvas should be filled.
+   */
   void rasterize(int frame, bool antiAlias, int numAliasSamples, bool motionBlur, int numBlurSamples, const char* aafilter_function);
-  /** Function: AnyKeyframe
-      ---------------------
-      This function just returns 0 if no objects have a keyframe at
-      <frameNumber> and 1 otherwise.
-  */
-  bool any_keyframe(int frame);
-  int get_num_vertices(int object_num)
+  /**
+   *  @returns false if no objects have a keyframe
+   *  at <frame> and true otherwise.
+   */
+  bool any_keyframe(int frame) const
+  {
+    auto it = std::find_if(objects.begin(), objects.end(), [frame, this] (const AnimObject* a) {return find_keyframe(a, frame) != -1;});
+    return it != objects.end();
+  }
+  int get_num_vertices(int object_num) const
   {
     return objects[object_num]->numVertices;
+  }
+  int get_num_keyframes(int object_num) const
+  {
+    return objects[object_num]->numKeyframes;
   }
 
 private:
@@ -140,34 +145,34 @@ private:
   {
     std::fill(Pixels, Pixels + Width * Height, color);
   }
-  RGB8 get(int xx, int yy)
+  RGB8 get(int xx, int yy) const
   {
     return (Pixels[Width * yy + xx]);
   }
-  /** Function: GetVertices
+  /** Function: get_vertices
       ---------------------
-      This function takes in an object ID, a frame number and an array of
-      Points and fills in that array with the vertices of that object at
-      that point in time. If the passed frameNumber is between keyframes,
-      GetVertices will automatically interpolate linearly and give you the
-      correct values.
+      This function takes in an object <id>, a frame number and an
+      array of Points and fills in that array with the vertices of
+      that object at that point in time.  If the passed frame is
+      between keyframes, get_vertices will automatically interpolate
+      linearly and give you the correct values.
   */
-  unsigned int GetVertices(int id, float frameNumber, Point* holderFrame);
-  /** Function: FindKeyframe
+  unsigned int get_vertices(int id, float frame, Point* holderFrame) const;
+  /** Function: find_keyframe
       ----------------------
-      This function will tell you if object <id> has a keyframe at frame
-      <frameNumber>, and, if it does, its index in the object's keyframe
-      array. Findkeyframe will return -1 if the object does not have a
-      keyframe at that frame. For example, if object 0 has keyframes at
-      frames 1, 5, and 10, calling FindKeyframe(0, 1) will return 0,
-      FindKeyframe(0, 10) will return 2, and FindKeyframe(0, 20) will return
-      -1.
+      This function will tell you if object <a> has a keyframe at
+      frame <frame>, and, if it does, its index in the object's
+      keyframe array.  find_keyframe will return -1 if the object does
+      not have a keyframe at that frame.  For example, if object a has
+      keyframes at frames 1, 5, and 10, calling find_keyframe(a, 1)
+      will return 0, find_keyframe(a, 10) will return 2, and
+      find_keyframe(a, 20) will return -1.
   */
-  int FindKeyframe(int id, int frame);
+  int find_keyframe(const AnimObject* a, int frame) const;
   void scan_convert(Point* vertex, int vertno, RGB8 color);
-  void polygon_scaling(int mx, int my, int frame, int selectedObject);
-  void polygon_rotation(int mx, int my, int frame, int selectedObject);
-  bool select_object(int button, int mx, int my, int frame, int& selectedObject);
+  void polygon_scaling(int mx, int my, int frame, int selected_object);
+  void polygon_rotation(int mx, int my, int frame, int selected_object);
+  bool select_object(int button, int mx, int my, int frame, int& selected_object);
 };
 
 // This is a structure to hold canvas pixels with 32 bit per RGB component.

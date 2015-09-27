@@ -318,7 +318,7 @@ void Canvas::rasterize(int frameNumber, bool antiAlias, int numAliasSamples, boo
           float adj_frame = (frame > max_frame) ? max_frame : frame;
           // Here we grab the vertices for this object at this snapshot in time
           Point vertices[MAX_VERTICES];
-          RGB8 color = GetVertices(obj, adj_frame, vertices);
+          RGB8 color = get_vertices(obj, adj_frame, vertices);
           int vertno = objects[obj]->numVertices;
 
           // shift vertices
@@ -511,26 +511,18 @@ void Canvas::scan_convert(Point* vertex, int vertno, RGB8 color)
   delete [] edge_table;
 } // scan_convert
 
-int Canvas::FindKeyframe(int id, int frame)
+int Canvas::find_keyframe(const AnimObject* a, int frame) const
 {
-  for (int i = 0; i < objects[id]->numKeyframes; ++i)
-    if (objects[id]->keyframes[i].frameNumber == frame)
+  for (int i = 0; i < a->numKeyframes; ++i)
+    if (a->keyframes[i].frameNumber == frame)
       return i;
   return -1;
 }
 
-bool Canvas::any_keyframe(int frame)
-{
-  for (int i = 0; i < objects.size(); ++i)
-    if (FindKeyframe(i, frame) != -1)
-      return true;
-  return false;
-}
-
-/* Function: GetVertices
+/* Function: get_vertices
  * This function returns the set of vertices for the passed object in
  * the current frame */
-RGB8 Canvas::GetVertices(int id, float frameNumber, Point* holderFrame)
+RGB8 Canvas::get_vertices(int id, float frameNumber, Point* holderFrame) const
 {
   int lastFrameNumber = -1, nextFrameNumber = -1;
   int lastFrameID = -1, nextFrameID = -1;
@@ -538,7 +530,7 @@ RGB8 Canvas::GetVertices(int id, float frameNumber, Point* holderFrame)
   //here we do the interpolation!
 
   for (int i = (int)frameNumber; i >= 0; --i)
-    if ((lastFrameID = FindKeyframe(id, i)) != -1)
+    if ((lastFrameID = find_keyframe(objects[id], i)) != -1)
     {
       lastFrameNumber = i;
       break;
@@ -548,7 +540,7 @@ RGB8 Canvas::GetVertices(int id, float frameNumber, Point* holderFrame)
     lastFrameID = 1; // there should always be a keyframe at frame 1
 
   for (int i= ((int)frameNumber + 1); i <= MAX_FRAMES; ++i)
-    if ((nextFrameID = FindKeyframe(id, i))!=-1)
+    if ((nextFrameID = find_keyframe(objects[id], i))!=-1)
     {
       nextFrameNumber = i;
       break;
@@ -574,7 +566,7 @@ RGB8 Canvas::GetVertices(int id, float frameNumber, Point* holderFrame)
   return color;
 }
 
-void Canvas::edit_screen_display(int frame, int selectedObject)
+void Canvas::display(int frame, int selected_object) const
 {
   glClearColor(0.f, 0.f, 0.f, 0.f);
   glClear(GL_COLOR_BUFFER_BIT);
@@ -585,13 +577,13 @@ void Canvas::edit_screen_display(int frame, int selectedObject)
     glLineWidth(20);
     glColor3d(1, 0, 0);
     glBegin(GL_LINE_STRIP);
-
-    glVertex2d(0, 0);
-    glVertex2d(0, -Height);
-    glVertex2d(Width, -Height);
-    glVertex2d(Width, 0);
-    glVertex2d(0, 0);
-
+    {
+      glVertex2d(0, 0);
+      glVertex2d(0, -Height);
+      glVertex2d(Width, -Height);
+      glVertex2d(Width, 0);
+      glVertex2d(0, 0);
+    }
     glEnd();
   }
 
@@ -602,9 +594,9 @@ void Canvas::edit_screen_display(int frame, int selectedObject)
   for (int i = 0; i < objects.size(); ++i)
   {
     Point vertices[MAX_VERTICES];
-    GetVertices(i, frame, vertices);
+    get_vertices(i, frame, vertices);
     glColor3d(objects[i]->r/255.0, objects[i]->g/255.0, objects[i]->b/255.0);
-    if (selectedObject == i) // there's a selected object! draw it different-like
+    if (selected_object == i) // there's a selected object! draw it different-like
     {
       glLineWidth(3);
     }
@@ -621,7 +613,7 @@ void Canvas::edit_screen_display(int frame, int selectedObject)
     glVertex2d(vertices[0].x, -vertices[0].y);
     glEnd();
 
-    if (selectedObject == i) //now draw the vertices on top of the lines
+    if (selected_object == i) //now draw the vertices on top of the lines
     {
       glBegin(GL_LINES);
       for (int j = 0; j < objects[i]->numVertices; ++j)
@@ -655,10 +647,8 @@ void Canvas::edit_screen_display(int frame, int selectedObject)
     glEnd();
   }
 
-  //this is the loop where we draw the object currently being created
-
-
-  if (currObject!=NULL)
+  // this is the loop where we draw the object currently being created
+  if (currObject)
   {
     glLineWidth(3);
     //first we draw the edges
@@ -696,7 +686,7 @@ bool Canvas::delete_object(int id)
   return true;
 }
 
-void Canvas::polygon_scaling(int mx, int my, int frame, int selectedObject)
+void Canvas::polygon_scaling(int mx, int my, int frame, int selected_object)
 {
   if (selectedVertex == -1) return;
 
@@ -708,8 +698,8 @@ void Canvas::polygon_scaling(int mx, int my, int frame, int selectedObject)
   float dm = sqrt(mx*mx + my*my);
   float dp = sqrt(prev_rotationX*prev_rotationX + prev_rotationY*prev_rotationY);
 
-  Point* vert = objects[selectedObject]->keyframes[FindKeyframe(selectedObject, frame)].vertices;
-  int vertno = objects[selectedObject]->numVertices;
+  Point* vert = objects[selected_object]->keyframes[find_keyframe(objects[selected_object], frame)].vertices;
+  int vertno = objects[selected_object]->numVertices;
 
   float sx = (dm > dp) ? 1.2 : 0.8;
   float sy = (dm > dp) ? 1.2 : 0.8;
@@ -727,7 +717,7 @@ void Canvas::polygon_scaling(int mx, int my, int frame, int selectedObject)
   prev_rotationY = my;
 }
 
-void Canvas::polygon_rotation(int mx, int my, int frame, int selectedObject)
+void Canvas::polygon_rotation(int mx, int my, int frame, int selected_object)
 {
   if (selectedVertex == -1) return;
 
@@ -751,8 +741,8 @@ void Canvas::polygon_rotation(int mx, int my, int frame, int selectedObject)
   float sn = sinf(te);
   float cs = cosf(te);
 
-  Point* vert = objects[selectedObject]->keyframes[FindKeyframe(selectedObject, frame)].vertices;
-  int vertno = objects[selectedObject]->numVertices;
+  Point* vert = objects[selected_object]->keyframes[find_keyframe(objects[selected_object], frame)].vertices;
+  int vertno = objects[selected_object]->numVertices;
 
   for (int ii = 0; ii < vertno; ++ii)
   {
@@ -767,7 +757,7 @@ void Canvas::polygon_rotation(int mx, int my, int frame, int selectedObject)
   prev_rotationY = my;
 }
 
-bool Canvas::motion(int mx, int my, int frame, int selectedObject)
+bool Canvas::motion(int mx, int my, int frame, int selected_object)
 {
   int frameID;
 
@@ -785,40 +775,40 @@ bool Canvas::motion(int mx, int my, int frame, int selectedObject)
     return true;
   }
 
-  if (selectedObject == -1) return false;
+  if (selected_object == -1) return false;
 
-  if ((frameID = FindKeyframe(selectedObject, frame)) == -1) //look for a keyframe at this frame
+  if ((frameID = find_keyframe(objects[selected_object], frame)) == -1) //look for a keyframe at this frame
   {
-    if (objects[selectedObject]->numKeyframes == MAX_KEYFRAMES) return false;
+    if (objects[selected_object]->numKeyframes == MAX_KEYFRAMES) return false;
     //if we don't find it, then create a new one in the right place
     int insertLoc;
     Point vertices[MAX_VERTICES];
-    GetVertices(selectedObject, frame, vertices);
+    get_vertices(selected_object, frame, vertices);
 
-    for (insertLoc = 0; insertLoc < objects[selectedObject]->numKeyframes; ++insertLoc)
-      if (frame < objects[selectedObject]->keyframes[insertLoc].frameNumber)
+    for (insertLoc = 0; insertLoc < objects[selected_object]->numKeyframes; ++insertLoc)
+      if (frame < objects[selected_object]->keyframes[insertLoc].frameNumber)
         break;
 
     //shift everything over
-    for (int i = objects[selectedObject]->numKeyframes - 1; i >= insertLoc; --i)
-      memcpy(&(objects[selectedObject]->keyframes[i+1]), &(objects[selectedObject]->keyframes[i]), sizeof(FrameData));
+    for (int i = objects[selected_object]->numKeyframes - 1; i >= insertLoc; --i)
+      memcpy(&(objects[selected_object]->keyframes[i+1]), &(objects[selected_object]->keyframes[i]), sizeof(FrameData));
 
-    memcpy(objects[selectedObject]->keyframes[insertLoc].vertices, vertices, MAX_VERTICES*sizeof(Point));
+    memcpy(objects[selected_object]->keyframes[insertLoc].vertices, vertices, MAX_VERTICES*sizeof(Point));
 
-    objects[selectedObject]->keyframes[insertLoc].frameNumber = frame;
-    objects[selectedObject]->numKeyframes++;
-    frameID = FindKeyframe(selectedObject, frame);
+    objects[selected_object]->keyframes[insertLoc].frameNumber = frame;
+    objects[selected_object]->numKeyframes++;
+    frameID = find_keyframe(objects[selected_object], frame);
     assert(frameID!=-1);
   }
 
   if (scale_polygon)
   {
-    polygon_scaling(mx, my, frame, selectedObject);
+    polygon_scaling(mx, my, frame, selected_object);
     return true;
   }
   if (rotate_polygon)
   {
-    polygon_rotation(mx, my, frame, selectedObject);
+    polygon_rotation(mx, my, frame, selected_object);
     return true;
   }
 
@@ -826,15 +816,15 @@ bool Canvas::motion(int mx, int my, int frame, int selectedObject)
 
   if (selectedVertex != -1)
   {
-    objects[selectedObject]->keyframes[frameID].vertices[selectedVertex].x = mx;
-    objects[selectedObject]->keyframes[frameID].vertices[selectedVertex].y = my;
+    objects[selected_object]->keyframes[frameID].vertices[selectedVertex].x = mx;
+    objects[selected_object]->keyframes[frameID].vertices[selectedVertex].y = my;
   }
   else
   {
-    for (int i = 0; i < objects[selectedObject]->numVertices; ++i)
+    for (int i = 0; i < objects[selected_object]->numVertices; ++i)
     {
-      objects[selectedObject]->keyframes[frameID].vertices[i].x += (mx - originalX);
-      objects[selectedObject]->keyframes[frameID].vertices[i].y += (my - originalY);
+      objects[selected_object]->keyframes[frameID].vertices[i].x += (mx - originalX);
+      objects[selected_object]->keyframes[frameID].vertices[i].y += (my - originalY);
     }
     originalX = mx;
     originalY = my;
@@ -842,20 +832,20 @@ bool Canvas::motion(int mx, int my, int frame, int selectedObject)
   return true;
 }
 
-bool Canvas::select_object(int button, int mx, int my, int frame, int& selectedObject)
+bool Canvas::select_object(int button, int mx, int my, int frame, int& selected_object)
 {
   bool foundVertex = false;
   for (int i = 0; i < objects.size(); ++i)
   {
     Point vertices[MAX_VERTICES];
-    GetVertices(i, frame, vertices);
+    get_vertices(i, frame, vertices);
     for (int j = 0; j < objects[i]->numVertices; ++j)
     {
       Point vert = vertices[j];
       if (fabs(vert.x - mx) < 5 && fabs(vert.y - (my)) < 5) // check for proximity
       {
         foundVertex = true;
-        selectedObject = i;
+        selected_object = i;
         selectedVertex = j;
 
         //implement right-click drag
@@ -871,7 +861,7 @@ bool Canvas::select_object(int button, int mx, int my, int frame, int& selectedO
   return foundVertex;
 }
 
-bool Canvas::mouse(int button, int state, int mx, int my, int frame, int& selectedObject)
+bool Canvas::mouse(int button, int state, int mx, int my, int frame, int& selected_object)
 {
   int modifier = glutGetModifiers();
 
@@ -889,12 +879,12 @@ bool Canvas::mouse(int button, int state, int mx, int my, int frame, int& select
     {
       //clear the selection
 
-      selectedObject = -1;
+      selected_object = -1;
       selectedVertex = -1;
 
       //create a new object if one isn't being drawn
 
-      if (currObject == NULL)
+      if (currObject == nullptr)
       {
         currObject = new AnimObject;
         currObject->numVertices = 0;
@@ -912,7 +902,7 @@ bool Canvas::mouse(int button, int state, int mx, int my, int frame, int& select
     break;
   case GLUT_ACTIVE_CTRL:
     {
-      if (select_object(button, mx, my, frame, selectedObject) && (rotation_centerX != -1))
+      if (select_object(button, mx, my, frame, selected_object) && (rotation_centerX != -1))
       {
         scale_polygon = false;
         rotate_polygon = true;
@@ -928,7 +918,7 @@ bool Canvas::mouse(int button, int state, int mx, int my, int frame, int& select
     break;
   case GLUT_ACTIVE_CTRL | GLUT_ACTIVE_SHIFT:
     {
-      if (select_object(button, mx, my, frame, selectedObject) && (rotation_centerX != -1))
+      if (select_object(button, mx, my, frame, selected_object) && (rotation_centerX != -1))
       {
         scale_polygon = true;
         rotate_polygon = false;
@@ -952,12 +942,12 @@ bool Canvas::mouse(int button, int state, int mx, int my, int frame, int& select
         {
           objects.push_back(currObject);
         }
-        currObject = NULL;
+        currObject = nullptr;
       }
       // if there's a vertex in the area, select it
-      if (!select_object(button, mx, my, frame, selectedObject))
+      if (!select_object(button, mx, my, frame, selected_object))
       {
-        selectedObject = -1;
+        selected_object = -1;
         selectedVertex = -1;
       }
     }
@@ -972,12 +962,12 @@ void Canvas::delete_keyframe(int id, int frame)
     return;
 
   int frameID = -1;
-  for (int i = 0; i < objects.size(); ++i)
-    if ((frameID = FindKeyframe(i, frame)) != -1)
+  for (auto* obj : objects)
+    if ((frameID = find_keyframe(obj, frame)) != -1)
     {
-      for (int j = frameID; j < objects[i]->numKeyframes - 1; ++j)
-        memcpy(&(objects[i]->keyframes[j]), &(objects[i]->keyframes[j+1]), sizeof(FrameData));
-      objects[i]->numKeyframes--;
+      for (int j = frameID; j < obj->numKeyframes - 1; ++j)
+        memcpy(&(obj->keyframes[j]), &(obj->keyframes[j + 1]), sizeof(FrameData));
+      obj->numKeyframes--;
     }
 }
 
