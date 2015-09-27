@@ -3,13 +3,13 @@
 
 #include <algorithm>
 #include <functional>
+#include <memory>
 #include <vector>
 
 /* MACROS. */
 
 /* The following macros retrieve the primary color components from one
    canvas pixel P. */
-
 #define GET_RED(P)   (((P)      ) & 0xFF)
 #define GET_GREEN(P) (((P) >>  8) & 0xFF)
 #define GET_BLUE(P)  (((P) >> 16) & 0xFF)
@@ -17,29 +17,18 @@
 /* The following macros set the primary color components of the canvas
    pixel P to C. C must lie between 0 and 255 (both endpoints
    inclusive). */
-
-#define SET_RED(P,C)   (P = (((P) & 0xFFFFFF00) | ((C)      )))
-#define SET_GREEN(P,C) (P = (((P) & 0xFFFF00FF) | ((C) <<  8)))
-#define SET_BLUE(P,C)  (P = (((P) & 0xFF00FFFF) | ((C) << 16)))
-
-/* The following macro retrieves the pixel at coordinates (X,Y) of the
-   canvas C (where C is a pointer to a canvas structure). (0,0) are the
-   coordinates of the top left corner of the canvas, while the bottom
-   right corner is located at (C->Width-1,C->Height-1). */
-
-#define PIXEL(C,X,Y) ((C)->Pixels[(Y)*(C)->Width+(X)])
+#define SET_RED(P,C) (P = (((P) & 0xFFFFFF00) | (C)))
 
 typedef unsigned int RGB8;
 
 /* These are constants. You can increase them if your animation requires
    it, but do not decrease them, so that we can have data sets that will
    always work on them.*/
-
-#define MAX_VERTICES 100
-#define MAX_KEYFRAMES 10
-#define MAX_FRAMES 100
+#define MAX_KEYFRAMES     10
+#define MAX_VERTICES     100
+#define MAX_FRAMES       100
 #define MAX_ALIAS_SAMPLES 64
-#define MAX_BLUR_SAMPLES 64
+#define MAX_BLUR_SAMPLES  64
 
 struct Point {
   float x;
@@ -101,7 +90,7 @@ public:
   Canvas(int w = 0, int h = 0) : Width(w), Height(h)
   {
     Pixels = new RGB8[Width * Height];
-    std::fill(Pixels, Pixels + Width * Height, 0);
+    init(0);
   }
   ~Canvas()
   {
@@ -145,10 +134,6 @@ private:
   {
     std::fill(Pixels, Pixels + Width * Height, color);
   }
-  RGB8 get(int xx, int yy) const
-  {
-    return (Pixels[Width * yy + xx]);
-  }
   /** Function: get_vertices
       ---------------------
       This function takes in an object <id>, a frame number and an
@@ -175,45 +160,30 @@ private:
   bool select_object(int button, int mx, int my, int frame, int& selected_object);
 };
 
-// This is a structure to hold canvas pixels with 32 bit per RGB component.
-
-struct RGB32 {
-  unsigned int rr, gg, bb;
-};
-
+/**
+ *  Abuffer holds canvas pixels with 32 bits per RGB component.
+ */
 struct Abuffer {
-  int Width, Height;
-  RGB32* pixel;
-  Abuffer(int ww = 0, int hh = 0) : Width(ww), Height(hh)
+  struct RGB32 {
+    unsigned int r, g, b;
+    RGB32() : r(0), g(0), b(0) {}
+    RGB32(const RGB8& c) : r(0xff & c), g(0xff & (c >> 8)), b(0xff & (c >> 16)) {}
+    RGB8 get(unsigned int k) { return r / k + ((g / k) << 8) + ((b / k) << 16); }
+    void operator+=(const RGB32& a) { r += a.r; g += a.g; b += a.b; }
+    RGB32& operator*(unsigned int w) { r *= w; g *= w; b *= w; return *this; }
+  };
+  std::unique_ptr<RGB32[]> pixels;
+  unsigned int width, height;
+  Abuffer(unsigned int w = 0, unsigned int h = 0) : pixels(new RGB32[w * h]), width(w), height(h) {}
+  void add(unsigned int x, RGB8 color, unsigned int weight = 1)
   {
-    pixel = new RGB32[Width * Height];
-    init();
+    assert(x < width * height);
+    pixels[x] += RGB32(color) * weight;
   }
-  ~Abuffer()
+  RGB8 get(unsigned int x, unsigned int k)
   {
-    delete [] pixel;
-  }
-  void init()
-  {
-    if (!pixel) return;
-    for (int jj = 0; jj < Height; ++jj)
-      for (int ii = 0; ii < Width; ++ii)
-        pixel[Width * jj + ii].rr =
-          pixel[Width * jj + ii].gg =
-          pixel[Width * jj + ii].bb = 0;
-  }
-  void add(int xx, int yy, RGB8 color, int weight = 1)
-  {
-    pixel[Width * yy + xx].rr += (0xFF & (color      )) * weight;
-    pixel[Width * yy + xx].gg += (0xFF & (color >>  8)) * weight;
-    pixel[Width * yy + xx].bb += (0xFF & (color >> 16)) * weight;
-  }
-  RGB8 get(int xx, int yy, int kk)
-  {
-    RGB8 rr = pixel[Width * yy + xx].rr / kk;
-    RGB8 gg = pixel[Width * yy + xx].gg / kk;
-    RGB8 bb = pixel[Width * yy + xx].bb / kk;
-    return (rr + (gg << 8) + (bb << 16));
+    assert(x < width * height);
+    return pixels[x].get(k);
   }
 };
 

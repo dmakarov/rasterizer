@@ -16,7 +16,7 @@
 
 #include "canvas.hpp"
 
-#define WINDOW_WIDTH 600
+#define WINDOW_WIDTH  600
 #define WINDOW_HEIGHT 400
 
 /* Here are les globals, mainly for les widgets */

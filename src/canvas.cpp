@@ -33,7 +33,7 @@ WEIGHT_FUNC_TYPE weight_mode = BOX;
 //#define DEBUG_RASTERIZER 1
 
 #ifdef  DEBUG_RASTERIZER
-#define DOUT( X ) printf X
+#define DOUT(X) printf X
 #else
 #define DOUT(X)
 #endif
@@ -217,20 +217,17 @@ void Canvas::render()
 void Canvas::save(const char* filename) const
 {
   FILE* output = fopen(filename, "wb");
-  assert(output != NULL);
+  assert(output);
 
   /* Print header. */
-
   fprintf(output, "P6\n");
   fprintf(output, "# Comment Line\n");
   fprintf(output, "%d %d\n", Width, Height);
   fprintf(output, "255\n");
 
   /* Save image. */
-
-  auto size = Width * Height;
-  unsigned int* buffer = Pixels;
-  for (int i = 0; i < size; i++, buffer++)
+  auto* buffer = Pixels;
+  for (unsigned int i = 0; i < Width * Height; ++i, ++buffer)
   {
     char data = char(GET_RED(*buffer));
     fwrite(&data, 1, 1, output);
@@ -334,12 +331,9 @@ void Canvas::rasterize(int frameNumber, bool antiAlias, int numAliasSamples, boo
           ++scans;
         }
         // accumulate:
-        for (int yy = 0; yy < pad.Height; ++yy)
+        for (unsigned int x = 0; x < Height * Width; ++x)
         {
-          for (int xx = 0; xx < pad.Width; ++xx)
-          {
-            abuf.add(xx, yy, pad.get(xx, yy), mbfilt * aafilt);
-          }
+          abuf.add(x, pad.Pixels[x], mbfilt * aafilt);
         }
         // done with another sample:
         samples += mbfilt * aafilt;
@@ -355,12 +349,9 @@ void Canvas::rasterize(int frameNumber, bool antiAlias, int numAliasSamples, boo
   // clear the canvas
   init(0);
   // convert accumulation buffer to RGB8 and copy to the render canvas.
-  for (int yy = 0; yy < abuf.Height; ++yy)
+  for (unsigned int x = 0; x < Height * Width; ++x)
   {
-    for (int xx = 0; xx < abuf.Width; ++xx)
-    {
-      PIXEL(this, xx, yy) = abuf.get(xx, yy, samples);
-    }
+    Pixels[x] = abuf.get(x, samples);
   }
 } // Rasterize
 
@@ -371,9 +362,9 @@ void Canvas::scan_convert(Point* vertex, int vertno, RGB8 color)
   {
     DOUT(( "  VERTEX #%2d: <%g, %g>\n", ii, vertex[ii].x, vertex[ii].y ));
     //
-    SET_RED(PIXEL( canvas, (int)vertex[ii].x,   (int)vertex[ii].y), 255);
-    SET_RED(PIXEL( canvas, (int)vertex[ii].x+1, (int)vertex[ii].y), 255);
-    SET_RED(PIXEL( canvas, (int)vertex[ii].x-1, (int)vertex[ii].y), 255);
+    SET_RED(Pixels[vertex[ii].x-1 + (int)vertex[ii].y * Width], 255);
+    SET_RED(Pixels[vertex[ii].x+0 + (int)vertex[ii].y * Width], 255);
+    SET_RED(Pixels[vertex[ii].x+1 + (int)vertex[ii].y * Width], 255);
   }
 #endif
 
@@ -491,7 +482,7 @@ void Canvas::scan_convert(Point* vertex, int vertno, RGB8 color)
             // scissor
             if (0 <= xx && xx < Width)
             {
-              PIXEL(this, xx, line) = color;
+              Pixels[xx + line * Width] = color;
             }
           }
         }
