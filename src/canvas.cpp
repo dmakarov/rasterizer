@@ -977,9 +977,11 @@ void Canvas::load_objects(const char* filename)
   // check if there's something in the filename field
   FILE* infile = fopen(filename, "r");
   if (infile == NULL) return;
+  currObject = nullptr;
   // free all of the associated memory and initialize
   for (int i = 0; i < objects.size(); ++i)
     delete objects[i];
+  objects.clear();
 
   int num_of_objects;
   fscanf(infile, "Number of Objects: %d\n", &num_of_objects);

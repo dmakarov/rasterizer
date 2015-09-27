@@ -22,6 +22,7 @@
 /* Here are les globals, mainly for les widgets */
 GLUI_StaticText* object_id_statictext;
 GLUI_StaticText* object_verts_statictext;
+GLUI_StaticText* object_frames_statictext;
 GLUI_EditText* num_alias_samples_editor;
 GLUI_EditText* num_blur_samples_editor;
 GLUI_EditText* start_frame_editor;
@@ -56,18 +57,21 @@ static void check_delete_keyframe_status()
 
 static void update_info(int selected_object)
 {
-  char buf1[1024], buf2[1024];
+  char buf[1024];
   if (selected_object != -1)
   {
-    sprintf(buf1, "Object ID: %d", selected_object);
-    sprintf(buf2, "Vertices: %d", canvas->get_num_vertices(selected_object));
-    object_id_statictext->set_text(buf1);
-    object_verts_statictext->set_text(buf2);
+    sprintf(buf, "Object ID: %d", selected_object);
+    object_id_statictext->set_text(buf);
+    sprintf(buf, "Vertices: %d", canvas->get_num_vertices(selected_object));
+    object_verts_statictext->set_text(buf);
+    sprintf(buf, "Keyframes: %d", canvas->get_num_keyframes(selected_object));
+    object_frames_statictext->set_text(buf);
   }
   else
   {
     object_id_statictext->set_text("Object ID:");
     object_verts_statictext->set_text("Vertices:");
+    object_frames_statictext->set_text("Keyframes:");
   }
 }
 
@@ -135,6 +139,8 @@ static void LoadObjectsCall(int id)
   if (strlen(save_load_file) == 0) return;
   sprintf(buf, "%s.obs", save_load_file);
   canvas->load_objects(buf);
+  selected_object = -1;
+  update_info(selected_object);
   glutPostRedisplay();
 }
 
@@ -359,6 +365,7 @@ int main(int argc, char* argv[])
   GLUI_Panel* info_panel = glui->add_panel("Info");
   object_id_statictext = glui->add_statictext_to_panel(info_panel, "Object ID:");
   object_verts_statictext = glui->add_statictext_to_panel(info_panel, "Vertices:");
+  object_frames_statictext = glui->add_statictext_to_panel(info_panel, "Keyframes:");
   info_panel->set_alignment(GLUI_ALIGN_LEFT);
 
   GLUI_Panel* anim_panel = glui->add_panel("Animation");
