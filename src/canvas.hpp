@@ -107,13 +107,13 @@ public:
   {
     delete [] Pixels;
   }
-  void load_objects(const char* filename);
-  void save_objects(const char* filename);
-  void delete_object(int id);
-  void delete_keyframe(int id, int frame);
-  void edit_screen_display(int frame, int selectedObject);
   void render();
   void save(const char* filename) const;
+  void load_objects(const char* filename);
+  void save_objects(const char* filename);
+  void delete_keyframe(int id, int frame);
+  void edit_screen_display(int frame, int selectedObject);
+  bool delete_object(int id);
   bool mouse(int button, int state, int mx, int my, int frame, int& selectedObject);
   bool motion(int mx, int my, int frame, int selectedObject);
 

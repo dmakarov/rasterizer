@@ -1,3 +1,5 @@
-rasterizer
+/bin/
+/rasterizer.xcodeproj/project.xcworkspace/xcuserdata/
+/rasterizer.xcodeproj/xcuserdata/
 *.o
 

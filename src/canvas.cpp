@@ -687,13 +687,13 @@ void Canvas::edit_screen_display(int frame, int selectedObject)
   glutSwapBuffers();
 }
 
-void Canvas::delete_object(int id)
+bool Canvas::delete_object(int id)
 {
-  if (id == -1) return;
+  if (id == -1) return false;
   AnimObject* tmp = objects[id];
   objects.erase(objects.begin() + id);
-  free(tmp);
-  glutPostRedisplay();
+  delete tmp;
+  return true;
 }
 
 void Canvas::polygon_scaling(int mx, int my, int frame, int selectedObject)
@@ -896,7 +896,7 @@ bool Canvas::mouse(int button, int state, int mx, int my, int frame, int& select
 
       if (currObject == NULL)
       {
-        currObject = (AnimObject*)malloc(sizeof(AnimObject));
+        currObject = new AnimObject;
         currObject->numVertices = 0;
         currObject->numKeyframes = 1;
         currObject->keyframes[0].frameNumber = 1;
@@ -946,7 +946,7 @@ bool Canvas::mouse(int button, int state, int mx, int my, int frame, int& select
 
         if (currObject->numVertices < 3)
         {
-          free(currObject);
+          delete currObject;
         }
         else
         {
@@ -984,10 +984,10 @@ void Canvas::delete_keyframe(int id, int frame)
 void Canvas::load_objects(const char* filename)
 {
   char buf[1024];
-  //check if there's something in the filename field
+  // check if there's something in the filename field
   FILE* infile = fopen(filename, "r");
   if (infile == NULL) return;
-  //free all of the associated memory and initialize
+  // free all of the associated memory and initialize
   for (int i = 0; i < objects.size(); ++i)
     delete objects[i];
 
@@ -996,20 +996,21 @@ void Canvas::load_objects(const char* filename)
 
   for (int i = 0; i < num_of_objects; ++i)
   {
-    objects.emplace_back(new AnimObject);
+    auto* obj = new AnimObject;
     fscanf(infile, "%[^\n]\n", buf);
-    fscanf(infile, "Color: r: %d, g: %d, b: %d\n", &objects[i]->r, &objects[i]->g, &objects[i]->b);
-    fscanf(infile, "Number of Vertices: %d\n", &objects[i]->numVertices);
-    fscanf(infile, "Number of Keyframes: %d\n", &objects[i]->numKeyframes);
-    for (int j = 0; j < objects[i]->numKeyframes; ++j)
+    fscanf(infile, "Color: r: %d, g: %d, b: %d\n", &obj->r, &obj->g, &obj->b);
+    fscanf(infile, "Number of Vertices: %d\n", &obj->numVertices);
+    fscanf(infile, "Number of Keyframes: %d\n", &obj->numKeyframes);
+    for (int j = 0; j < obj->numKeyframes; ++j)
     {
-      fscanf(infile, "Keyframe for Frame %d\n", &objects[i]->keyframes[j].frameNumber);
-      for (int k = 0; k < objects[i]->numVertices; ++k)
+      fscanf(infile, "Keyframe for Frame %d\n", &obj->keyframes[j].frameNumber);
+      for (int k = 0; k < obj->numVertices; ++k)
       {
         int dummy;
-        fscanf(infile, "Vertex %d, x: %g, y: %g\n", &dummy, &objects[i]->keyframes[j].vertices[k].x, &objects[i]->keyframes[j].vertices[k].y);
+        fscanf(infile, "Vertex %d, x: %g, y: %g\n", &dummy, &obj->keyframes[j].vertices[k].x, &obj->keyframes[j].vertices[k].y);
       }
     }
+    objects.emplace_back(obj);
   }
   fclose(infile);
 }
