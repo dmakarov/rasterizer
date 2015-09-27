@@ -1,7 +1,7 @@
 /**
  *  This file defines the GUI for the rasterizer
  */
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 #include <unistd.h>
 #include <string.h>

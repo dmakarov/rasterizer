@@ -1,9 +1,8 @@
-#include <assert.h>
+#include <cassert>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <algorithm>
 #include <iostream>
 #include <list>
 #include <string>
@@ -18,68 +17,40 @@
 
 #include "canvas.hpp"
 
-typedef enum {
-  GRID = 0, RANDOM
-} SHIFT_MODE_TYPE;
-
-SHIFT_MODE_TYPE shift_mode = RANDOM;
-
-typedef enum {
-  BOX = 0, BARTLETT
-} WEIGHT_FUNC_TYPE;
-
-WEIGHT_FUNC_TYPE weight_mode = BOX;
-
-//#define DEBUG_RASTERIZER 1
-
-#ifdef  DEBUG_RASTERIZER
-#define DOUT(X) printf X
-#else
-#define DOUT(X)
-#endif
+static SHIFT_MODE_TYPE shift_mode = RANDOM;
+static WEIGHT_FUNC_TYPE weight_mode = BOX;
 
 #ifdef DEBUG_RASTERIZER
-void
-print_edge_list( std::list< edge_type >& el )
+void print_edge_list(std::list<edge_type>& el)
 {
-  std::list< edge_type >::iterator li;
-  for ( li = el.begin(); li != el.end(); ++li )
+  for (auto li = el.begin(); li != el.end(); ++li)
   {
     DOUT(( " -> < %f, %f, %f >", li->yy, li->xx, li->kk ));
   }
   DOUT(( "\n" ));
 } // print_edge_list
 
-
-void
-print_et( std::list< edge_type >* et, int range, int bias )
+void print_et(std::list<edge_type>* et, int range, int bias)
 {
-  for ( int ii = 0; ii < range; ++ii )
+  for (int ii = 0; ii < range; ++ii)
   {
-    if ( !et[ii].empty() )
+    if (!et[ii].empty())
     {
       DOUT(( "CELL %2d:", ii + bias ));
-      print_edge_list( et[ii] );
+      print_edge_list(et[ii]);
     }
   }
 } // print_et
 
-
-bool validate_aet(std::list< edge_type >& el)
+bool validate_aet(std::list<edge_type>& el)
 {
-  std::list< edge_type >::iterator li = el.begin();
-  if ( li == el.end() )
+  auto li = el.begin();
+  if (li == el.end()) return true;
+  auto xprev = (li++)->xx;
+  for (; li != el.end(); ++li)
   {
-    return true;
-  }
-  float xprev = (li++)->xx;
-  for ( ; li != el.end(); ++li )
-  {
-    float xcurr = li->xx;
-    if ( xprev > xcurr )
-    {
-      return false;
-    }
+    auto xcurr = li->xx;
+    if (xprev > xcurr) return false;
     xprev = xcurr;
   }
   return true;
@@ -91,7 +62,6 @@ inline int bartlett(int sample, int total)
 {
   if (BOX == weight_mode)
     return 0;
-
   if (sample == total / 2 && 0 == total % 2)
     return 0;
   return (sample < total / 2 + total % 2) ? 1 : - 1;
@@ -143,8 +113,6 @@ static void precompute_shifts(Point data[8][8], int dim)
 
 static void parse_aafilter_func(std::string& expr)
 {
-  //    if (!expr)
-  //        return;
   if (std::string::npos != expr.find("rand"))
   {
     shift_mode = RANDOM;
@@ -175,7 +143,7 @@ static void add_edge(std::unique_ptr<std::list<Edge>[]>& et, Point* lo, Point* h
   int bucket = ymin - bias;
   et[bucket].emplace_back(Edge(hi->y, xmin, slope));
 
-  DOUT(("EDGE (%6.2f, %6.2f)--(%6.2f, %6.2f) @ %d\n", lo->x, lo->y, hi->x, hi->y, bucket ));
+  DOUT(("EDGE (%6.2f, %6.2f)--(%6.2f, %6.2f) @ %d\n", lo->x, lo->y, hi->x, hi->y, bucket));
 } // add_edge
 
 // now assign the thing a random color (not too dark)
@@ -183,7 +151,7 @@ static void AssignRandomColor(AnimObject* obj)
 {
   static int colorToPick = 0;
   colorToPick++;
-  switch(colorToPick%3)
+  switch(colorToPick % 3)
   {
   case 0:
     obj->r = 255;

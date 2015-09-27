@@ -8,6 +8,14 @@
 
 /* MACROS. */
 
+//#define DEBUG_RASTERIZER 1
+
+#ifdef  DEBUG_RASTERIZER
+#define DOUT(X) printf X
+#else
+#define DOUT(X)
+#endif
+
 /* The following macros retrieve the primary color components from one
    canvas pixel P. */
 #define GET_RED(P)   (((P)      ) & 0xFF)
@@ -29,6 +37,9 @@ typedef unsigned int RGB8;
 #define MAX_FRAMES       100
 #define MAX_ALIAS_SAMPLES 64
 #define MAX_BLUR_SAMPLES  64
+
+typedef enum { GRID = 0, RANDOM } SHIFT_MODE_TYPE;
+typedef enum { BOX = 0, BARTLETT } WEIGHT_FUNC_TYPE;
 
 struct Point {
   float x;
