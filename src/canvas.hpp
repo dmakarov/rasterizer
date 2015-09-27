@@ -172,17 +172,17 @@ struct Abuffer {
     void operator+=(const RGB32& a) { r += a.r; g += a.g; b += a.b; }
     RGB32& operator*(unsigned int w) { r *= w; g *= w; b *= w; return *this; }
   };
+  size_t size;
   std::unique_ptr<RGB32[]> pixels;
-  unsigned int width, height;
-  Abuffer(unsigned int w = 0, unsigned int h = 0) : pixels(new RGB32[w * h]), width(w), height(h) {}
-  void add(unsigned int x, RGB8 color, unsigned int weight = 1)
+  Abuffer(size_t w = 0, size_t h = 0) : size(w * h), pixels(new RGB32[size]) {}
+  void add(size_t x, RGB8 color, unsigned int weight = 1)
   {
-    assert(x < width * height);
+    assert(x < size);
     pixels[x] += RGB32(color) * weight;
   }
-  RGB8 get(unsigned int x, unsigned int k)
+  RGB8 get(size_t x, unsigned int k)
   {
-    assert(x < width * height);
+    assert(x < size);
     return pixels[x].get(k);
   }
 };
