@@ -31,8 +31,6 @@
 
 typedef unsigned int RGB8;
 
-#include <functional>
-
 /* These are constants. You can increase them if your animation requires
    it, but do not decrease them, so that we can have data sets that will
    always work on them.*/
@@ -62,7 +60,7 @@ struct AnimObject {
 
 struct Edge {
   float yy, xx, kk;
-  Edge(float yy_ = 0, float xx_ = 0, float kk_ = 0) : yy(yy_), xx(xx_), kk(kk_)
+  Edge(float y = 0, float x = 0, float k = 0) : yy(y), xx(x), kk(k)
   {}
   bool operator<(const Edge& edge) const
   {
@@ -102,16 +100,12 @@ class Canvas {
 public:
   Canvas(int ww = 0, int hh = 0) : Width(ww), Height(hh)
   {
-    Pixels = new unsigned int[Width * Height];
+    Pixels = new RGB8[Width * Height];
     std::fill(Pixels, Pixels + Width * Height, 0);
   }
-  void init(RGB8 color)
+  ~Canvas()
   {
-    std::fill(Pixels, Pixels + Width * Height, color);
-  }
-  RGB8 get(int xx, int yy)
-  {
-    return (Pixels[Width * yy + xx]);
+    delete [] Pixels;
   }
   void load_objects(const char* filename);
   void save_objects(const char* filename);
@@ -120,11 +114,8 @@ public:
   void edit_screen_display(int frame, int selectedObject);
   void render();
   void save(const char* filename) const;
-  void polygon_scaling(int mx, int my, int frame, int selectedObject);
-  void polygon_rotation(int mx, int my, int frame, int selectedObject);
   bool mouse(int button, int state, int mx, int my, int frame, int& selectedObject);
   bool motion(int mx, int my, int frame, int selectedObject);
-  bool select_object(int button, int mx, int my, int frame, int& selectedObject);
 
   /** Function: Rasterize
    -------------------
@@ -133,7 +124,35 @@ public:
    time Rasterize() completes, the canvas should be filled.
   */
   void rasterize(int frame, bool antiAlias, int numAliasSamples, bool motionBlur, int numBlurSamples, const char* aafilter_function);
+  /** Function: AnyKeyframe
+      ---------------------
+      This function just returns 0 if no objects have a keyframe at
+      <frameNumber> and 1 otherwise.
+  */
+  bool any_keyframe(int frame);
+  int get_num_vertices(int object_num)
+  {
+    return objects[object_num]->numVertices;
+  }
 
+private:
+  void init(RGB8 color)
+  {
+    std::fill(Pixels, Pixels + Width * Height, color);
+  }
+  RGB8 get(int xx, int yy)
+  {
+    return (Pixels[Width * yy + xx]);
+  }
+  /** Function: GetVertices
+      ---------------------
+      This function takes in an object ID, a frame number and an array of
+      Points and fills in that array with the vertices of that object at
+      that point in time. If the passed frameNumber is between keyframes,
+      GetVertices will automatically interpolate linearly and give you the
+      correct values.
+  */
+  unsigned int GetVertices(int id, float frameNumber, Point* holderFrame);
   /** Function: FindKeyframe
       ----------------------
       This function will tell you if object <id> has a keyframe at frame
@@ -145,44 +164,30 @@ public:
       -1.
   */
   int FindKeyframe(int id, int frame);
-
-  /** Function: AnyKeyframe
-      ---------------------
-      This function just returns 0 if no objects have a keyframe at
-      <frameNumber> and 1 otherwise.
-  */
-  bool any_keyframe(int frame);
-
-  int get_num_vertices(int object_num)
-  {
-    return objects[object_num]->numVertices;
-  }
-
-private:
-  /** Function: GetVertices
-      ---------------------
-      This function takes in an object ID, a frame number and an array of
-      Points and fills in that array with the vertices of that object at
-      that point in time. If the passed frameNumber is between keyframes,
-      GetVertices will automatically interpolate linearly and give you the
-      correct values.
-  */
-  unsigned int GetVertices(int id, float frameNumber, Point* holderFrame);
   void scan_convert(Point* vertex, int vertno, RGB8 color);
+  void polygon_scaling(int mx, int my, int frame, int selectedObject);
+  void polygon_rotation(int mx, int my, int frame, int selectedObject);
+  bool select_object(int button, int mx, int my, int frame, int& selectedObject);
 };
 
 // This is a structure to hold canvas pixels with 32 bit per RGB component.
 
-typedef struct {
+struct RGB32 {
   unsigned int rr, gg, bb;
-} RGB32;
+};
 
-typedef struct abuffer_struct {
+struct Abuffer {
   int Width, Height;
   RGB32* pixel;
-  abuffer_struct(int ww = 0, int hh = 0)
-    : Width(ww), Height(hh), pixel(0)
-  {}
+  Abuffer(int ww = 0, int hh = 0) : Width(ww), Height(hh)
+  {
+    pixel = new RGB32[Width * Height];
+    init();
+  }
+  ~Abuffer()
+  {
+    delete [] pixel;
+  }
   void init()
   {
     if (!pixel) return;
@@ -205,6 +210,6 @@ typedef struct abuffer_struct {
     RGB8 bb = pixel[Width * yy + xx].bb / kk;
     return (rr + (gg << 8) + (bb << 16));
   }
-} Abuffer;
+};
 
 #endif

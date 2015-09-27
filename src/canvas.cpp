@@ -176,8 +176,7 @@ static void add_edge(std::list<Edge>* et, Point* lo, Point* hi, int bias)
   int bucket = ymin - bias;
   et[bucket].push_back(Edge(hi->y, xmin, slope));
 
-  DOUT(("EDGE (%6.2f, %6.2f)--(%6.2f, %6.2f) @ %d\n",
-         lo->x, lo->y, hi->x, hi->y, bucket ));
+  DOUT(("EDGE (%6.2f, %6.2f)--(%6.2f, %6.2f) @ %d\n", lo->x, lo->y, hi->x, hi->y, bucket ));
 } // add_edge
 
 // now assign the thing a random color (not too dark)
@@ -257,10 +256,6 @@ void Canvas::rasterize(int frameNumber, bool antiAlias, int numAliasSamples, boo
 
   // precomputed shift distances for vertices in AA.
   Point aajitter[8][8];
-
-  abuf.pixel = new RGB32[Width * Height];
-  abuf.init();
-  pad.Pixels = new RGB8[Width * Height];
 
   if (0 != strlen(aafilter_function))
   {
@@ -367,9 +362,6 @@ void Canvas::rasterize(int frameNumber, bool antiAlias, int numAliasSamples, boo
       PIXEL(this, xx, yy) = abuf.get(xx, yy, samples);
     }
   }
-
-  delete [] pad.Pixels;
-  delete [] abuf.pixel;
 } // Rasterize
 
 void Canvas::scan_convert(Point* vertex, int vertno, RGB8 color)

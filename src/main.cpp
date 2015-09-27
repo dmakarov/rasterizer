@@ -35,7 +35,7 @@ char save_load_file[sizeof(GLUI_String)];
 char renderOut[sizeof(GLUI_String)]; // the filename(s) to render to
 int main_window;
 int render_window;
-int currFrameNumber;
+int current_frame;
 int singMult; // whether you're rendering single or multiple frames
 int antiAlias;
 int numAliasSamples;
@@ -43,24 +43,24 @@ int motion_blur_enabled;
 int numBlurSamples;
 int startFrame;
 int endFrame;
-int selectedObject = -1;
+int selected_object = -1;
 Canvas* canvas;
 
 static void check_delete_keyframe_status()
 {
-  if (currFrameNumber != 1 && canvas->any_keyframe(currFrameNumber))
+  if (current_frame != 1 && canvas->any_keyframe(current_frame))
     delete_keyframe_button->enable();
   else
     delete_keyframe_button->disable();
 }
 
-static void UpdateInfo(int selectedObject)
+static void update_info(int selected_object)
 {
   char buf1[1024], buf2[1024];
-  if (selectedObject != -1)
+  if (selected_object != -1)
   {
-    sprintf(buf1, "Object ID: %d", selectedObject);
-    sprintf(buf2, "Vertices: %d", canvas->get_num_vertices(selectedObject));
+    sprintf(buf1, "Object ID: %d", selected_object);
+    sprintf(buf2, "Vertices: %d", canvas->get_num_vertices(selected_object));
     object_id_statictext->set_text(buf1);
     object_verts_statictext->set_text(buf2);
   }
@@ -71,9 +71,9 @@ static void UpdateInfo(int selectedObject)
   }
 }
 
-static void edit_screen_display_callback(void)
+static void edit_screen_display_callback()
 {
-  canvas->edit_screen_display(currFrameNumber, selectedObject);
+  canvas->edit_screen_display(current_frame, selected_object);
 }
 
 static void myKeyboardFunc(unsigned char key, int x, int y)
@@ -81,15 +81,15 @@ static void myKeyboardFunc(unsigned char key, int x, int y)
   switch(key)
   {
   case 8:
-  case 127: canvas->delete_object(selectedObject); selectedObject = -1; break;
-  case '.': frame_spinner->set_int_val(currFrameNumber + 1); break;
-  case ',': frame_spinner->set_int_val(currFrameNumber - 1); break;
+  case 127: canvas->delete_object(selected_object); selected_object = -1; break;
+  case '.': frame_spinner->set_int_val(current_frame + 1); break;
+  case ',': frame_spinner->set_int_val(current_frame - 1); break;
   }
 }
 
 static void myMotionFunc(int mx, int my)
 {
-  if (canvas->motion(mx, my, currFrameNumber, selectedObject))
+  if (canvas->motion(mx, my, current_frame, selected_object))
   {
     check_delete_keyframe_status();
     glutPostRedisplay();
@@ -98,9 +98,9 @@ static void myMotionFunc(int mx, int my)
 
 static void myMouseFunc(int button, int state, int mx, int my)
 {
-  if (canvas->mouse(button, state, mx, my, currFrameNumber, selectedObject))
+  if (canvas->mouse(button, state, mx, my, current_frame, selected_object))
   {
-    UpdateInfo(selectedObject);
+    update_info(selected_object);
     glutPostRedisplay();
   }
 }
@@ -112,14 +112,14 @@ static void FrameChangedCall(int id)
 
 static void DeleteKeyframeCall(int id)
 {
-  canvas->delete_keyframe(id, currFrameNumber);
+  canvas->delete_keyframe(id, current_frame);
   check_delete_keyframe_status();
 }
 
 static void SaveObjectsCall(int id)
 {
   char buf[1024];
-  if (strlen(save_load_file)==0) return;
+  if (strlen(save_load_file) == 0) return;
   sprintf(buf, "%s.obs", save_load_file);
   canvas->save_objects(buf);
 }
@@ -127,8 +127,7 @@ static void SaveObjectsCall(int id)
 static void LoadObjectsCall(int id)
 {
   char buf[1024];
-  if (strlen(save_load_file)==0) return;
-
+  if (strlen(save_load_file) == 0) return;
   sprintf(buf, "%s.obs", save_load_file);
   canvas->load_objects(buf);
   glutPostRedisplay();
@@ -172,12 +171,12 @@ static void MotionBlurChanged(int id)
 
 static void ParseFilename(char* filename, char* pathless)
 {
-  int i, j = 0;
-  for (i=0; i< (int)strlen(filename); i++)
+  int j = 0;
+  for (int i = 0; i < (int)strlen(filename); ++i)
   {
-    pathless[j] = filename[i];
-    j++;
-    if (filename[i] == '/') j = 0;
+    pathless[j++] = filename[i];
+    if (filename[i] == '/')
+      j = 0;
   }
   pathless[j] = '\0';
 }
@@ -187,7 +186,7 @@ static void DisplayAndSaveCanvas(int id)
   char buf[1024], pathless[1024];
   if (singMult == 0)
   {
-    canvas->rasterize(currFrameNumber, antiAlias, numAliasSamples, motion_blur_enabled, numBlurSamples, aafilter_function);
+    canvas->rasterize(current_frame, antiAlias, numAliasSamples, motion_blur_enabled, numBlurSamples, aafilter_function);
     if (strlen(renderOut) != 0)
     {
       sprintf(buf, "%s.ppm", renderOut);
@@ -341,7 +340,7 @@ int main(int argc, char* argv[])
   glutKeyboardFunc(myKeyboardFunc);
 
   render_window = glutCreateWindow("Render Window");
-  glutPositionWindow(100, 100);
+  glutPositionWindow(WINDOW_WIDTH + 100, 50);
   glOrtho(0, WINDOW_WIDTH, -WINDOW_HEIGHT, 0, -1, 1);
   glutDisplayFunc(render_window_display_callback);
   glutHideWindow();
@@ -361,7 +360,7 @@ int main(int argc, char* argv[])
   GLUI_Panel* anim_panel = glui->add_panel("Animation");
   delete_keyframe_button = glui->add_button_to_panel(anim_panel, "Delete Keyframe", 0, (GLUI_Update_CB)DeleteKeyframeCall);
   delete_keyframe_button->disable();
-  frame_spinner = glui->add_spinner_to_panel(anim_panel, "Frame", GLUI_SPINNER_INT, &currFrameNumber, -1, FrameChangedCall);
+  frame_spinner = glui->add_spinner_to_panel(anim_panel, "Frame", GLUI_SPINNER_INT, &current_frame, -1, FrameChangedCall);
   frame_spinner->set_int_limits(1, MAX_FRAMES, GLUI_LIMIT_CLAMP);
   anim_panel->set_alignment(GLUI_ALIGN_LEFT);
 
