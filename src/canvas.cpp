@@ -65,8 +65,7 @@ print_et( std::list< edge_type >* et, int range, int bias )
 } // print_et
 
 
-bool
-validate_aet( std::list< edge_type >& el )
+bool validate_aet(std::list< edge_type >& el)
 {
   std::list< edge_type >::iterator li = el.begin();
   if ( li == el.end() )
@@ -164,7 +163,7 @@ static void parse_aafilter_func(std::string& expr)
   }
 }
 
-static void add_edge(std::list<Edge>* et, Point* lo, Point* hi, int bias)
+static void add_edge(std::unique_ptr<std::list<Edge>[]>& et, Point* lo, Point* hi, int bias)
 {
   float slope = (hi->x - lo->x) / (hi->y - lo->y);
   float ymin = ceilf(lo->y);
@@ -174,7 +173,7 @@ static void add_edge(std::list<Edge>* et, Point* lo, Point* hi, int bias)
     xmin = hi->x;
   }
   int bucket = ymin - bias;
-  et[bucket].push_back(Edge(hi->y, xmin, slope));
+  et[bucket].emplace_back(Edge(hi->y, xmin, slope));
 
   DOUT(("EDGE (%6.2f, %6.2f)--(%6.2f, %6.2f) @ %d\n", lo->x, lo->y, hi->x, hi->y, bucket ));
 } // add_edge
@@ -390,7 +389,7 @@ void Canvas::scan_convert(Point* vertex, int vertno, RGB8 color)
   DOUT(("THE EDGE TABLE [%f,%f] size %d, bias %d\n", ymin, ymax, range, bias));
 
   // build the edge table
-  std::list<Edge>* edge_table = new std::list<Edge>[range];
+  std::unique_ptr<std::list<Edge>[]> edge_table(new std::list<Edge>[range]);
 
   for (int ii = 0; ii < vertno; ++ii)
   {
@@ -414,7 +413,7 @@ void Canvas::scan_convert(Point* vertex, int vertno, RGB8 color)
 
   std::list<Edge> aet;
 
-  // while(not empty AET and ET)
+  // while not empty AET and ET
 
   for (int jj = 0; jj < range; ++jj)
   {
@@ -429,7 +428,7 @@ void Canvas::scan_convert(Point* vertex, int vertno, RGB8 color)
     }
 
 #ifdef DEBUG_RASTERIZER
-    if ( edge_table[jj].begin() != edge_table[jj].end() )
+    if (edge_table[jj].begin() != edge_table[jj].end())
     {
       DOUT(( "AET @ %3d after adding:", line ));
       print_edge_list( aet );
@@ -498,8 +497,6 @@ void Canvas::scan_convert(Point* vertex, int vertno, RGB8 color)
       li->xx += li->kk;
     }
   }
-
-  delete [] edge_table;
 } // scan_convert
 
 int Canvas::find_keyframe(const AnimObject* a, int frame) const
