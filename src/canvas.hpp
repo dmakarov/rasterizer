@@ -55,7 +55,9 @@ struct AnimObject {
   FrameData keyframes[MAX_KEYFRAMES];
   int numVertices;
   int numKeyframes;
-  int r, g, b;
+  unsigned int r, g, b;
+  void set_color(unsigned int R, unsigned int G, unsigned int B)
+  { r = R; g = G; b = B; }
 };
 
 struct Edge {

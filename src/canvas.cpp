@@ -5,6 +5,7 @@
 #include <cstring>
 #include <iostream>
 #include <list>
+#include <random>
 #include <string>
 
 #ifdef __MACH__
@@ -19,6 +20,9 @@
 
 static SHIFT_MODE_TYPE shift_mode = RANDOM;
 static WEIGHT_FUNC_TYPE weight_mode = BOX;
+static std::uniform_real_distribution<float> urf(-0.5f, 0.5f);
+static std::uniform_int_distribution<unsigned int> uiu(0, 255);
+static std::default_random_engine e;
 
 #ifdef DEBUG_RASTERIZER
 void print_edge_list(std::list<edge_type>& el)
@@ -60,22 +64,17 @@ bool validate_aet(std::list<edge_type>& el)
 // Bartlett filter implementation:
 inline int bartlett(int sample, int total)
 {
-  if (BOX == weight_mode)
-    return 0;
-  if (sample == total / 2 && 0 == total % 2)
-    return 0;
+  if (BOX == weight_mode) return 0;
+  if (sample == total / 2 && 0 == total % 2) return 0;
   return (sample < total / 2 + total % 2) ? 1 : - 1;
 } // bartlett
-
 
 static float shift_function(int mode)
 {
   switch (mode)
   {
-  case RANDOM:
-    return (float)rand() / (float)RAND_MAX - 0.5;
-  case GRID:
-    return 0;
+  case RANDOM: return urf(e);
+  case GRID:   return 0;
   }
   return 0;
 } // shift_function
@@ -136,7 +135,7 @@ static void add_edge(std::unique_ptr<std::list<Edge>[]>& et, Point* lo, Point* h
   float slope = (hi->x - lo->x) / (hi->y - lo->y);
   float ymin = ceilf(lo->y);
   float xmin = lo->x + slope * (ymin - lo->y);
-  if ((slope < 0.0 && xmin < hi->x) || (slope > 0.0 && xmin > hi->x))
+  if ((slope < 0.0f && xmin < hi->x) || (slope > 0.0f && xmin > hi->x))
   {
     xmin = hi->x;
   }
@@ -147,27 +146,15 @@ static void add_edge(std::unique_ptr<std::list<Edge>[]>& et, Point* lo, Point* h
 } // add_edge
 
 // now assign the thing a random color (not too dark)
-static void AssignRandomColor(AnimObject* obj)
+static void assign_random_color(AnimObject* obj)
 {
   static int colorToPick = 0;
   colorToPick++;
   switch(colorToPick % 3)
   {
-  case 0:
-    obj->r = 255;
-    obj->g = rand()%255;
-    obj->b = rand()%255;
-    break;
-  case 1:
-    obj->r = rand()%255;
-    obj->g = 255;
-    obj->b = rand()%255;
-    break;
-  case 2:
-    obj->r = rand()%255;
-    obj->g = rand()%255;
-    obj->b = 255;
-    break;
+  case 0: obj->set_color(255, uiu(e), uiu(e)); break;
+  case 1: obj->set_color(uiu(e), 255, uiu(e)); break;
+  case 2: obj->set_color(uiu(e), uiu(e), 255); break;
   }
 }
 
@@ -846,7 +833,7 @@ bool Canvas::mouse(int button, int state, int mx, int my, int frame, int& select
         currObject->numVertices = 0;
         currObject->numKeyframes = 1;
         currObject->keyframes[0].frameNumber = 1;
-        AssignRandomColor(currObject);
+        assign_random_color(currObject);
       }
       if (currObject->numVertices == MAX_VERTICES) return false;
       currObject->keyframes[0].vertices[currObject->numVertices].x = mx;
