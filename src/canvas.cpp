@@ -454,14 +454,6 @@ void Canvas::scan_convert(Point* vertex, int vertno, RGB8 color)
   }
 } // scan_convert
 
-int Canvas::find_keyframe(const AnimObject* a, int frame) const
-{
-  for (int i = 0; i < a->numKeyframes; ++i)
-    if (a->keyframes[i].frameNumber == frame)
-      return i;
-  return -1;
-}
-
 /**
  *  This function returns the set of vertices for the passed object in
  *  the current frame

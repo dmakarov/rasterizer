@@ -128,7 +128,7 @@ public:
    */
   bool any_keyframe(int frame) const
   {
-    auto it = std::find_if(objects.begin(), objects.end(), [frame, this] (const AnimObject* a) {return find_keyframe(a, frame) != -1;});
+    auto it = std::find_if(objects.begin(), objects.end(), [this, frame] (const AnimObject* a) {return find_keyframe(a, frame) != -1;});
     return it != objects.end();
   }
   int get_num_vertices(int object_num) const
@@ -164,7 +164,11 @@ private:
       will return 0, find_keyframe(a, 10) will return 2, and
       find_keyframe(a, 20) will return -1.
   */
-  int find_keyframe(const AnimObject* a, int frame) const;
+  int find_keyframe(const AnimObject* a, int frame) const
+  {
+    auto* k = std::find_if(a->keyframes, a->keyframes + a->numKeyframes, [this, frame] (const Frame& f) { return f.frameNumber == frame; });
+    return k == a->keyframes + a->numKeyframes ? -1 : k - a->keyframes;
+  }
   void scan_convert(Point* vertex, int vertno, RGB8 color);
   void polygon_scaling(int mx, int my, int frame, int selected_object);
   void polygon_rotation(int mx, int my, int frame, int selected_object);
