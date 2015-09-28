@@ -41,21 +41,19 @@ typedef unsigned int RGB8;
 typedef enum { GRID = 0, RANDOM } SHIFT_MODE_TYPE;
 typedef enum { BOX = 0, BARTLETT } WEIGHT_FUNC_TYPE;
 
-struct Point {
-  float x;
-  float y;
-};
+struct Point { float x, y; };
 
-struct FrameData {
+struct Frame {
   Point vertices[MAX_VERTICES];
   int frameNumber;
 };
 
 struct AnimObject {
-  FrameData keyframes[MAX_KEYFRAMES];
+  Frame keyframes[MAX_KEYFRAMES];
   int numVertices;
   int numKeyframes;
   unsigned int r, g, b;
+  RGB8 get_color() { return r + (g << 8) + (b << 16); }
   void set_color(unsigned int R, unsigned int G, unsigned int B)
   { r = R; g = G; b = B; }
 };
@@ -155,7 +153,7 @@ private:
       between keyframes, get_vertices will automatically interpolate
       linearly and give you the correct values.
   */
-  unsigned int get_vertices(int id, float frame, Point* holderFrame) const;
+  RGB8 get_vertices(int id, float frame, Point* holderFrame) const;
   /** Function: find_keyframe
       ----------------------
       This function will tell you if object <a> has a keyframe at

@@ -198,7 +198,7 @@ void Canvas::save(const char* filename) const
  *
  *
  */
-void Canvas::rasterize(int frameNumber, bool antiAlias, int numAliasSamples, bool motionBlur, int numMotionSamples, const char* aafilter_function)
+void Canvas::rasterize(int frame_num, bool do_anti_aliasing, int numAliasSamples, bool motionBlur, int numMotionSamples, const char* aafilter_function)
 {
   // set up the accumulation buffer and a scratch pad canvas;
 
@@ -218,7 +218,7 @@ void Canvas::rasterize(int frameNumber, bool antiAlias, int numAliasSamples, boo
   float frame_shift = 0.0;
   float frame_offset = 0.0;
 
-  if (! antiAlias)
+  if (!do_anti_aliasing)
   {
     numAliasSamples = 1;
   }
@@ -240,7 +240,7 @@ void Canvas::rasterize(int frameNumber, bool antiAlias, int numAliasSamples, boo
     frame_shift = 1.0 / (float)numMotionSamples;
   }
   // frame
-  DOUT(("FRAME #%2d: %dx%d AA + %d MS\n", frameNumber, tiles, tiles, numMotionSamples));
+  DOUT(("FRAME #%2d: %dx%d AA + %d MS\n", frame_num, tiles, tiles, numMotionSamples));
 
   int samples = 0;
   int yyfilt = 1;
@@ -255,7 +255,7 @@ void Canvas::rasterize(int frameNumber, bool antiAlias, int numAliasSamples, boo
       int mbfilt = 1;
       for (int mov = 0; mov < numMotionSamples; ++mov)
       {
-        float frame = (float)frameNumber + frame_offset + frame_shift * mov;
+        float frame = (float)frame_num + frame_offset + frame_shift * mov;
         if (frame < 1.0)
         {
           mbfilt += bartlett(mov + 1, numMotionSamples);
@@ -462,51 +462,47 @@ int Canvas::find_keyframe(const AnimObject* a, int frame) const
   return -1;
 }
 
-/* Function: get_vertices
- * This function returns the set of vertices for the passed object in
- * the current frame */
-RGB8 Canvas::get_vertices(int id, float frameNumber, Point* holderFrame) const
+/**
+ *  This function returns the set of vertices for the passed object in
+ *  the current frame
+ */
+RGB8 Canvas::get_vertices(int id, float frame, Point* vertices) const
 {
-  int lastFrameNumber = -1, nextFrameNumber = -1;
-  int lastFrameID = -1, nextFrameID = -1;
+  float prev_keyframe = -1.0f, next_keyframe = -1.0f;
+  int prev_frame_id = -1, next_frame_id = -1;
 
-  //here we do the interpolation!
-
-  for (int i = (int)frameNumber; i >= 0; --i)
-    if ((lastFrameID = find_keyframe(objects[id], i)) != -1)
+  for (int i = (int)frame; i >= 0; --i)
+    if ((prev_frame_id = find_keyframe(objects[id], i)) != -1)
     {
-      lastFrameNumber = i;
+      prev_keyframe = i;
       break;
     }
+  // there should always be a keyframe at frame 1
+  if (prev_frame_id == -1)
+    prev_frame_id = 1;
 
-  if (lastFrameID == -1)
-    lastFrameID = 1; // there should always be a keyframe at frame 1
-
-  for (int i= ((int)frameNumber + 1); i <= MAX_FRAMES; ++i)
-    if ((nextFrameID = find_keyframe(objects[id], i))!=-1)
+  for (int i = ((int)frame + 1); i <= MAX_FRAMES; ++i)
+    if ((next_frame_id = find_keyframe(objects[id], i)) != -1)
     {
-      nextFrameNumber = i;
+      next_keyframe = i;
       break;
     }
-  // if there are no more keyframes, just go with the last frame
-  RGB8 color = objects[id]->r + (objects[id]->g << 8) + (objects[id]->b << 16);
-  if (nextFrameID == -1)
+  auto* prev_keyframe_vertices = objects[id]->keyframes[prev_frame_id].vertices;
+  auto* next_keyframe_vertices = objects[id]->keyframes[next_frame_id].vertices;
+  if (next_frame_id == -1) // if there are no more keyframes, just go with the last frame
   {
-    memcpy(holderFrame, objects[id]->keyframes[lastFrameID].vertices, MAX_VERTICES * sizeof(Point));
-    return color;
+    memcpy(vertices, prev_keyframe_vertices, MAX_VERTICES * sizeof(Point));
   }
-  else
+  else // here we do the interpolation
   {
-    float percent = ((float)(frameNumber-lastFrameNumber))/((frameNumber-lastFrameNumber)+(nextFrameNumber-frameNumber));
+    float percent = (frame - prev_keyframe) / (next_keyframe - prev_keyframe);
     for (int i = 0; i < objects[id]->numVertices; ++i)
     {
-      holderFrame[i].x = ((1-percent)*(objects[id]->keyframes[lastFrameID].vertices[i].x) +
-                          (percent*(objects[id]->keyframes[nextFrameID].vertices[i].x)));
-      holderFrame[i].y = ((1-percent)*(objects[id]->keyframes[lastFrameID].vertices[i].y) +
-                          (percent*(objects[id]->keyframes[nextFrameID].vertices[i].y)));
+      vertices[i].x = ((1 - percent) * (prev_keyframe_vertices[i].x) + (percent * (next_keyframe_vertices[i].x)));
+      vertices[i].y = ((1 - percent) * (prev_keyframe_vertices[i].y) + (percent * (next_keyframe_vertices[i].y)));
     }
   }
-  return color;
+  return objects[id]->get_color();
 }
 
 void Canvas::display(int frame, int selected_object) const
@@ -734,7 +730,7 @@ bool Canvas::motion(int mx, int my, int frame, int selected_object)
 
     //shift everything over
     for (int i = objects[selected_object]->numKeyframes - 1; i >= insertLoc; --i)
-      memcpy(&(objects[selected_object]->keyframes[i+1]), &(objects[selected_object]->keyframes[i]), sizeof(FrameData));
+      memcpy(&(objects[selected_object]->keyframes[i+1]), &(objects[selected_object]->keyframes[i]), sizeof(Frame));
 
     memcpy(objects[selected_object]->keyframes[insertLoc].vertices, vertices, MAX_VERTICES*sizeof(Point));
 
@@ -909,7 +905,7 @@ void Canvas::delete_keyframe(int id, int frame)
     if ((frameID = find_keyframe(obj, frame)) != -1)
     {
       for (int j = frameID; j < obj->numKeyframes - 1; ++j)
-        memcpy(&(obj->keyframes[j]), &(obj->keyframes[j + 1]), sizeof(FrameData));
+        memcpy(&(obj->keyframes[j]), &(obj->keyframes[j + 1]), sizeof(Frame));
       obj->numKeyframes--;
     }
 }
