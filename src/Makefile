@@ -4,8 +4,10 @@ DEBUG=-g
 
 UNAME := $(shell uname)
 
+INCL := -I /usr/local/include
+
 ifeq ($(UNAME), Darwin)
-  LIBS := -lglui -framework GLUT -framework OpenGL
+  LIBS := -L /usr/local/lib -lglui -framework GLUT -framework OpenGL
   WARN := -Wall -Wno-deprecated-declarations -Wno-write-strings
 endif
 ifeq ($(UNAME), Linux)
