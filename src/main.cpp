@@ -3,14 +3,10 @@
  */
 #include <cassert>
 #include <iostream>
+#include <GL/glui.h>
+#ifndef __MACH__
 #include <unistd.h>
 #include <string.h>
-#include <GL/glui.h>
-#ifdef __MACH__
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
-#else
 #include <GL/glut.h>
 #endif
 
@@ -38,9 +34,9 @@ int main_window;
 int render_window;
 int current_frame;
 int singMult; // whether you're rendering single or multiple frames
-int antiAlias;
+bool anti_aliasing_enabled;
 int numAliasSamples;
-int motion_blur_enabled;
+bool motion_blur_enabled;
 int numBlurSamples;
 int startFrame;
 int endFrame;
@@ -80,7 +76,7 @@ static void edit_screen_display_callback()
   canvas->display(current_frame, selected_object);
 }
 
-static void myKeyboardFunc(unsigned char key, int x, int y)
+static void myKeyboardFunc(unsigned char key, int, int)
 {
   bool post_redisplay = false;
   switch(key)
@@ -89,6 +85,7 @@ static void myKeyboardFunc(unsigned char key, int x, int y)
   case 127: post_redisplay = canvas->delete_object(selected_object); selected_object = -1; break;
   case '.': frame_spinner->set_int_val(current_frame + 1); break;
   case ',': frame_spinner->set_int_val(current_frame - 1); break;
+  default: break;
   }
   if (post_redisplay)
   {
@@ -114,7 +111,7 @@ static void myMouseFunc(int button, int state, int mx, int my)
   }
 }
 
-static void FrameChangedCall(int id)
+static void FrameChangedCall(int)
 {
   check_delete_keyframe_status();
 }
@@ -125,7 +122,7 @@ static void DeleteKeyframeCall(int id)
   check_delete_keyframe_status();
 }
 
-static void SaveObjectsCall(int id)
+static void SaveObjectsCall(int)
 {
   char buf[1024];
   if (strlen(save_load_file) == 0) return;
@@ -133,7 +130,7 @@ static void SaveObjectsCall(int id)
   canvas->save_objects(buf);
 }
 
-static void LoadObjectsCall(int id)
+static void LoadObjectsCall(int)
 {
   char buf[1024];
   if (strlen(save_load_file) == 0) return;
@@ -144,7 +141,7 @@ static void LoadObjectsCall(int id)
   glutPostRedisplay();
 }
 
-static void SingMultChanged(int id)
+static void SingMultChanged(int)
 {
   if (singMult == 0)
   {
@@ -158,21 +155,21 @@ static void SingMultChanged(int id)
   }
 }
 
-static void AntiAliasChanged(int id)
+static void AntiAliasChanged(int)
 {
-  if (antiAlias == 0)
-  {
-    num_alias_samples_editor->disable();
-    alias_func_edit->disable();
-  }
-  else
+  if (anti_aliasing_enabled)
   {
     num_alias_samples_editor->enable();
     alias_func_edit->enable();
   }
+  else
+  {
+    num_alias_samples_editor->disable();
+    alias_func_edit->disable();
+  }
 }
 
-static void MotionBlurChanged(int id)
+static void MotionBlurChanged(int)
 {
   if (motion_blur_enabled)
     num_blur_samples_editor->enable();
@@ -192,12 +189,12 @@ static void ParseFilename(char* filename, char* pathless)
   pathless[j] = '\0';
 }
 
-static void DisplayAndSaveCanvas(int id)
+static void DisplayAndSaveCanvas(int)
 {
   char buf[1024], pathless[1024];
   if (singMult == 0)
   {
-    canvas->rasterize(current_frame, antiAlias, numAliasSamples, motion_blur_enabled, numBlurSamples, aafilter_function);
+    canvas->rasterize(current_frame, anti_aliasing_enabled, numAliasSamples, motion_blur_enabled, numBlurSamples, aafilter_function);
     if (strlen(renderOut) != 0)
     {
       sprintf(buf, "%s.ppm", renderOut);
@@ -217,7 +214,7 @@ static void DisplayAndSaveCanvas(int id)
 
     for (int i = startFrame; i <= endFrame; ++i)
     {
-      canvas->rasterize(i, antiAlias, numAliasSamples, motion_blur_enabled, numBlurSamples, aafilter_function);
+      canvas->rasterize(i, anti_aliasing_enabled, numAliasSamples, motion_blur_enabled, numBlurSamples, aafilter_function);
       if (strlen(renderOut) != 0)
       {
         sprintf(buf, "%s.%d.ppm", renderOut, i);
@@ -242,7 +239,7 @@ static void render_window_display_callback()
 static void CommandLineRasterize(int argc, char* argv[])
 {
   int i = 1; //step through the command line
-  int motion_blur_enabled = 0, antiAlias = 0;
+  bool motion_blur_enabled = false, anti_aliasing_enabled = false;
   int numAliasSamples = 0, numBlurSamples = 0;
   int startFrame, endFrame;
   char inputFile[1024], outputFile[1024], pathless[1024], buf[1024];
@@ -255,7 +252,7 @@ static void CommandLineRasterize(int argc, char* argv[])
 
   if (strncmp(argv[i], "-a", 2)==0)
   {
-    antiAlias = 1;
+    anti_aliasing_enabled = true;
     if (sscanf(argv[i], "-a%d", &numAliasSamples)==0)
     {
       printf("Incorrect arguments. Type 'animgui -help' for more info\n");
@@ -265,7 +262,7 @@ static void CommandLineRasterize(int argc, char* argv[])
 
   if (strncmp(argv[i], "-m", 2)==0)
   {
-    motion_blur_enabled = 1;
+    motion_blur_enabled = true;
     if (sscanf(argv[i], "-m%d", &numBlurSamples)==0)
     {
       printf("Incorrect arguments. Type 'animgui -help' for more info\n");
@@ -297,8 +294,8 @@ static void CommandLineRasterize(int argc, char* argv[])
   printf("End frame: %d\n", endFrame);
   printf("Input file: %s\n", inputFile);
   printf("Output file label: %s\n", outputFile);
-  printf("Antialiasing: %s\n", antiAlias?"On":"Off");
-  if (antiAlias)
+  printf("Antialiasing: %s\n", anti_aliasing_enabled ? "On" : "Off");
+  if (anti_aliasing_enabled)
   {
     printf("Number of samples: %d\n", numAliasSamples);
   }
@@ -317,7 +314,7 @@ static void CommandLineRasterize(int argc, char* argv[])
   for (i = startFrame; i <= endFrame; ++i)
   {
     printf("Rendering Frame %d\n", i);
-    canvas->rasterize(i, antiAlias, numAliasSamples, motion_blur_enabled, numBlurSamples, aafilter_function);
+    canvas->rasterize(i, anti_aliasing_enabled, numAliasSamples, motion_blur_enabled, numBlurSamples, aafilter_function);
     sprintf(buf, "%s.%d.ppm", outputFile, i);
     canvas->save(buf);
     sprintf(buf, "%s.%d.ppm", pathless, i);
@@ -386,7 +383,9 @@ int main(int argc, char* argv[])
 
   GLUI_Panel* render_panel = glui->add_panel("Rendering");
   glui->add_edittext_to_panel(render_panel, "Render Out:", GLUI_EDITTEXT_TEXT, renderOut);
-  glui->add_checkbox_to_panel(render_panel, "Antialias", &antiAlias, -1, AntiAliasChanged);
+  int integer_value;
+  glui->add_checkbox_to_panel(render_panel, "Antialias", &integer_value, -1, AntiAliasChanged);
+  anti_aliasing_enabled = integer_value != 0;
   num_alias_samples_editor = glui->add_edittext_to_panel(render_panel, "Number Of Samples", GLUI_EDITTEXT_INT, &numAliasSamples);
   num_alias_samples_editor->disable();
   num_alias_samples_editor->set_int_val(1);
@@ -395,7 +394,8 @@ int main(int argc, char* argv[])
   alias_func_edit = glui->add_edittext_to_panel(render_panel, "Filter:", GLUI_EDITTEXT_TEXT, aafilter_function);
   alias_func_edit->disable();
 
-  glui->add_checkbox_to_panel(render_panel, "Motion Blur", &motion_blur_enabled, -1, MotionBlurChanged);
+  glui->add_checkbox_to_panel(render_panel, "Motion Blur", &integer_value, -1, MotionBlurChanged);
+  motion_blur_enabled = integer_value != 0;
   num_blur_samples_editor = glui->add_edittext_to_panel(render_panel, "Number Of Samples", GLUI_EDITTEXT_INT, &numBlurSamples);
   num_blur_samples_editor->disable();
   num_blur_samples_editor->set_int_val(1);
