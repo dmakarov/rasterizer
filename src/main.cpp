@@ -12,6 +12,8 @@
 
 #include "canvas.hpp"
 
+using namespace std;
+
 #define WINDOW_WIDTH  600
 #define WINDOW_HEIGHT 400
 
@@ -28,19 +30,19 @@ GLUI_Spinner* frame_spinner;
 GLUI_Button* delete_keyframe_button;
 
 char aafilter_function[sizeof(GLUI_String)];
+char render_filename[sizeof(GLUI_String)]; // the filename(s) to render to
 char save_load_file[sizeof(GLUI_String)];
-char renderOut[sizeof(GLUI_String)]; // the filename(s) to render to
+bool anti_aliasing_enabled;
+bool motion_blur_enabled;
+bool multiple_frames; // whether you're rendering single or multiple frames
+int selected_object = -1;
+int num_alias_samples;
+int num_blur_samples;
 int main_window;
 int render_window;
 int current_frame;
-int singMult; // whether you're rendering single or multiple frames
-bool anti_aliasing_enabled;
-int numAliasSamples;
-bool motion_blur_enabled;
-int numBlurSamples;
-int startFrame;
-int endFrame;
-int selected_object = -1;
+int first_frame;
+int final_frame;
 Canvas* canvas;
 
 static void check_delete_keyframe_status()
@@ -143,15 +145,15 @@ static void LoadObjectsCall(int)
 
 static void SingMultChanged(int)
 {
-  if (singMult == 0)
-  {
-    start_frame_editor->disable();
-    end_frame_editor->disable();
-  }
-  else
+  if (multiple_frames)
   {
     start_frame_editor->enable();
     end_frame_editor->enable();
+  }
+  else
+  {
+    start_frame_editor->disable();
+    end_frame_editor->disable();
   }
 }
 
@@ -192,32 +194,19 @@ static void ParseFilename(char* filename, char* pathless)
 static void DisplayAndSaveCanvas(int)
 {
   char buf[1024], pathless[1024];
-  if (singMult == 0)
+  if (multiple_frames)
   {
-    canvas->rasterize(current_frame, anti_aliasing_enabled, numAliasSamples, motion_blur_enabled, numBlurSamples, aafilter_function);
-    if (strlen(renderOut) != 0)
-    {
-      sprintf(buf, "%s.ppm", renderOut);
-      canvas->save(buf);
-    }
-    glutPostWindowRedisplay(render_window);
-    glutSetWindow(render_window);
-    glutShowWindow();
-    glutSetWindow(main_window);
-  }
-  else
-  {
-    ParseFilename(renderOut, pathless);
-    sprintf(buf, "%s.list", renderOut);
+    ParseFilename(render_filename, pathless);
+    sprintf(buf, "%s.list", render_filename);
     FILE* listFile = fopen(buf, "w");
     assert(listFile != NULL);
 
-    for (int i = startFrame; i <= endFrame; ++i)
+    for (int i = first_frame; i <= final_frame; ++i)
     {
-      canvas->rasterize(i, anti_aliasing_enabled, numAliasSamples, motion_blur_enabled, numBlurSamples, aafilter_function);
-      if (strlen(renderOut) != 0)
+      canvas->rasterize(i, anti_aliasing_enabled, num_alias_samples, motion_blur_enabled, num_blur_samples, aafilter_function);
+      if (strlen(render_filename) != 0)
       {
-        sprintf(buf, "%s.%d.ppm", renderOut, i);
+        sprintf(buf, "%s.%d.ppm", render_filename, i);
         canvas->save(buf);
         sprintf(buf, "%s.%d.ppm", pathless, i);
         fprintf(listFile, "%s\n", buf);
@@ -229,6 +218,19 @@ static void DisplayAndSaveCanvas(int)
     }
     fclose(listFile);
   }
+  else
+  {
+    canvas->rasterize(current_frame, anti_aliasing_enabled, num_alias_samples, motion_blur_enabled, num_blur_samples, aafilter_function);
+    if (strlen(render_filename) != 0)
+    {
+      sprintf(buf, "%s.ppm", render_filename);
+      canvas->save(buf);
+    }
+    glutPostWindowRedisplay(render_window);
+    glutSetWindow(render_window);
+    glutShowWindow();
+    glutSetWindow(main_window);
+  }
 }
 
 static void render_window_display_callback()
@@ -238,83 +240,82 @@ static void render_window_display_callback()
 
 static void CommandLineRasterize(int argc, char* argv[])
 {
-  int i = 1; //step through the command line
-  bool motion_blur_enabled = false, anti_aliasing_enabled = false;
-  int numAliasSamples = 0, numBlurSamples = 0;
-  int startFrame, endFrame;
   char inputFile[1024], outputFile[1024], pathless[1024], buf[1024];
+  bool motion_blur_enabled = false, anti_aliasing_enabled = false;
+  int num_alias_samples = 0, num_blur_samples = 0;
+  int first_frame, final_frame;
+  int i = 1; // step through the command line
 
-  if (strcmp(argv[i], "-help")==0)
+  if (argc < 5 || strcmp(argv[i], "-help") == 0)
   {
-    printf("Usage: rasterizer [-a<#samples>] [-m<#samples>] <startframe> <endframe> <infile> <outfile>\n");
+    cout << "Usage: rasterizer [-a<#samples>] [-m<#samples>] <first frame> <final frame> <infile> <outfile>\n";
     return;
   }
 
-  if (strncmp(argv[i], "-a", 2)==0)
+  if (strncmp(argv[i], "-a", 2) == 0)
   {
     anti_aliasing_enabled = true;
-    if (sscanf(argv[i], "-a%d", &numAliasSamples)==0)
+    if (sscanf(argv[i], "-a%d", &num_alias_samples) == 0)
     {
-      printf("Incorrect arguments. Type 'animgui -help' for more info\n");
+      printf("Incorrect arguments. Type 'rasterizer -help' for more info\n");
     };
-    i++;
+    ++i;
   }
 
-  if (strncmp(argv[i], "-m", 2)==0)
+  if (strncmp(argv[i], "-m", 2) == 0)
   {
     motion_blur_enabled = true;
-    if (sscanf(argv[i], "-m%d", &numBlurSamples)==0)
+    if (sscanf(argv[i], "-m%d", &num_blur_samples) == 0)
     {
-      printf("Incorrect arguments. Type 'animgui -help' for more info\n");
+      printf("Incorrect arguments. Type 'rasterizer -help' for more info\n");
     };
-    i++;
+    ++i;
   }
 
   //there should be four more arguments after the optional switches
-  if (i!=(argc-4))
+  if (i != argc - 4)
   {
-    printf("Incorrect number of arguments. Type 'animgui -help' for more info\n");
+    printf("Incorrect number of arguments. Type 'rasterizer -help' for more info\n");
     return;
   }
   else
   {
-    startFrame = atoi(argv[i]);
-    endFrame = atoi(argv[i+1]);
-    if (startFrame == 0 || endFrame == 0)
+    first_frame = atoi(argv[i]);
+    final_frame = atoi(argv[i + 1]);
+    if (first_frame == 0 || final_frame == 0)
     {
-      printf("Incorrect arguments. Type 'animgui -help' for more info\n");
+      printf("Incorrect arguments. Type 'rasterizer -help' for more info\n");
       return;
     }
-    strcpy(inputFile, argv[i+2]);
-    strcpy(outputFile, argv[i+3]);
+    strcpy(inputFile, argv[i + 2]);
+    strcpy(outputFile, argv[i + 3]);
   }
 
-  printf("Let's gett reaadddyyy to RENNNDDEERRR!\n");
-  printf("Start frame: %d\n", startFrame);
-  printf("End frame: %d\n", endFrame);
+  printf("Start frame: %d\n", first_frame);
+  printf("End frame: %d\n", final_frame);
   printf("Input file: %s\n", inputFile);
   printf("Output file label: %s\n", outputFile);
   printf("Antialiasing: %s\n", anti_aliasing_enabled ? "On" : "Off");
   if (anti_aliasing_enabled)
   {
-    printf("Number of samples: %d\n", numAliasSamples);
+    printf("Number of samples: %d\n", num_alias_samples);
   }
   printf("Motion blur: %s\n", motion_blur_enabled?"On":"Off");
   if (motion_blur_enabled)
   {
-    printf("Number of samples: %d\n", numBlurSamples);
+    printf("Number of samples: %d\n", num_blur_samples);
   }
   canvas->load_objects(inputFile);
 
   ParseFilename(outputFile, pathless);
   sprintf(buf, "%s.list", outputFile);
   FILE* listFile = fopen(buf, "w");
-  assert(listFile!=NULL);
+  assert(listFile != nullptr);
 
-  for (i = startFrame; i <= endFrame; ++i)
+  for (i = first_frame; i <= final_frame; ++i)
   {
     printf("Rendering Frame %d\n", i);
-    canvas->rasterize(i, anti_aliasing_enabled, numAliasSamples, motion_blur_enabled, numBlurSamples, aafilter_function);
+    canvas->rasterize(i, anti_aliasing_enabled, num_alias_samples, motion_blur_enabled, num_blur_samples, aafilter_function);
     sprintf(buf, "%s.%d.ppm", outputFile, i);
     canvas->save(buf);
     sprintf(buf, "%s.%d.ppm", pathless, i);
@@ -382,11 +383,11 @@ int main(int argc, char* argv[])
   glui->add_column(false);
 
   GLUI_Panel* render_panel = glui->add_panel("Rendering");
-  glui->add_edittext_to_panel(render_panel, "Render Out:", GLUI_EDITTEXT_TEXT, renderOut);
+  glui->add_edittext_to_panel(render_panel, "Render Out:", GLUI_EDITTEXT_TEXT, render_filename);
   int integer_value;
   glui->add_checkbox_to_panel(render_panel, "Antialias", &integer_value, -1, AntiAliasChanged);
   anti_aliasing_enabled = integer_value != 0;
-  num_alias_samples_editor = glui->add_edittext_to_panel(render_panel, "Number Of Samples", GLUI_EDITTEXT_INT, &numAliasSamples);
+  num_alias_samples_editor = glui->add_edittext_to_panel(render_panel, "Number Of Samples", GLUI_EDITTEXT_INT, &num_alias_samples);
   num_alias_samples_editor->disable();
   num_alias_samples_editor->set_int_val(1);
   num_alias_samples_editor->set_int_limits(1, MAX_ALIAS_SAMPLES);
@@ -396,20 +397,21 @@ int main(int argc, char* argv[])
 
   glui->add_checkbox_to_panel(render_panel, "Motion Blur", &integer_value, -1, MotionBlurChanged);
   motion_blur_enabled = integer_value != 0;
-  num_blur_samples_editor = glui->add_edittext_to_panel(render_panel, "Number Of Samples", GLUI_EDITTEXT_INT, &numBlurSamples);
+  num_blur_samples_editor = glui->add_edittext_to_panel(render_panel, "Number Of Samples", GLUI_EDITTEXT_INT, &num_blur_samples);
   num_blur_samples_editor->disable();
   num_blur_samples_editor->set_int_val(1);
   num_blur_samples_editor->set_int_limits(1, MAX_BLUR_SAMPLES);
 
-  GLUI_RadioGroup* singMultRadioGroup = glui->add_radiogroup_to_panel(render_panel, &singMult, -1, SingMultChanged);
+  GLUI_RadioGroup* singMultRadioGroup = glui->add_radiogroup_to_panel(render_panel, &integer_value, -1, SingMultChanged);
+  multiple_frames = integer_value != 0;
   glui->add_radiobutton_to_group(singMultRadioGroup, "This Frame Only");
   glui->add_radiobutton_to_group(singMultRadioGroup, "Multiple Frames");
-  start_frame_editor = glui->add_edittext_to_panel(render_panel, "Start Frame:", GLUI_EDITTEXT_INT, &startFrame);
+  start_frame_editor = glui->add_edittext_to_panel(render_panel, "Start Frame:", GLUI_EDITTEXT_INT, &first_frame);
   start_frame_editor->disable();
   start_frame_editor->set_int_val(1);
   start_frame_editor->set_int_limits(1, 100);
 
-  end_frame_editor = glui->add_edittext_to_panel(render_panel, "End Frame:", GLUI_EDITTEXT_INT, &endFrame);
+  end_frame_editor = glui->add_edittext_to_panel(render_panel, "End Frame:", GLUI_EDITTEXT_INT, &final_frame);
   end_frame_editor->disable();
   end_frame_editor->set_int_val(100);
   end_frame_editor->set_int_limits(1, 100);
