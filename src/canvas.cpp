@@ -79,8 +79,8 @@ static float shift_function(int mode)
   return 0;
 } // shift_function
 
-// Build a table of coordinate shifts within a pixel boundaries.  Every value in
-// data array is in the range [-0.5, 0.5].
+// Build a table of coordinate shifts within a pixel boundaries.
+// Every value in data array is in the range [-0.5, 0.5].
 static void precompute_shifts(Point data[8][8], int dim)
 {
   if (1 == dim)
@@ -130,7 +130,8 @@ static void parse_aafilter_func(std::string& expr)
   }
 }
 
-static void add_edge(std::unique_ptr<std::list<Edge>[]>& et, Point* lo, Point* hi, int bias)
+static void add_edge(std::unique_ptr<std::list<Edge>[]>& et,
+                     Point* lo, Point* hi, int bias)
 {
   float slope = (hi->x - lo->x) / (hi->y - lo->y);
   float ymin = ceilf(lo->y);
@@ -142,7 +143,8 @@ static void add_edge(std::unique_ptr<std::list<Edge>[]>& et, Point* lo, Point* h
   int bucket = ymin - bias;
   et[bucket].emplace_back(Edge(hi->y, xmin, slope));
 
-  DOUT(("EDGE (%6.2f, %6.2f)--(%6.2f, %6.2f) @ %d\n", lo->x, lo->y, hi->x, hi->y, bucket));
+  DOUT(("EDGE (%6.2f, %6.2f)--(%6.2f, %6.2f) @ %d\n",
+        lo->x, lo->y, hi->x, hi->y, bucket));
 } // add_edge
 
 // now assign the thing a random color (not too dark)
@@ -198,7 +200,9 @@ void Canvas::save(const char* filename) const
  *
  *
  */
-void Canvas::rasterize(int frame_num, bool do_anti_aliasing, int numAliasSamples, bool motionBlur, int numMotionSamples, const char* aafilter_function)
+void Canvas::rasterize(int frame_num, bool do_anti_aliasing,
+                       int numAliasSamples, bool motionBlur,
+                       int numMotionSamples, const char* aafilter_function)
 {
   // set up the accumulation buffer and a scratch pad canvas;
 
@@ -229,7 +233,8 @@ void Canvas::rasterize(int frame_num, bool do_anti_aliasing, int numAliasSamples
   if (numAliasSamples > 1)
   {
     // don't do more than MAX_ALIAS_SAMPLES:
-    float froot = (numAliasSamples < MAX_ALIAS_SAMPLES) ? sqrt(numAliasSamples) : sqrt(MAX_ALIAS_SAMPLES);
+    float froot = (numAliasSamples < MAX_ALIAS_SAMPLES)
+                ? sqrt(numAliasSamples) : sqrt(MAX_ALIAS_SAMPLES);
     int iroot = froot;
     tiles = (froot - (float)iroot > 0.0) ? iroot + 1 : iroot;
   }
@@ -240,7 +245,8 @@ void Canvas::rasterize(int frame_num, bool do_anti_aliasing, int numAliasSamples
     frame_shift = 1.0 / (float)numMotionSamples;
   }
   // frame
-  DOUT(("FRAME #%2d: %dx%d AA + %d MS\n", frame_num, tiles, tiles, numMotionSamples));
+  DOUT(("FRAME #%2d: %dx%d AA + %d MS\n",
+        frame_num, tiles, tiles, numMotionSamples));
 
   int samples = 0;
   int yyfilt = 1;
@@ -265,7 +271,8 @@ void Canvas::rasterize(int frame_num, bool do_anti_aliasing, int numAliasSamples
         for (int obj = 0; obj < objects.size(); ++obj)
         {
           // make sure it hasn't gone beyond the last frame
-          float max_frame = objects[obj]->keyframes[objects[obj]->numKeyframes - 1].frameNumber;
+          float max_frame = objects[obj]->keyframes[objects[obj]->numKeyframes
+                                                    - 1].frameNumber;
           float adj_frame = (frame > max_frame) ? max_frame : frame;
           // Here we grab the vertices for this object at this snapshot in time
           Point vertices[MAX_VERTICES];
@@ -279,7 +286,8 @@ void Canvas::rasterize(int frame_num, bool do_anti_aliasing, int numAliasSamples
             vertices[vv].y += aajitter[ii][jj].y;
           }
 
-          DOUT(("OBJECT #%2d [%d,%d] sample: %2d vertices\n", obj, ii, jj, vertno));
+          DOUT(("OBJECT #%2d [%d,%d] sample: %2d vertices\n",
+                obj, ii, jj, vertno));
 
           pad.scan_convert(vertices, vertno, color);
           ++scans;
@@ -429,7 +437,8 @@ void Canvas::scan_convert(Point* vertex, int vertno, RGB8 color)
           std::list<Edge>::iterator lj = li;
           ++lj;
 
-          DOUT(("SPAN %3d: %d <-> %d\n", line, (int)ceilf(li->xx), (int)lj->xx));
+          DOUT(("SPAN %3d: %d <-> %d\n",
+                line, (int)ceilf(li->xx), (int)lj->xx));
 
           for (int xx = (int)ceilf(li->xx); xx <= lj->xx; ++xx)
           {
@@ -481,8 +490,8 @@ RGB8 Canvas::get_vertices(int id, float frame, Point* vertices) const
     }
   auto* prev_keyframe_vertices = objects[id]->keyframes[prev_frame_id].vertices;
   auto* next_keyframe_vertices = objects[id]->keyframes[next_frame_id].vertices;
-  if (next_frame_id == -1) // if there are no more keyframes, just go with the last frame
-  {
+  if (next_frame_id == -1)
+  { // if there are no more keyframes, just go with the last frame
     memcpy(vertices, prev_keyframe_vertices, MAX_VERTICES * sizeof(Point));
   }
   else // here we do the interpolation
@@ -490,8 +499,10 @@ RGB8 Canvas::get_vertices(int id, float frame, Point* vertices) const
     float percent = (frame - prev_keyframe) / (next_keyframe - prev_keyframe);
     for (int i = 0; i < objects[id]->numVertices; ++i)
     {
-      vertices[i].x = ((1 - percent) * (prev_keyframe_vertices[i].x) + (percent * (next_keyframe_vertices[i].x)));
-      vertices[i].y = ((1 - percent) * (prev_keyframe_vertices[i].y) + (percent * (next_keyframe_vertices[i].y)));
+      vertices[i].x = ((1 - percent) * (prev_keyframe_vertices[i].x)
+                       + (percent * (next_keyframe_vertices[i].x)));
+      vertices[i].y = ((1 - percent) * (prev_keyframe_vertices[i].y)
+                       + (percent * (next_keyframe_vertices[i].y)));
     }
   }
   return objects[id]->get_color();
@@ -527,8 +538,8 @@ void Canvas::display(int frame, int selected_object) const
     Point vertices[MAX_VERTICES];
     get_vertices(i, frame, vertices);
     glColor3d(objects[i]->r/255.0, objects[i]->g/255.0, objects[i]->b/255.0);
-    if (selected_object == i) // there's a selected object! draw it different-like
-    {
+    if (selected_object == i)
+    { // there's a selected object! draw it different-like
       glLineWidth(3);
     }
     else
@@ -587,7 +598,8 @@ void Canvas::display(int frame, int selected_object) const
     glBegin(GL_LINE_STRIP);
     for (int i = 0; i < currObject->numVertices; ++i)
     {
-      glVertex2d(currObject->keyframes[0].vertices[i].x, -currObject->keyframes[0].vertices[i].y);
+      glVertex2d(currObject->keyframes[0].vertices[i].x,
+                 -currObject->keyframes[0].vertices[i].y);
     }
     glEnd();
 
@@ -596,10 +608,14 @@ void Canvas::display(int frame, int selected_object) const
     glBegin(GL_LINES);
     for (int j = 0; j < currObject->numVertices; ++j)
     {
-      glVertex2d(currObject->keyframes[0].vertices[j].x+5, -currObject->keyframes[0].vertices[j].y);
-      glVertex2d(currObject->keyframes[0].vertices[j].x-5, -currObject->keyframes[0].vertices[j].y);
-      glVertex2d(currObject->keyframes[0].vertices[j].x, -currObject->keyframes[0].vertices[j].y+5);
-      glVertex2d(currObject->keyframes[0].vertices[j].x, -currObject->keyframes[0].vertices[j].y-5);
+      glVertex2d(currObject->keyframes[0].vertices[j].x+5,
+                 -currObject->keyframes[0].vertices[j].y);
+      glVertex2d(currObject->keyframes[0].vertices[j].x-5,
+                 -currObject->keyframes[0].vertices[j].y);
+      glVertex2d(currObject->keyframes[0].vertices[j].x,
+                 -currObject->keyframes[0].vertices[j].y+5);
+      glVertex2d(currObject->keyframes[0].vertices[j].x,
+                 -currObject->keyframes[0].vertices[j].y-5);
 
     }
     glEnd();
@@ -624,12 +640,15 @@ void Canvas::polygon_scaling(int mx, int my, int frame, int selected_object)
   mx -= rotation_centerX;
   my -= rotation_centerY;
 
-  if (std::abs(prev_rotationX - mx) < 10 && std::abs(prev_rotationY - my) < 10) return;
+  if (std::abs(prev_rotationX - mx) < 10 && std::abs(prev_rotationY - my) < 10)
+    return;
 
   float dm = sqrt(mx*mx + my*my);
   float dp = sqrt(prev_rotationX*prev_rotationX + prev_rotationY*prev_rotationY);
 
-  Point* vert = objects[selected_object]->keyframes[find_keyframe(objects[selected_object], frame)].vertices;
+  auto* vert = objects[selected_object]->keyframes[find_keyframe(
+                                                   objects[selected_object],
+                                                   frame)].vertices;
   int vertno = objects[selected_object]->numVertices;
 
   float sx = (dm > dp) ? 1.2 : 0.8;
@@ -655,7 +674,8 @@ void Canvas::polygon_rotation(int mx, int my, int frame, int selected_object)
   mx -= rotation_centerX;
   my -= rotation_centerY;
 
-  if (std::abs(prev_rotationX - mx) < 10 && std::abs(prev_rotationY - my) < 10) return;
+  if (std::abs(prev_rotationX - mx) < 10 && std::abs(prev_rotationY - my) < 10)
+    return;
   if ((mx < 0 && prev_rotationX > 0) || (mx > 0 && prev_rotationX < 0))
   {
     prev_rotationX = mx;
@@ -672,7 +692,9 @@ void Canvas::polygon_rotation(int mx, int my, int frame, int selected_object)
   float sn = sinf(te);
   float cs = cosf(te);
 
-  Point* vert = objects[selected_object]->keyframes[find_keyframe(objects[selected_object], frame)].vertices;
+  auto* vert = objects[selected_object]->keyframes[find_keyframe(
+                                                   objects[selected_object],
+                                                   frame)].vertices;
   int vertno = objects[selected_object]->numVertices;
 
   for (int ii = 0; ii < vertno; ++ii)
@@ -697,8 +719,8 @@ bool Canvas::motion(int mx, int my, int frame, int selected_object)
     if (currObject->numVertices == MAX_VERTICES) return false;
     int px = currObject->keyframes[0].vertices[currObject->numVertices - 1].x;
     int py = currObject->keyframes[0].vertices[currObject->numVertices - 1].y;
-    if (std::abs(px - mx) > 7 || std::abs(py - my) > 7) // sqrt((px-mx)*(px-mx) + (py-my)*(py-my)) > 5)
-    {
+    if (std::abs(px - mx) > 7 || std::abs(py - my) > 7)
+    { // sqrt((px-mx)*(px-mx) + (py-my)*(py-my)) > 5)
       currObject->keyframes[0].vertices[currObject->numVertices].x = mx;
       currObject->keyframes[0].vertices[currObject->numVertices].y = my;
       currObject->numVertices++;
@@ -708,23 +730,27 @@ bool Canvas::motion(int mx, int my, int frame, int selected_object)
 
   if (selected_object == -1) return false;
 
-  if ((frameID = find_keyframe(objects[selected_object], frame)) == -1) //look for a keyframe at this frame
-  {
+  if ((frameID = find_keyframe(objects[selected_object], frame)) == -1)
+  { // look for a keyframe at this frame
     if (objects[selected_object]->numKeyframes == MAX_KEYFRAMES) return false;
     //if we don't find it, then create a new one in the right place
     int insertLoc;
     Point vertices[MAX_VERTICES];
     get_vertices(selected_object, frame, vertices);
 
-    for (insertLoc = 0; insertLoc < objects[selected_object]->numKeyframes; ++insertLoc)
+    for (insertLoc = 0;
+         insertLoc < objects[selected_object]->numKeyframes; ++insertLoc)
       if (frame < objects[selected_object]->keyframes[insertLoc].frameNumber)
         break;
 
     //shift everything over
-    for (int i = objects[selected_object]->numKeyframes - 1; i >= insertLoc; --i)
-      memcpy(&(objects[selected_object]->keyframes[i+1]), &(objects[selected_object]->keyframes[i]), sizeof(Frame));
+    for (int i = objects[selected_object]->numKeyframes - 1;
+         i >= insertLoc; --i)
+      memcpy(&(objects[selected_object]->keyframes[i+1]),
+             &(objects[selected_object]->keyframes[i]), sizeof(Frame));
 
-    memcpy(objects[selected_object]->keyframes[insertLoc].vertices, vertices, MAX_VERTICES*sizeof(Point));
+    memcpy(objects[selected_object]->keyframes[insertLoc].vertices, vertices,
+           MAX_VERTICES*sizeof(Point));
 
     objects[selected_object]->keyframes[insertLoc].frameNumber = frame;
     objects[selected_object]->numKeyframes++;
@@ -763,7 +789,8 @@ bool Canvas::motion(int mx, int my, int frame, int selected_object)
   return true;
 }
 
-bool Canvas::select_object(int button, int mx, int my, int frame, int& selected_object)
+bool Canvas::select_object(int button, int mx, int my, int frame,
+                           int& selected_object)
 {
   bool foundVertex = false;
   for (int i = 0; i < objects.size(); ++i)
@@ -773,8 +800,8 @@ bool Canvas::select_object(int button, int mx, int my, int frame, int& selected_
     for (int j = 0; j < objects[i]->numVertices; ++j)
     {
       Point vert = vertices[j];
-      if (fabs(vert.x - mx) < 5 && fabs(vert.y - (my)) < 5) // check for proximity
-      {
+      if (fabs(vert.x - mx) < 5 && fabs(vert.y - (my)) < 5)
+      { // check for proximity
         foundVertex = true;
         selected_object = i;
         selectedVertex = j;
@@ -792,7 +819,8 @@ bool Canvas::select_object(int button, int mx, int my, int frame, int& selected_
   return foundVertex;
 }
 
-bool Canvas::mouse(int button, int state, int mx, int my, int frame, int& selected_object)
+bool Canvas::mouse(int button, int state, int mx, int my, int frame,
+                   int& selected_object)
 {
   int modifier = glutGetModifiers();
 
@@ -833,7 +861,8 @@ bool Canvas::mouse(int button, int state, int mx, int my, int frame, int& select
     break;
   case GLUT_ACTIVE_CTRL:
     {
-      if (select_object(button, mx, my, frame, selected_object) && (rotation_centerX != -1))
+      if (select_object(button, mx, my, frame, selected_object)
+          && (rotation_centerX != -1))
       {
         scale_polygon = false;
         rotate_polygon = true;
@@ -849,7 +878,8 @@ bool Canvas::mouse(int button, int state, int mx, int my, int frame, int& select
     break;
   case GLUT_ACTIVE_CTRL | GLUT_ACTIVE_SHIFT:
     {
-      if (select_object(button, mx, my, frame, selected_object) && (rotation_centerX != -1))
+      if (select_object(button, mx, my, frame, selected_object)
+          && (rotation_centerX != -1))
       {
         scale_polygon = true;
         rotate_polygon = false;
@@ -930,7 +960,9 @@ void Canvas::load_objects(const char* filename)
       for (int k = 0; k < obj->numVertices; ++k)
       {
         int dummy;
-        fscanf(infile, "Vertex %d, x: %g, y: %g\n", &dummy, &obj->keyframes[j].vertices[k].x, &obj->keyframes[j].vertices[k].y);
+        fscanf(infile, "Vertex %d, x: %g, y: %g\n",
+               &dummy, &obj->keyframes[j].vertices[k].x,
+               &obj->keyframes[j].vertices[k].y);
       }
     }
     objects.emplace_back(obj);
@@ -949,7 +981,8 @@ void Canvas::save_objects(const char* filename)
   for (int i = 0; i < objects.size(); ++i)
   {
     fprintf(outfile, "Object Number: %d\n", i);
-    fprintf(outfile, "Color: r: %d, g: %d, b: %d\n", objects[i]->r, objects[i]->g, objects[i]->b);
+    fprintf(outfile, "Color: r: %d, g: %d, b: %d\n",
+            objects[i]->r, objects[i]->g, objects[i]->b);
     fprintf(outfile, "Number of Vertices: %d\n", objects[i]->numVertices);
     fprintf(outfile, "Number of Keyframes: %d\n", objects[i]->numKeyframes);
     for (int j = 0; j < objects[i]->numKeyframes; ++j)
@@ -957,7 +990,9 @@ void Canvas::save_objects(const char* filename)
       fprintf(outfile, "Keyframe for Frame %d\n", objects[i]->keyframes[j].frameNumber);
       for (int k = 0; k < objects[i]->numVertices; ++k)
       {
-        fprintf(outfile, "Vertex %d, x: %g, y: %g\n", k, objects[i]->keyframes[j].vertices[k].x, objects[i]->keyframes[j].vertices[k].y);
+        fprintf(outfile, "Vertex %d, x: %g, y: %g\n",
+                k, objects[i]->keyframes[j].vertices[k].x,
+                objects[i]->keyframes[j].vertices[k].y);
       }
     }
   }

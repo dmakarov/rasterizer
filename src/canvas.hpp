@@ -115,20 +115,25 @@ public:
   void delete_keyframe(int id, int frame);
   bool delete_object(int id);
   bool motion(int mx, int my, int frame, int selected_object);
-  bool mouse(int button, int state, int mx, int my, int frame, int& selected_object);
+  bool mouse(int button, int state, int mx, int my, int frame,
+             int& selected_object);
   /**
    *  This function takes a frame number, and a bunch of arguments
    *  showing how the frame should be rasterized.  By the time
    *  rasterize() completes, the canvas should be filled.
    */
-  void rasterize(int frame, bool antiAlias, int numAliasSamples, bool motionBlur, int numBlurSamples, const char* aafilter_function);
+  void rasterize(int frame, bool antiAlias, int numAliasSamples,
+                 bool motionBlur, int numBlurSamples,
+                 const char* aafilter_function);
   /**
    *  @returns false if no objects have a keyframe
    *  at <frame> and true otherwise.
    */
   bool any_keyframe(int frame) const
   {
-    auto it = std::find_if(objects.begin(), objects.end(), [this, frame] (const AnimObject* a) {return find_keyframe(a, frame) != -1;});
+    auto it = std::find_if(objects.begin(), objects.end(),
+                           [this, frame] (const AnimObject* a) {
+                             return find_keyframe(a, frame) != -1;});
     return it != objects.end();
   }
   int get_num_vertices(int object_num) const
@@ -166,13 +171,16 @@ private:
   */
   int find_keyframe(const AnimObject* a, int frame) const
   {
-    auto* k = std::find_if(a->keyframes, a->keyframes + a->numKeyframes, [this, frame] (const Frame& f) { return f.frameNumber == frame; });
+    auto* k = std::find_if(a->keyframes, a->keyframes + a->numKeyframes,
+                           [this, frame] (const Frame& f) {
+                             return f.frameNumber == frame; });
     return k == a->keyframes + a->numKeyframes ? -1 : k - a->keyframes;
   }
   void scan_convert(Point* vertex, int vertno, RGB8 color);
   void polygon_scaling(int mx, int my, int frame, int selected_object);
   void polygon_rotation(int mx, int my, int frame, int selected_object);
-  bool select_object(int button, int mx, int my, int frame, int& selected_object);
+  bool select_object(int button, int mx, int my, int frame,
+                     int& selected_object);
 };
 
 /**
@@ -182,8 +190,10 @@ struct Abuffer {
   struct RGB32 {
     unsigned int r, g, b;
     RGB32() : r(0), g(0), b(0) {}
-    RGB32(const RGB8& c) : r(0xff & c), g(0xff & (c >> 8)), b(0xff & (c >> 16)) {}
-    RGB8 get(unsigned int k) { return r / k + ((g / k) << 8) + ((b / k) << 16); }
+    RGB32(const RGB8& c) : r(0xff & c), g(0xff & (c >> 8)), b(0xff & (c >> 16))
+    {}
+    RGB8 get(unsigned int k)
+    { return r / k + ((g / k) << 8) + ((b / k) << 16); }
     void operator+=(const RGB32& a) { r += a.r; g += a.g; b += a.b; }
     RGB32& operator*(unsigned int w) { r *= w; g *= w; b *= w; return *this; }
   };
