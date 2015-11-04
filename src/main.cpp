@@ -84,7 +84,8 @@ static void myKeyboardFunc(unsigned char key, int, int)
   switch(key)
   {
   case 8:
-  case 127: post_redisplay = canvas->delete_object(selected_object); selected_object = -1; break;
+  case 127: post_redisplay = canvas->delete_object(selected_object);
+            selected_object = -1; break;
   case '.': frame_spinner->set_int_val(current_frame + 1); break;
   case ',': frame_spinner->set_int_val(current_frame - 1); break;
   default: break;
@@ -203,7 +204,11 @@ static void DisplayAndSaveCanvas(int)
 
     for (int i = first_frame; i <= final_frame; ++i)
     {
-      canvas->rasterize(i, anti_aliasing_enabled, num_alias_samples, motion_blur_enabled, num_blur_samples, aafilter_function);
+      canvas->rasterize(i, anti_aliasing_enabled,
+                        num_alias_samples,
+                        motion_blur_enabled,
+                        num_blur_samples,
+                        aafilter_function);
       if (strlen(render_filename) != 0)
       {
         sprintf(buf, "%s.%d.ppm", render_filename, i);
@@ -220,7 +225,11 @@ static void DisplayAndSaveCanvas(int)
   }
   else
   {
-    canvas->rasterize(current_frame, anti_aliasing_enabled, num_alias_samples, motion_blur_enabled, num_blur_samples, aafilter_function);
+    canvas->rasterize(current_frame, anti_aliasing_enabled,
+                      num_alias_samples,
+                      motion_blur_enabled,
+                      num_blur_samples,
+                      aafilter_function);
     if (strlen(render_filename) != 0)
     {
       sprintf(buf, "%s.ppm", render_filename);
@@ -248,7 +257,8 @@ static void CommandLineRasterize(int argc, char* argv[])
 
   if (argc < 5 || strcmp(argv[i], "-help") == 0)
   {
-    cout << "Usage: rasterizer [-a<#samples>] [-m<#samples>] <first frame> <final frame> <infile> <outfile>\n";
+    cout << "Usage: rasterizer [-a<#samples>] [-m<#samples>]"
+         << " <first frame> <final frame> <infile> <outfile>\n";
     return;
   }
 
@@ -257,8 +267,8 @@ static void CommandLineRasterize(int argc, char* argv[])
     anti_aliasing_enabled = true;
     if (sscanf(argv[i], "-a%d", &num_alias_samples) == 0)
     {
-      printf("Incorrect arguments. Type 'rasterizer -help' for more info\n");
-    };
+      cerr << "Incorrect arguments. Type 'rasterizer -help' for more info\n";
+    }
     ++i;
   }
 
@@ -267,15 +277,16 @@ static void CommandLineRasterize(int argc, char* argv[])
     motion_blur_enabled = true;
     if (sscanf(argv[i], "-m%d", &num_blur_samples) == 0)
     {
-      printf("Incorrect arguments. Type 'rasterizer -help' for more info\n");
-    };
+      cerr << "Incorrect arguments. Type 'rasterizer -help' for more info\n";
+    }
     ++i;
   }
 
   //there should be four more arguments after the optional switches
   if (i != argc - 4)
   {
-    printf("Incorrect number of arguments. Type 'rasterizer -help' for more info\n");
+    cerr << "Incorrect number of arguments."
+         << " Type 'rasterizer -help' for more info\n";
     return;
   }
   else
@@ -284,7 +295,7 @@ static void CommandLineRasterize(int argc, char* argv[])
     final_frame = atoi(argv[i + 1]);
     if (first_frame == 0 || final_frame == 0)
     {
-      printf("Incorrect arguments. Type 'rasterizer -help' for more info\n");
+      cerr << "Incorrect arguments. Type 'rasterizer -help' for more info\n";
       return;
     }
     strcpy(inputFile, argv[i + 2]);
@@ -315,7 +326,11 @@ static void CommandLineRasterize(int argc, char* argv[])
   for (i = first_frame; i <= final_frame; ++i)
   {
     printf("Rendering Frame %d\n", i);
-    canvas->rasterize(i, anti_aliasing_enabled, num_alias_samples, motion_blur_enabled, num_blur_samples, aafilter_function);
+    canvas->rasterize(i, anti_aliasing_enabled,
+                      num_alias_samples,
+                      motion_blur_enabled,
+                      num_blur_samples,
+                      aafilter_function);
     sprintf(buf, "%s.%d.ppm", outputFile, i);
     canvas->save(buf);
     sprintf(buf, "%s.%d.ppm", pathless, i);
@@ -356,67 +371,105 @@ int main(int argc, char* argv[])
   glutSetWindow(main_window);
 
   /* Now create the widgets that we need */
-  GLUI* glui = GLUI_Master.create_glui("Rasterizer", 0, 50, WINDOW_HEIGHT + 100);
+  GLUI* glui = GLUI_Master.create_glui("Rasterizer", 0, 50,
+                                       WINDOW_HEIGHT + 100);
 
   glui->set_main_gfx_window(main_window);
 
   GLUI_Panel* info_panel = glui->add_panel("Info");
-  object_id_statictext = glui->add_statictext_to_panel(info_panel, "Object ID:");
-  object_verts_statictext = glui->add_statictext_to_panel(info_panel, "Vertices:");
-  object_frames_statictext = glui->add_statictext_to_panel(info_panel, "Keyframes:");
+  object_id_statictext = glui->add_statictext_to_panel(info_panel,
+                                                       "Object ID:");
+  object_verts_statictext = glui->add_statictext_to_panel(info_panel,
+                                                          "Vertices:");
+  object_frames_statictext = glui->add_statictext_to_panel(info_panel,
+                                                           "Keyframes:");
   info_panel->set_alignment(GLUI_ALIGN_LEFT);
 
   GLUI_Panel* anim_panel = glui->add_panel("Animation");
-  delete_keyframe_button = glui->add_button_to_panel(anim_panel, "Delete Keyframe", 0, (GLUI_Update_CB)DeleteKeyframeCall);
+  delete_keyframe_button = glui->add_button_to_panel(anim_panel,
+                                                     "Delete Keyframe", 0,
+                                                     (GLUI_Update_CB)
+                                                     DeleteKeyframeCall);
   delete_keyframe_button->disable();
-  frame_spinner = glui->add_spinner_to_panel(anim_panel, "Frame", GLUI_SPINNER_INT, &current_frame, -1, FrameChangedCall);
+  frame_spinner = glui->add_spinner_to_panel(anim_panel,
+                                             "Frame",
+                                             GLUI_SPINNER_INT,
+                                             &current_frame, -1,
+                                             FrameChangedCall);
   frame_spinner->set_int_limits(1, MAX_FRAMES, GLUI_LIMIT_CLAMP);
   anim_panel->set_alignment(GLUI_ALIGN_LEFT);
 
   GLUI_Panel* save_load_panel = glui->add_panel("Save/Load");
-  auto save_load_text = glui->add_edittext_to_panel(save_load_panel, "Filename", GLUI_EDITTEXT_TEXT, save_load_file);
+  auto save_load_text = glui->add_edittext_to_panel(save_load_panel,
+                                                    "Filename",
+                                                    GLUI_EDITTEXT_TEXT,
+                                                    save_load_file);
   save_load_text->set_w(200);
-  glui->add_button_to_panel(save_load_panel, "Save Object", 0, (GLUI_Update_CB)SaveObjectsCall);
-  glui->add_button_to_panel(save_load_panel, "Load Object", 0, (GLUI_Update_CB)LoadObjectsCall);
+  glui->add_button_to_panel(save_load_panel, "Save Object", 0,
+                            (GLUI_Update_CB)SaveObjectsCall);
+  glui->add_button_to_panel(save_load_panel, "Load Object", 0,
+                            (GLUI_Update_CB)LoadObjectsCall);
   save_load_panel->set_alignment(GLUI_ALIGN_LEFT);
 
   glui->add_column(false);
 
   GLUI_Panel* render_panel = glui->add_panel("Rendering");
-  glui->add_edittext_to_panel(render_panel, "Render Out:", GLUI_EDITTEXT_TEXT, render_filename);
+  glui->add_edittext_to_panel(render_panel, "Render Out:",
+                              GLUI_EDITTEXT_TEXT, render_filename);
   int integer_value;
-  glui->add_checkbox_to_panel(render_panel, "Antialias", &integer_value, -1, AntiAliasChanged);
+  glui->add_checkbox_to_panel(render_panel, "Antialias",
+                              &integer_value, -1, AntiAliasChanged);
   anti_aliasing_enabled = integer_value != 0;
-  num_alias_samples_editor = glui->add_edittext_to_panel(render_panel, "Number Of Samples", GLUI_EDITTEXT_INT, &num_alias_samples);
+  num_alias_samples_editor = glui->add_edittext_to_panel(render_panel,
+                                                         "Number Of Samples",
+                                                         GLUI_EDITTEXT_INT,
+                                                         &num_alias_samples);
   num_alias_samples_editor->disable();
   num_alias_samples_editor->set_int_val(1);
   num_alias_samples_editor->set_int_limits(1, MAX_ALIAS_SAMPLES);
 
-  alias_func_edit = glui->add_edittext_to_panel(render_panel, "Filter:", GLUI_EDITTEXT_TEXT, aafilter_function);
+  alias_func_edit = glui->add_edittext_to_panel(render_panel,
+                                                "Filter:",
+                                                GLUI_EDITTEXT_TEXT,
+                                                aafilter_function);
   alias_func_edit->disable();
 
-  glui->add_checkbox_to_panel(render_panel, "Motion Blur", &integer_value, -1, MotionBlurChanged);
+  glui->add_checkbox_to_panel(render_panel, "Motion Blur",
+                              &integer_value, -1, MotionBlurChanged);
   motion_blur_enabled = integer_value != 0;
-  num_blur_samples_editor = glui->add_edittext_to_panel(render_panel, "Number Of Samples", GLUI_EDITTEXT_INT, &num_blur_samples);
+  num_blur_samples_editor = glui->add_edittext_to_panel(render_panel,
+                                                        "Number Of Samples",
+                                                        GLUI_EDITTEXT_INT,
+                                                        &num_blur_samples);
   num_blur_samples_editor->disable();
   num_blur_samples_editor->set_int_val(1);
   num_blur_samples_editor->set_int_limits(1, MAX_BLUR_SAMPLES);
 
-  GLUI_RadioGroup* singMultRadioGroup = glui->add_radiogroup_to_panel(render_panel, &integer_value, -1, SingMultChanged);
+  auto* singMultRadioGroup = glui->add_radiogroup_to_panel(render_panel,
+                                                           &integer_value,
+                                                           -1,
+                                                           SingMultChanged);
   multiple_frames = integer_value != 0;
   glui->add_radiobutton_to_group(singMultRadioGroup, "This Frame Only");
   glui->add_radiobutton_to_group(singMultRadioGroup, "Multiple Frames");
-  start_frame_editor = glui->add_edittext_to_panel(render_panel, "Start Frame:", GLUI_EDITTEXT_INT, &first_frame);
+  start_frame_editor = glui->add_edittext_to_panel(render_panel,
+                                                   "Start Frame:",
+                                                   GLUI_EDITTEXT_INT,
+                                                   &first_frame);
   start_frame_editor->disable();
   start_frame_editor->set_int_val(1);
   start_frame_editor->set_int_limits(1, 100);
 
-  end_frame_editor = glui->add_edittext_to_panel(render_panel, "End Frame:", GLUI_EDITTEXT_INT, &final_frame);
+  end_frame_editor = glui->add_edittext_to_panel(render_panel,
+                                                 "End Frame:",
+                                                 GLUI_EDITTEXT_INT,
+                                                 &final_frame);
   end_frame_editor->disable();
   end_frame_editor->set_int_val(100);
   end_frame_editor->set_int_limits(1, 100);
 
-  glui->add_button_to_panel(render_panel, "Render!", 0, (GLUI_Update_CB)DisplayAndSaveCanvas);
+  glui->add_button_to_panel(render_panel, "Render!", 0,
+                            (GLUI_Update_CB)DisplayAndSaveCanvas);
 
   glutMainLoop();
 
