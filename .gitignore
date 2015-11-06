@@ -1,5 +1,6 @@
-.idea/
+/.idea/
 /bin/
+/nbproject/
 /rasterizer.xcodeproj/project.xcworkspace/xcuserdata/
 /rasterizer.xcodeproj/xcuserdata/
 *.o
