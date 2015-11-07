@@ -83,8 +83,8 @@
     work will be focused. Read the .h file for a detailed description of the
     provided functions.
 
-  - ~/samples/README.samples~ : Check out this file for information on the sample
-    .obs files and example results (in /samples/examples).
+  - ~/examples/README.samples~ : Check out this file for information on the sample
+    .obs files and example results.
 
   - ~/docs~ : Documentation on the GLUI toolkit, if you need it.
 
@@ -269,4 +269,4 @@
 
 * Screenshots
 
-  [[./imgs/sample9.png]]
+  [[./docs/sample9.png]]
