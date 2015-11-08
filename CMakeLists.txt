@@ -11,3 +11,7 @@ set(SOURCE_FILES
 include_directories(/usr/local/include)
 
 add_executable(rasterizer ${SOURCE_FILES})
+
+# Local Variables:
+# mode: cmake
+# End:
