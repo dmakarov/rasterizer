@@ -1,7 +1,9 @@
 sudo: false
 language: cpp
 compiler: clang
-script: make
+script:
+  - cmake .
+  - make
 addons:
   apt:
     packages:
