@@ -70,17 +70,15 @@
     Describes how to add vertex points, how to render and save images, and how
     to create animations and view them.  You should definitely read this!
 
-  - ~/src/animgui.cpp~ : The main module of the program that creates the GUI and
+  - ~/src/main.cpp~ : The main module of the program that creates the GUI and
     sets up the editing and rendering canvases. You won't have to change this
     file unless you want to change the interface, which is not required for this
     assignment.
 
-  - ~/src/canvas.cpp~, ~canvas.h~ : Provides you with functions that modify and read
-    values from the rendering canvas.
-
-  - ~/src/objects.cpp~, ~objects.h~ : The heart of the rendering functions for the
-    program. This is where the Rasterize() function lives, where most of your
-    work will be focused. Read the .h file for a detailed description of the
+  - ~/src/canvas.cpp~, ~canvas.hpp~ : Provides you with functions that modify and read
+    values from the rendering canvas.  The heart of the rendering functions for the
+    program.  This is where the Rasterize() function lives, where most of your
+    work will be focused.  Read the .hpp file for a detailed description of the
     provided functions.
 
   - ~/examples/README.samples~ : Check out this file for information on the sample
@@ -90,20 +88,16 @@
 
 * BUILDING THE PROGRAM
 
-  On Linux:
-
   The executable for this program is called ~rasterizer~ and it sits in the
   ~/bin~ directory of the project.  The source code you will be touching sits
-  in ~/src~, and these files will be described shortly. To build the project,
-  type 'make' in the ~/src~ directory.
+  in ~/src~, and these files will be described shortly.  To build the project,
+  type '~cmake . ; make~' in the top level directory.
 
-  The program depends on GL and glut, which are usually installed by default
-  on most linux systems, and glui (see http://glui.sourceforge.net/).
+  The program depends on OpenGL and GLUT, which are usually installed by default
+  on most Linux systems, and glui (see http://glui.sourceforge.net/).
 
 * GUI
-
 ** How to use the GUI
-
 *** Startin' her up
 
     Start up the GUI by typing in "bin/rasterizer", located in the "bin"
