@@ -96,115 +96,13 @@
   The program depends on OpenGL and GLUT, which are usually installed by default
   on most Linux systems, and glui (see http://glui.sourceforge.net/).
 
-* GUI
-** How to use the GUI
-*** Startin' her up
-
-    Start up the GUI by typing in "bin/rasterizer", located in the "bin"
-    directory, with no command-line parameters.  You should be presented with an
-    amazingly elegant, yet mind-blowingly functional GUI where you can specify
-    polygons and how they change over time.
-
-*** Specifying polygons
-
-    Shift-click on the main canvas (the Edit Window) to begin defining your
-    polygon.  Additional shift-clicks will add more vertices at the specified
-    locations to your polygon.  As soon as you do a normal click, you close the
-    polygon and cannot add any more vertices to it (unless, of course, you want
-    some extra credit).  If you only bestow 1 or 2 points unto your polygon, it
-    is discarded. You can specify up to MAX_OBJECTS (defined in objects.h) on
-    your canvas.
-
-*** Editing polygons
-
-    If your polygon offends you with its bold shape and sharp corners, you can
-    modify the location of any (or all) of the vertices.  Simply click (as
-    opposed to shift-clicking) near the vertex you wish to move, then drag it to
-    its new location.  You can also move entire polygons by right-clicking on a
-    polygon vertex and dragging it around.
-
-*** Deleting polygons
-
-    If no amount of vertex modification will improve your polygon, select it by
-    clicking on one of its vertices and hit the "Del" key or the "Backspace"
-    key. Both of these should cause the offending polygon to disappear forever.
-
-*** Keyframes
-
-    A keyframe is an exact specification of a polygon at a given moment in
-    time. For instance, suppose you wanted to smoothly animate a square turning
-    into a house turning back into a square. You could individually animate each
-    frame, incrementally changing your square to look more and more like a house
-    (this is how traditional animation like Disney works), but that is a pain in
-    the behind, especially if you wish to also have a life.  The computer
-    animation approach is to set keyframes:
-    #+BEGIN_EXAMPLE
-      Frame 1: Polygon looks like a square
-      Frame 15: Polygon looks like a house
-      Frame 30: Polygon looks like a square again
-    #+END_EXAMPLE
-    and the computer will fill in frames 2-14 and 16-29, by doing all of the
-    boring incrementing for you.
-
-    The GUI provided allows you to easily set keyframes. Use the frame spinner
-    to select which frame you wish to set a keyframe at. (WARNING: If you input
-    a frame number using the text input box, be sure and press Enter to register
-    the change before continuing) Then edit the object you wish to
-    change. Voila! A red border appears, indicating that you have a keyframe at
-    that position. Now, if you browse the frames using the spinner, you will see
-    that the object is automatically interpolating between frames. By default,
-    when you create an object, a keyframe is automatically created at frame 1
-    with that configuration.
-
-*** Deleting Keyframes
-
-    What could be more simple? Spin to the offending keyframe and hit "Delete
-    Keyframe". The red border should go away, and any objects that had keyframes
-    at that frame will lose a little piece of themselves. Note that you cannot
-    delete keyframe 1; think of keyframe 1 as the "existence keyframe", without
-    which objects cannot survive.
-
-*** Saving/Loading Object Files
-
-    To save an animation you have created, type in the name ("wombat", for
-    example) in the "Filename" field in the Save/Load panel and click "Save
-    Objects". The GUI will create a file "wombat.obs" that holds all of your
-    polygon and keyframe information. To load this file back in, type "wombat"
-    in the filename field and click Load -- you don't need to add the ".obs"
-    file extension.
-
-*** Rendering
-
-    Now for the fun part. The first step is to set your antialias and motion
-    blur settings. These are pretty straightforward; click the checkbox to
-    enable a particular feature, then input the number of samples you want.
-
-    To render the current frame of your animation, check the "This Frame Only"
-    radio button and hit "Render". If all goes well, your newly implemented
-    rasterizer should display a filled, motion-blurred, antialiased,
-    museum-quality version of the pathetic line drawing in the edit canvas. If
-    you put text ("kangaroo") in the "Render Out" field, a kangaroo.ppm file
-    with your masterpiece will also be generated.
-
-    To render multiple frames, check the "Multiple Frames" radio button and
-    input the frame range you wish to render. In this case, you definitely
-    should input text into the "Render Out" field ("images/platypus", for
-    example), and the GUI will generate, in this case in the images/ directory:
-    #+BEGIN_EXAMPLE
-      platypus.5.ppm <- frame 5
-      platypus.6.ppm
-      ...
-      platypus.60.ppm <- frame 60
-      platypus.list (more on this later)
-    #+END_EXAMPLE
-
-    Warning: The .ppm files weigh in at about 700K each, so don't use up your
-    quota rendering 1000 frame animations.
-
-    Warning, part 2: Closing the Render Window will quit your program. Once it
-    gets popped up, just leave it alone.
-
+* How to use the GUI
 ** Command Line Arguments
+
+   Start up the GUI by typing in "bin/rasterizer", located in the "bin"
+   directory, with no command-line parameters.  You should be presented with an
+   amazingly elegant, yet mind-blowingly functional GUI where you can specify
+   polygons and how they change over time.
 
    One of the things that sucks about the GUI is that, in most cases, you
    won't be able to use an emulator from your dorm room or whatnot to work on
@@ -239,6 +137,104 @@
 
    Same as above, but with no antialiasing or motion blurring, and only
    rendering frame 5.
+** Specifying polygons
+
+   Shift-click on the main canvas (the Edit Window) to begin defining your
+   polygon.  Additional shift-clicks will add more vertices at the specified
+   locations to your polygon.  As soon as you do a normal click, you close the
+   polygon and cannot add any more vertices to it (unless, of course, you want
+   some extra credit).  If you only bestow 1 or 2 points unto your polygon, it
+   is discarded. You can specify up to MAX_OBJECTS (defined in objects.h) on
+   your canvas.
+
+** Editing polygons
+
+   If your polygon offends you with its bold shape and sharp corners, you can
+   modify the location of any (or all) of the vertices.  Simply click (as
+   opposed to shift-clicking) near the vertex you wish to move, then drag it to
+   its new location.  You can also move entire polygons by right-clicking on a
+   polygon vertex and dragging it around.
+
+** Deleting polygons
+
+   If no amount of vertex modification will improve your polygon, select it by
+   clicking on one of its vertices and hit the "Del" key or the "Backspace"
+   key. Both of these should cause the offending polygon to disappear forever.
+
+** Keyframes
+
+   A keyframe is an exact specification of a polygon at a given moment in
+   time. For instance, suppose you wanted to smoothly animate a square turning
+   into a house turning back into a square. You could individually animate each
+   frame, incrementally changing your square to look more and more like a house
+   (this is how traditional animation like Disney works), but that is a pain in
+   the behind, especially if you wish to also have a life.  The computer
+   animation approach is to set keyframes:
+   #+BEGIN_EXAMPLE
+     Frame 1: Polygon looks like a square
+     Frame 15: Polygon looks like a house
+     Frame 30: Polygon looks like a square again
+   #+END_EXAMPLE
+   and the computer will fill in frames 2-14 and 16-29, by doing all of the
+   boring incrementing for you.
+
+   The GUI provided allows you to easily set keyframes. Use the frame spinner
+   to select which frame you wish to set a keyframe at. (WARNING: If you input
+   a frame number using the text input box, be sure and press Enter to register
+   the change before continuing) Then edit the object you wish to
+   change. Voila! A red border appears, indicating that you have a keyframe at
+   that position. Now, if you browse the frames using the spinner, you will see
+   that the object is automatically interpolating between frames. By default,
+   when you create an object, a keyframe is automatically created at frame 1
+   with that configuration.
+
+** Deleting Keyframes
+
+   What could be more simple? Spin to the offending keyframe and hit "Delete
+   Keyframe". The red border should go away, and any objects that had keyframes
+   at that frame will lose a little piece of themselves. Note that you cannot
+   delete keyframe 1; think of keyframe 1 as the "existence keyframe", without
+   which objects cannot survive.
+
+** Saving/Loading Object Files
+
+   To save an animation you have created, type in the name ("wombat", for
+   example) in the "Filename" field in the Save/Load panel and click "Save
+   Objects". The GUI will create a file "wombat.obs" that holds all of your
+   polygon and keyframe information. To load this file back in, type "wombat"
+   in the filename field and click Load -- you don't need to add the ".obs"
+   file extension.
+
+** Rendering
+
+   Now for the fun part. The first step is to set your antialias and motion
+   blur settings. These are pretty straightforward; click the checkbox to
+   enable a particular feature, then input the number of samples you want.
+
+   To render the current frame of your animation, check the "This Frame Only"
+   radio button and hit "Render". If all goes well, your newly implemented
+   rasterizer should display a filled, motion-blurred, antialiased,
+   museum-quality version of the pathetic line drawing in the edit canvas. If
+   you put text ("kangaroo") in the "Render Out" field, a kangaroo.ppm file
+   with your masterpiece will also be generated.
+
+   To render multiple frames, check the "Multiple Frames" radio button and
+   input the frame range you wish to render. In this case, you definitely
+   should input text into the "Render Out" field ("images/platypus", for
+   example), and the GUI will generate, in this case in the images/ directory:
+   #+BEGIN_EXAMPLE
+     platypus.5.ppm <- frame 5
+     platypus.6.ppm
+     ...
+     platypus.60.ppm <- frame 60
+     platypus.list (more on this later)
+   #+END_EXAMPLE
+
+   Warning: The .ppm files weigh in at about 700K each, so don't use up your
+   quota rendering 1000 frame animations.
+
+   Warning, part 2: Closing the Render Window will quit your program. Once it
+   gets popped up, just leave it alone.
 
 ** Support Utilities
 
