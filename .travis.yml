@@ -6,11 +6,20 @@ compiler:
 os:
   - linux
   - osx
-script:
-  - cmake .
-  - make
 addons:
   apt:
     packages:
       - cmake
+      - gcc-4.9
+      - g++-4.9
+      - gcc-4.9-multilib
+      - g++-4.9-multilib
+      - gcc-multilib
+      - g++-multilib
       - libglui-dev
+install:
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then export CC="gcc-4.9"; export CXX="g++-4.9"; fi
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew update; brew install glui; fi;
+script:
+  - cmake .
+  - make
