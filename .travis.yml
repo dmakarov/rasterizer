@@ -1,6 +1,11 @@
 sudo: false
 language: cpp
-compiler: clang
+compiler:
+  - clang
+  - gcc
+os:
+  - linux
+  - osx
 script:
   - cmake .
   - make
