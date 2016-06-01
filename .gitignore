@@ -1,6 +1,5 @@
-/.idea/
-/bin/
-/nbproject/
-/rasterizer.xcodeproj/project.xcworkspace/xcuserdata/
-/rasterizer.xcodeproj/xcuserdata/
-*.o
+/build/
+/xcode/DerivedData/
+/xcode/rasterizer.xcodeproj/project.xcworkspace/xcshareddata/
+/xcode/rasterizer.xcodeproj/project.xcworkspace/xcuserdata/
+/xcode/rasterizer.xcodeproj/xcuserdata/

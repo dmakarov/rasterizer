@@ -1,33 +1,34 @@
 cmake_minimum_required(VERSION 2.8)
 project(rasterizer)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall")
 
 set(SOURCE_FILES
   src/canvas.cpp
-  src/canvas.hpp
+  src/canvas.h
+  src/control.cpp
+  src/control.h
+  src/editor.cpp
+  src/editor.h
+  src/rasterizer.cpp
+  src/rasterizer.h
   src/main.cpp)
 
 include_directories(/usr/local/include)
 
-find_library(GLUI_LIBRARY glui)
-if(APPLE)
-  link_directories(/usr/local/lib)
-  find_library(GLUT_LIBRARY GLUT)
-  find_library(OPENGL_LIBRARY OpenGL)
-  mark_as_advanced(GLUI_LIBRARY GLUT_LIBRARY OPENGL_LIBRARY)
-  set(EXTRA_LIBS ${GLUI_LIBRARY} ${GLUT_LIBRARY} ${OPENGL_LIBRARY})
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
-else(APPLE)
-  find_library(GLUT_LIBRARY glut)
-  find_library(GLU_LIBRARY GLU)
-  find_library(GL_LIBRARY GL)
-  mark_as_advanced(GLUI_LIBRARY GLUT_LIBRARY GLU_LIBRARY GL_LIBRARY)
-  set(EXTRA_LIBS ${GLUI_LIBRARY} ${GLUT_LIBRARY} ${GLU_LIBRARY} ${GL_LIBRARY})
-endif(APPLE)
+set(wxWidgets_USE_LIBS)
+find_package(wxWidgets REQUIRED gl core base)
+# Available libraries as reported by wx-config --help:
+# adv aui base core gl html net propgrid qa ribbon richtext stc webview xml xrc
 
-add_executable(rasterizer ${SOURCE_FILES})
-target_link_libraries(rasterizer ${EXTRA_LIBS})
+if(wxWidgets_FOUND)
+  include("${wxWidgets_USE_FILE}")
+  set(EXTRA_LIBS ${wxWidgets_LIBRARIES})
+  add_executable(rasterizer ${SOURCE_FILES})
+  target_link_libraries(rasterizer ${EXTRA_LIBS})
+else(wxWidgets_FOUND)
+  message("wxWidgets not found!")
+endif(wxWidgets_FOUND)
 
 # Local Variables:
 # mode: cmake

@@ -1,0 +1,693 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		8E01F5EE1D036FAA008ACE7C /* control.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E01F5ED1D036FAA008ACE7C /* control.cpp */; };
+		8E49E6241D03273100202B93 /* libgtest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E49E6151D03270200202B93 /* libgtest.a */; };
+		8E49E6251D03273800202B93 /* gtest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E49E6131D03270200202B93 /* gtest.framework */; };
+		8E49E6271D034BB400202B93 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E49E6261D034BB400202B93 /* IOKit.framework */; };
+		8E49E6291D034BC900202B93 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E49E6281D034BC900202B93 /* Carbon.framework */; };
+		8E49E62B1D034BD200202B93 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E49E62A1D034BD200202B93 /* Cocoa.framework */; };
+		8E49E62D1D034BFA00202B93 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E49E62C1D034BFA00202B93 /* OpenGL.framework */; };
+		8E49E62F1D034C1700202B93 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E49E62E1D034C1700202B93 /* AudioToolbox.framework */; };
+		8E49E6311D034CAC00202B93 /* libwx_baseu-3.1.0.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E49E6301D034CAC00202B93 /* libwx_baseu-3.1.0.0.0.dylib */; };
+		8E49E6331D034CC900202B93 /* libwx_baseu_net-3.1.0.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E49E6321D034CC900202B93 /* libwx_baseu_net-3.1.0.0.0.dylib */; };
+		8E49E6351D034CDC00202B93 /* libwx_baseu_xml-3.1.0.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E49E6341D034CDC00202B93 /* libwx_baseu_xml-3.1.0.0.0.dylib */; };
+		8E49E6371D034CF900202B93 /* libwx_osx_cocoau_core-3.1.0.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E49E6361D034CF900202B93 /* libwx_osx_cocoau_core-3.1.0.0.0.dylib */; };
+		8E49E6391D034D0E00202B93 /* libwx_osx_cocoau_adv-3.1.0.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E49E6381D034D0E00202B93 /* libwx_osx_cocoau_adv-3.1.0.0.0.dylib */; };
+		8E49E63B1D034D3200202B93 /* libwx_osx_cocoau_qa-3.1.0.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E49E63A1D034D3200202B93 /* libwx_osx_cocoau_qa-3.1.0.0.0.dylib */; };
+		8E49E63D1D034D4500202B93 /* libwx_osx_cocoau_html-3.1.0.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E49E63C1D034D4500202B93 /* libwx_osx_cocoau_html-3.1.0.0.0.dylib */; };
+		8E49E63F1D034D5900202B93 /* libwx_osx_cocoau_xrc-3.1.0.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E49E63E1D034D5900202B93 /* libwx_osx_cocoau_xrc-3.1.0.0.0.dylib */; };
+		8E8BFD901D02B05E00D116F7 /* rasterizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E8BFD8D1D02B05E00D116F7 /* rasterizer.cpp */; };
+		8E8BFD9F1D02B1CA00D116F7 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E8BFD8C1D02B05E00D116F7 /* main.cpp */; };
+		8E8BFDA01D02B1D400D116F7 /* canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E8BFD871D02B03600D116F7 /* canvas.cpp */; };
+		8E8BFDA11D02B1E100D116F7 /* rasterizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E8BFD8D1D02B05E00D116F7 /* rasterizer.cpp */; };
+		8E8BFDA21D02B1E500D116F7 /* rasterizer_unittest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E8BFD911D02B07600D116F7 /* rasterizer_unittest.cpp */; };
+		8ECFEC4C1D2021E10030D061 /* editor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8ECFEC4A1D2021E10030D061 /* editor.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		8E49E6121D03270200202B93 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8E49E6061D03270200202B93 /* gtest.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4539C8FF0EC27F6400A70F4C;
+			remoteInfo = "gtest-framework";
+		};
+		8E49E6141D03270200202B93 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8E49E6061D03270200202B93 /* gtest.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 40C848FA101A209C0083642A;
+			remoteInfo = "gtest-static";
+		};
+		8E49E6161D03270200202B93 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8E49E6061D03270200202B93 /* gtest.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 40C8490B101A217E0083642A;
+			remoteInfo = "gtest_main-static";
+		};
+		8E49E6181D03270200202B93 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8E49E6061D03270200202B93 /* gtest.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 40899F430FFA7184000B29AE;
+			remoteInfo = "gtest_unittest-framework";
+		};
+		8E49E61A1D03270200202B93 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8E49E6061D03270200202B93 /* gtest.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 40C84987101A36850083642A;
+			remoteInfo = "gtest_unittest-static";
+		};
+		8E49E61C1D03270200202B93 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8E49E6061D03270200202B93 /* gtest.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4089A0130FFACEFC000B29AE;
+			remoteInfo = "sample1_unittest-framework";
+		};
+		8E49E61E1D03270200202B93 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8E49E6061D03270200202B93 /* gtest.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 40C84997101A36A60083642A;
+			remoteInfo = "sample1_unittest-static";
+		};
+		8E49E6201D03272000202B93 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8E49E6061D03270200202B93 /* gtest.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 40C848F9101A209C0083642A;
+			remoteInfo = "gtest-static";
+		};
+		8E49E6221D03272600202B93 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8E49E6061D03270200202B93 /* gtest.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 8D07F2BC0486CC7A007CD1D0;
+			remoteInfo = "gtest-framework";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		8E8BFD961D02B11D00D116F7 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		8EF25B571D02ADBE00C06F20 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		8E01F5EC1D036AB1008ACE7C /* control.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = control.h; path = ../src/control.h; sourceTree = "<group>"; };
+		8E01F5ED1D036FAA008ACE7C /* control.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = control.cpp; path = ../src/control.cpp; sourceTree = "<group>"; };
+		8E49E6061D03270200202B93 /* gtest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gtest.xcodeproj; path = ../../googletest/googletest/xcode/gtest.xcodeproj; sourceTree = "<group>"; };
+		8E49E6261D034BB400202B93 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
+		8E49E6281D034BC900202B93 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
+		8E49E62A1D034BD200202B93 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		8E49E62C1D034BFA00202B93 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		8E49E62E1D034C1700202B93 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		8E49E6301D034CAC00202B93 /* libwx_baseu-3.1.0.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_baseu-3.1.0.0.0.dylib"; path = "/usr/local/Cellar/wxmac/3.1.0_2/lib/libwx_baseu-3.1.0.0.0.dylib"; sourceTree = "<absolute>"; };
+		8E49E6321D034CC900202B93 /* libwx_baseu_net-3.1.0.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_baseu_net-3.1.0.0.0.dylib"; path = "/usr/local/Cellar/wxmac/3.1.0_2/lib/libwx_baseu_net-3.1.0.0.0.dylib"; sourceTree = "<absolute>"; };
+		8E49E6341D034CDC00202B93 /* libwx_baseu_xml-3.1.0.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_baseu_xml-3.1.0.0.0.dylib"; path = "/usr/local/Cellar/wxmac/3.1.0_2/lib/libwx_baseu_xml-3.1.0.0.0.dylib"; sourceTree = "<absolute>"; };
+		8E49E6361D034CF900202B93 /* libwx_osx_cocoau_core-3.1.0.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau_core-3.1.0.0.0.dylib"; path = "/usr/local/Cellar/wxmac/3.1.0_2/lib/libwx_osx_cocoau_core-3.1.0.0.0.dylib"; sourceTree = "<absolute>"; };
+		8E49E6381D034D0E00202B93 /* libwx_osx_cocoau_adv-3.1.0.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau_adv-3.1.0.0.0.dylib"; path = "/usr/local/Cellar/wxmac/3.1.0_2/lib/libwx_osx_cocoau_adv-3.1.0.0.0.dylib"; sourceTree = "<absolute>"; };
+		8E49E63A1D034D3200202B93 /* libwx_osx_cocoau_qa-3.1.0.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau_qa-3.1.0.0.0.dylib"; path = "/usr/local/Cellar/wxmac/3.1.0_2/lib/libwx_osx_cocoau_qa-3.1.0.0.0.dylib"; sourceTree = "<absolute>"; };
+		8E49E63C1D034D4500202B93 /* libwx_osx_cocoau_html-3.1.0.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau_html-3.1.0.0.0.dylib"; path = "/usr/local/Cellar/wxmac/3.1.0_2/lib/libwx_osx_cocoau_html-3.1.0.0.0.dylib"; sourceTree = "<absolute>"; };
+		8E49E63E1D034D5900202B93 /* libwx_osx_cocoau_xrc-3.1.0.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau_xrc-3.1.0.0.0.dylib"; path = "/usr/local/Cellar/wxmac/3.1.0_2/lib/libwx_osx_cocoau_xrc-3.1.0.0.0.dylib"; sourceTree = "<absolute>"; };
+		8E8BFD871D02B03600D116F7 /* canvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = canvas.cpp; path = ../src/canvas.cpp; sourceTree = "<group>"; };
+		8E8BFD8B1D02B05E00D116F7 /* canvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = canvas.h; path = ../src/canvas.h; sourceTree = "<group>"; };
+		8E8BFD8C1D02B05E00D116F7 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../src/main.cpp; sourceTree = "<group>"; };
+		8E8BFD8D1D02B05E00D116F7 /* rasterizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rasterizer.cpp; path = ../src/rasterizer.cpp; sourceTree = "<group>"; };
+		8E8BFD8E1D02B05E00D116F7 /* rasterizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rasterizer.h; path = ../src/rasterizer.h; sourceTree = "<group>"; };
+		8E8BFD911D02B07600D116F7 /* rasterizer_unittest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rasterizer_unittest.cpp; path = ../tests/rasterizer_unittest.cpp; sourceTree = "<group>"; };
+		8E8BFD981D02B11D00D116F7 /* rasterizer_unittest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = rasterizer_unittest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8ECFEC421D2021370030D061 /* editor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = editor.h; path = ../src/editor.h; sourceTree = "<group>"; };
+		8ECFEC4A1D2021E10030D061 /* editor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = editor.cpp; path = ../src/editor.cpp; sourceTree = "<group>"; };
+		8EF25B591D02ADBE00C06F20 /* rasterizer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = rasterizer; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8E8BFD951D02B11D00D116F7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8E49E6251D03273800202B93 /* gtest.framework in Frameworks */,
+				8E49E6241D03273100202B93 /* libgtest.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8EF25B561D02ADBE00C06F20 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8E49E6271D034BB400202B93 /* IOKit.framework in Frameworks */,
+				8E49E6291D034BC900202B93 /* Carbon.framework in Frameworks */,
+				8E49E62B1D034BD200202B93 /* Cocoa.framework in Frameworks */,
+				8E49E62F1D034C1700202B93 /* AudioToolbox.framework in Frameworks */,
+				8E49E62D1D034BFA00202B93 /* OpenGL.framework in Frameworks */,
+				8E49E63F1D034D5900202B93 /* libwx_osx_cocoau_xrc-3.1.0.0.0.dylib in Frameworks */,
+				8E49E63D1D034D4500202B93 /* libwx_osx_cocoau_html-3.1.0.0.0.dylib in Frameworks */,
+				8E49E63B1D034D3200202B93 /* libwx_osx_cocoau_qa-3.1.0.0.0.dylib in Frameworks */,
+				8E49E6391D034D0E00202B93 /* libwx_osx_cocoau_adv-3.1.0.0.0.dylib in Frameworks */,
+				8E49E6371D034CF900202B93 /* libwx_osx_cocoau_core-3.1.0.0.0.dylib in Frameworks */,
+				8E49E6351D034CDC00202B93 /* libwx_baseu_xml-3.1.0.0.0.dylib in Frameworks */,
+				8E49E6331D034CC900202B93 /* libwx_baseu_net-3.1.0.0.0.dylib in Frameworks */,
+				8E49E6311D034CAC00202B93 /* libwx_baseu-3.1.0.0.0.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		8E49E6071D03270200202B93 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8E49E6131D03270200202B93 /* gtest.framework */,
+				8E49E6151D03270200202B93 /* libgtest.a */,
+				8E49E6171D03270200202B93 /* libgtest_main.a */,
+				8E49E6191D03270200202B93 /* gtest_unittest-framework */,
+				8E49E61B1D03270200202B93 /* gtest_unittest */,
+				8E49E61D1D03270200202B93 /* sample1_unittest-framework */,
+				8E49E61F1D03270200202B93 /* sample1_unittest-static */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		8E49E6401D034D9600202B93 /* WX */ = {
+			isa = PBXGroup;
+			children = (
+				8E49E63E1D034D5900202B93 /* libwx_osx_cocoau_xrc-3.1.0.0.0.dylib */,
+				8E49E63C1D034D4500202B93 /* libwx_osx_cocoau_html-3.1.0.0.0.dylib */,
+				8E49E63A1D034D3200202B93 /* libwx_osx_cocoau_qa-3.1.0.0.0.dylib */,
+				8E49E6381D034D0E00202B93 /* libwx_osx_cocoau_adv-3.1.0.0.0.dylib */,
+				8E49E6361D034CF900202B93 /* libwx_osx_cocoau_core-3.1.0.0.0.dylib */,
+				8E49E6341D034CDC00202B93 /* libwx_baseu_xml-3.1.0.0.0.dylib */,
+				8E49E6321D034CC900202B93 /* libwx_baseu_net-3.1.0.0.0.dylib */,
+				8E49E6301D034CAC00202B93 /* libwx_baseu-3.1.0.0.0.dylib */,
+			);
+			name = WX;
+			sourceTree = "<group>";
+		};
+		8E8BFD891D02B03F00D116F7 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				8E8BFD8A1D02B04A00D116F7 /* src */,
+				8E8BFD931D02B07B00D116F7 /* tests */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		8E8BFD8A1D02B04A00D116F7 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8E8BFD8B1D02B05E00D116F7 /* canvas.h */,
+				8E8BFD871D02B03600D116F7 /* canvas.cpp */,
+				8E01F5EC1D036AB1008ACE7C /* control.h */,
+				8E01F5ED1D036FAA008ACE7C /* control.cpp */,
+				8ECFEC421D2021370030D061 /* editor.h */,
+				8ECFEC4A1D2021E10030D061 /* editor.cpp */,
+				8E8BFD8C1D02B05E00D116F7 /* main.cpp */,
+				8E8BFD8E1D02B05E00D116F7 /* rasterizer.h */,
+				8E8BFD8D1D02B05E00D116F7 /* rasterizer.cpp */,
+			);
+			name = src;
+			sourceTree = "<group>";
+		};
+		8E8BFD931D02B07B00D116F7 /* tests */ = {
+			isa = PBXGroup;
+			children = (
+				8E8BFD911D02B07600D116F7 /* rasterizer_unittest.cpp */,
+			);
+			name = tests;
+			sourceTree = "<group>";
+		};
+		8EF25B4E1D02AD9A00C06F20 = {
+			isa = PBXGroup;
+			children = (
+				8E8BFD891D02B03F00D116F7 /* Source */,
+				8EF25B5A1D02ADBE00C06F20 /* Products */,
+				8E49E6401D034D9600202B93 /* WX */,
+				8E49E6261D034BB400202B93 /* IOKit.framework */,
+				8E49E6281D034BC900202B93 /* Carbon.framework */,
+				8E49E62A1D034BD200202B93 /* Cocoa.framework */,
+				8E49E62E1D034C1700202B93 /* AudioToolbox.framework */,
+				8E49E62C1D034BFA00202B93 /* OpenGL.framework */,
+				8E49E6061D03270200202B93 /* gtest.xcodeproj */,
+			);
+			sourceTree = "<group>";
+		};
+		8EF25B5A1D02ADBE00C06F20 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8EF25B591D02ADBE00C06F20 /* rasterizer */,
+				8E8BFD981D02B11D00D116F7 /* rasterizer_unittest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8E8BFD971D02B11D00D116F7 /* rasterizer_unittest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8E8BFD9C1D02B11D00D116F7 /* Build configuration list for PBXNativeTarget "rasterizer_unittest" */;
+			buildPhases = (
+				8E8BFD941D02B11D00D116F7 /* Sources */,
+				8E8BFD951D02B11D00D116F7 /* Frameworks */,
+				8E8BFD961D02B11D00D116F7 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8E49E6231D03272600202B93 /* PBXTargetDependency */,
+				8E49E6211D03272000202B93 /* PBXTargetDependency */,
+			);
+			name = rasterizer_unittest;
+			productName = rasterizer_unittest;
+			productReference = 8E8BFD981D02B11D00D116F7 /* rasterizer_unittest */;
+			productType = "com.apple.product-type.tool";
+		};
+		8EF25B581D02ADBE00C06F20 /* rasterizer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8EF25B5E1D02ADBE00C06F20 /* Build configuration list for PBXNativeTarget "rasterizer" */;
+			buildPhases = (
+				8EF25B551D02ADBE00C06F20 /* Sources */,
+				8EF25B561D02ADBE00C06F20 /* Frameworks */,
+				8EF25B571D02ADBE00C06F20 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = rasterizer;
+			productName = rasterizer;
+			productReference = 8EF25B591D02ADBE00C06F20 /* rasterizer */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8EF25B4F1D02AD9A00C06F20 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0730;
+				TargetAttributes = {
+					8E8BFD971D02B11D00D116F7 = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
+					8EF25B581D02ADBE00C06F20 = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
+				};
+			};
+			buildConfigurationList = 8EF25B521D02AD9A00C06F20 /* Build configuration list for PBXProject "rasterizer" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 8EF25B4E1D02AD9A00C06F20;
+			productRefGroup = 8EF25B5A1D02ADBE00C06F20 /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 8E49E6071D03270200202B93 /* Products */;
+					ProjectRef = 8E49E6061D03270200202B93 /* gtest.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				8EF25B581D02ADBE00C06F20 /* rasterizer */,
+				8E8BFD971D02B11D00D116F7 /* rasterizer_unittest */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		8E49E6131D03270200202B93 /* gtest.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = gtest.framework;
+			remoteRef = 8E49E6121D03270200202B93 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		8E49E6151D03270200202B93 /* libgtest.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libgtest.a;
+			remoteRef = 8E49E6141D03270200202B93 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		8E49E6171D03270200202B93 /* libgtest_main.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libgtest_main.a;
+			remoteRef = 8E49E6161D03270200202B93 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		8E49E6191D03270200202B93 /* gtest_unittest-framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = "gtest_unittest-framework";
+			remoteRef = 8E49E6181D03270200202B93 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		8E49E61B1D03270200202B93 /* gtest_unittest */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = gtest_unittest;
+			remoteRef = 8E49E61A1D03270200202B93 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		8E49E61D1D03270200202B93 /* sample1_unittest-framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = "sample1_unittest-framework";
+			remoteRef = 8E49E61C1D03270200202B93 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		8E49E61F1D03270200202B93 /* sample1_unittest-static */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = "sample1_unittest-static";
+			remoteRef = 8E49E61E1D03270200202B93 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8E8BFD941D02B11D00D116F7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8E8BFDA11D02B1E100D116F7 /* rasterizer.cpp in Sources */,
+				8E8BFDA21D02B1E500D116F7 /* rasterizer_unittest.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8EF25B551D02ADBE00C06F20 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8E8BFDA01D02B1D400D116F7 /* canvas.cpp in Sources */,
+				8E01F5EE1D036FAA008ACE7C /* control.cpp in Sources */,
+				8E8BFD9F1D02B1CA00D116F7 /* main.cpp in Sources */,
+				8E8BFD901D02B05E00D116F7 /* rasterizer.cpp in Sources */,
+				8ECFEC4C1D2021E10030D061 /* editor.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		8E49E6211D03272000202B93 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "gtest-static";
+			targetProxy = 8E49E6201D03272000202B93 /* PBXContainerItemProxy */;
+		};
+		8E49E6231D03272600202B93 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "gtest-framework";
+			targetProxy = 8E49E6221D03272600202B93 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		8E8BFD9D1D02B11D00D116F7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = ../../googletest/googletest/include;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		8E8BFD9E1D02B11D00D116F7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = ../../googletest/googletest/include;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		8EF25B531D02AD9A00C06F20 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				FRAMEWORK_SEARCH_PATHS = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_FILE_OFFSET_BITS=64",
+					"wxDEBUG_LEVEL=0",
+					WXUSINGDLL,
+					__WXMAC__,
+					__WXOSX__,
+					__WXOSX_COCOA__,
+				);
+				HEADER_SEARCH_PATHS = (
+					../gtest/googletest/include,
+					"/usr/local/lib/wx/include/osx_cocoa-unicode-3.1",
+					"/usr/local/include/wx-3.1",
+				);
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		8EF25B541D02AD9A00C06F20 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				FRAMEWORK_SEARCH_PATHS = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_FILE_OFFSET_BITS=64",
+					"wxDEBUG_LEVEL=0",
+					WXUSINGDLL,
+					__WXMAC__,
+					__WXOSX__,
+					__WXOSX_COCOA__,
+				);
+				HEADER_SEARCH_PATHS = (
+					../gtest/googletest/include,
+					"/usr/local/lib/wx/include/osx_cocoa-unicode-3.1",
+					"/usr/local/include/wx-3.1",
+				);
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		8EF25B5F1D02ADBE00C06F20 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/wxmac/3.1.0_2/lib,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		8EF25B601D02ADBE00C06F20 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CLANG_CXX_LIBRARY = "compiler-default";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/wxmac/3.1.0_2/lib,
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		8E8BFD9C1D02B11D00D116F7 /* Build configuration list for PBXNativeTarget "rasterizer_unittest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8E8BFD9D1D02B11D00D116F7 /* Debug */,
+				8E8BFD9E1D02B11D00D116F7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8EF25B521D02AD9A00C06F20 /* Build configuration list for PBXProject "rasterizer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8EF25B531D02AD9A00C06F20 /* Debug */,
+				8EF25B541D02AD9A00C06F20 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8EF25B5E1D02ADBE00C06F20 /* Build configuration list for PBXNativeTarget "rasterizer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8EF25B5F1D02ADBE00C06F20 /* Debug */,
+				8EF25B601D02ADBE00C06F20 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 8EF25B4F1D02AD9A00C06F20 /* Project object */;
+}
