@@ -237,16 +237,16 @@ public:
   void delete_keyframe(int frame);
   bool delete_object(int id);
   bool motion(int mx, int my, int frame, int selected_object);
-
-  int get_width() const
-  {
-    return width;
-  }
-
-  int get_height() const
-  {
-    return height;
-  }
+  /**
+   \brief get_vertices
+   This function takes in an object <id>, a frame number and an
+   array of Points and fills in that array with the vertices of
+   that object at that point in time.  If the passed frame is
+   between keyframes, get_vertices will automatically interpolate
+   linearly and give you the correct values.
+  */
+  RGB8 get_vertices(std::vector<std::shared_ptr<Animation>>::size_type id,
+                    float frame, std::vector<Point>& holderFrame) const;
 
   std::vector<std::shared_ptr<Animation>>& get_objects()
   {
@@ -306,16 +306,6 @@ private:
                           return f.number == frame;
                         });
   }
-  /**
-   \brief get_vertices
-   This function takes in an object <id>, a frame number and an
-   array of Points and fills in that array with the vertices of
-   that object at that point in time.  If the passed frame is
-   between keyframes, get_vertices will automatically interpolate
-   linearly and give you the correct values.
-  */
-  RGB8 get_vertices(std::vector<std::shared_ptr<Animation>>::size_type id,
-                    float frame, std::vector<Point>& holderFrame) const;
   void scan_convert(std::vector<Point>& vertices, int vertno, RGB8 color) const;
   bool select_object(int mx, int my, int frame, bool is_right_click, int& selected_object);
   void polygon_scaling(int mx, int my, int frame, int selected_object);

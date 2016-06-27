@@ -9,7 +9,7 @@
 
 * Prerequisites
 
-  On Mac OS X install ~glui~ (e.g. ~brew install glui~).
+  Install ~wxWidgets~ (e.g. on Mac OS X ~brew install wxmac~).
 
 * Functionality
 
@@ -38,8 +38,8 @@
 
 * Implementation details
 
-  The scan conversion, supersampling and motion blur is implemented as specified
-  by the accumulation buffer algorithm given to us.  The default filter for
+  The scan conversion, supersampling and motion blur are implemented as
+  specified by an accumulation buffer algorithm.  The default filter for
   supersampling is a box on a grid of subpixels with random placement of samples
   within each individual subpixel.  Scan conversion is an implementation of the
   FvD book section 3.6 algorithm.  One notable exception is that the range of Y
@@ -93,8 +93,7 @@
   in ~/src~, and these files will be described shortly.  To build the project,
   type '~cmake . ; make~' in the top level directory.
 
-  The program depends on OpenGL and GLUT, which are usually installed by default
-  on most Linux systems, and glui (see http://glui.sourceforge.net/).
+  The program depends on OpenGL and wxWidgets (see http://wxwidgets.org/).
 
 * How to use the GUI
 ** Command Line Arguments
