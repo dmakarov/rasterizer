@@ -601,7 +601,7 @@ bool Rasterizer::motion(int mx, int my, int frame, int selected_object)
   return true;
 }
 
-bool Rasterizer::select_object(int mx, int my, int frame, bool is_right_click, int& selected_object)
+bool Rasterizer::select_object(long mx, long my, int frame, bool is_right_click, int& selected_object)
 {
   bool foundVertex = false;
   for (std::vector<std::shared_ptr<Animation>>::size_type i = 0; i < objects.size(); ++i)

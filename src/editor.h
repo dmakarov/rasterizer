@@ -33,15 +33,25 @@ private:
   int animation_frame;
   int selected_object;
   int selected_vertex;
-  int rotation_centerX;
-  int rotation_centerY;
+  long rotation_centerX;
+  long rotation_centerY;
+  long prev_rotationX;
+  long prev_rotationY;
   std::shared_ptr<Animation> active_object;
   wxGLContext* context;
+  bool draw_curve = false;
+  bool scale_polygon = false;
+  bool rotate_polygon = false;
 
   void draw();
   void paint(const wxDC& dc);
 
   void OnPaint(wxPaintEvent& event);
+  void OnMouseMove(wxMouseEvent& event);
+  void OnLeftMouse(wxMouseEvent& event);
+  void OnLeftMouseUp(wxMouseEvent& event);
+  void OnRightMouse(wxMouseEvent& event);
+  void OnRightMouseUp(wxMouseEvent& event);
 
   wxDECLARE_EVENT_TABLE();
 

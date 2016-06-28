@@ -28,7 +28,17 @@ EditorFrame::OnClose(wxCloseEvent& event)
   this->Destroy();
 }
 
-EditorCanvas::EditorCanvas(Rasterizer& rasterizer, wxWindow* parent, wxWindowID id, const int* attributes, const wxPoint& pos, const wxSize& size, long style, const wxString& name, const wxPalette& palette) : wxGLCanvas(parent, id, attributes, pos, size, style, name, palette), rasterizer(rasterizer)
+EditorCanvas::EditorCanvas(Rasterizer&      rasterizer,
+                           wxWindow*        parent,
+                           wxWindowID       id,
+                           const int*       attributes,
+                           const wxPoint&   pos,
+                           const wxSize&    size,
+                           long             style,
+                           const wxString&  name,
+                           const wxPalette& palette)
+: wxGLCanvas(parent, id, attributes, pos, size, style, name, palette),
+  rasterizer(rasterizer)
 {
   animation_frame = 1;
   selected_object = -1;
@@ -152,102 +162,101 @@ EditorCanvas::OnPaint(wxPaintEvent& event)
   event.Skip();
 }
 
-#if 0
-bool
-EditorCanvas::mouse(int button, int state, int mx, int my, int animation_frame, int& selected_object)
+void
+EditorCanvas::OnMouseMove(wxMouseEvent& event)
 {
-  int modifier = glutGetModifiers();
-
-  if (state == GLUT_UP)
+  long mx, my;
+  event.GetPosition(&mx, &my);
+  switch (event.GetModifiers())
   {
-    rotate_polygon = false;
-    scale_polygon = false;
-    draw_curve = false;
-    return true;
-  }
-
-  switch (modifier)
-  {
-    case GLUT_ACTIVE_SHIFT:
+  case wxMOD_SHIFT:
+    // clear the selection
+    selected_object = -1;
+    selected_vertex = -1;
+    // create a new object if one isn't being drawn
+    if (active_object == nullptr)
     {
-      //clear the selection
-
-      selected_object = -1;
-      selected_vertex = -1;
-
-      //create a new object if one isn't being drawn
-
-      if (active_object == nullptr)
-      {
-        active_object = new AnimObject;
-        active_object->numVertices = 0;
-        active_object->numKeyframes = 1;
-        active_object->keyframes[0].frameNumber = 1;
-        assign_random_color(active_object);
-      }
-      if (active_object->numVertices == MAX_VERTICES) return false;
-      active_object->keyframes[0].vertices[active_object->numVertices].x = mx;
-      active_object->keyframes[0].vertices[active_object->numVertices].y = my;
-      active_object->numVertices++;
-      draw_curve = true;
+      active_object.make_shared();
+      active_object->numVertices = 0;
+      active_object->keyframes.push_back(Frame());
+      active_object->keyframes[0].number = 1;
+      //assign_random_color(active_object);
     }
-      rotation_centerX = -1;
-      break;
-    case GLUT_ACTIVE_CTRL:
+    active_object->keyframes[0].vertices.push_back(Point());
+    active_object->keyframes[0].vertices[0].x = mx;
+    active_object->keyframes[0].vertices[0].y = my;
+    active_object->numVertices++;
+    draw_curve = true;
+    rotation_centerX = -1;
+    break;
+  case wxMOD_CONTROL:
+    if (rasterizer.select_object(mx, my, animation_frame, false, selected_object) && (rotation_centerX != -1))
     {
-      if (select_object(button, mx, my, animation_frame, selected_object)
-          && (rotation_centerX != -1))
+      scale_polygon = false;
+      rotate_polygon = true;
+      prev_rotationX = mx - rotation_centerX;
+      prev_rotationY = my - rotation_centerY;
+    }
+    else
+    {
+      rotation_centerX = mx;
+      rotation_centerY = my;
+    }
+    break;
+  case wxMOD_CONTROL | wxMOD_SHIFT:
+    if (rasterizer.select_object(mx, my, animation_frame, false, selected_object) && (rotation_centerX != -1))
+    {
+      scale_polygon = true;
+      rotate_polygon = false;
+      prev_rotationX = mx - rotation_centerX;
+      prev_rotationY = my - rotation_centerY;
+    }
+    break;
+  default:
+    // if we're in the middle of drawing something, then end it
+    if (active_object)
+    {
+      //if we don't have a polygon
+
+      if (active_object->numVertices < 3)
       {
-        scale_polygon = false;
-        rotate_polygon = true;
-        prev_rotationX = mx - rotation_centerX;
-        prev_rotationY = my - rotation_centerY;
+        active_object = nullptr;
       }
       else
       {
-        rotation_centerX = mx;
-        rotation_centerY = my;
+        rasterizer.add_object(active_object);
       }
+      active_object = nullptr;
     }
-      break;
-    case GLUT_ACTIVE_CTRL | GLUT_ACTIVE_SHIFT:
+    // if there's a vertex in the area, select it
+    if (!rasterizer.select_object(mx, my, animation_frame, false, selected_object))
     {
-      if (select_object(button, mx, my, animation_frame, selected_object)
-          && (rotation_centerX != -1))
-      {
-        scale_polygon = true;
-        rotate_polygon = false;
-        prev_rotationX = mx - rotation_centerX;
-        prev_rotationY = my - rotation_centerY;
-      }
+      selected_object = -1;
+      selected_vertex = -1;
     }
-      break;
-    default:
-    {
-      // if we're in the middle of drawing something, then end it
-      if (active_object)
-      {
-        //if we don't have a polygon
-
-        if (active_object->numVertices < 3)
-        {
-          delete active_object;
-        }
-        else
-        {
-          objects.push_back(active_object);
-        }
-        active_object = nullptr;
-      }
-      // if there's a vertex in the area, select it
-      if (!select_object(button, mx, my, animation_frame, selected_object))
-      {
-        selected_object = -1;
-        selected_vertex = -1;
-      }
-    }
-      rotation_centerX = -1;
+    rotation_centerX = -1;
   }
-  return true;
 }
-#endif
+
+void
+EditorCanvas::OnLeftMouse(wxMouseEvent& event)
+{
+}
+
+void
+EditorCanvas::OnLeftMouseUp(wxMouseEvent& event)
+{
+  rotate_polygon = false;
+  scale_polygon = false;
+  draw_curve = false;
+}
+
+void
+EditorCanvas::OnRightMouse(wxMouseEvent& event)
+{
+}
+
+void
+EditorCanvas::OnRightMouseUp(wxMouseEvent& event)
+{
+}

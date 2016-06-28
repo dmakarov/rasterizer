@@ -197,8 +197,8 @@ class Rasterizer {
   static const auto MAX_BLUR_SAMPLES = 64;
   int width;
   int height;
-  int originalX;
-  int originalY;
+  long originalX;
+  long originalY;
   int prev_rotationX;
   int prev_rotationY;
   int rotation_centerX = -1;
@@ -237,6 +237,7 @@ public:
   void delete_keyframe(int frame);
   bool delete_object(int id);
   bool motion(int mx, int my, int frame, int selected_object);
+  bool select_object(long mx, long my, int frame, bool is_right_click, int& selected_object);
   /**
    \brief get_vertices
    This function takes in an object <id>, a frame number and an
@@ -251,6 +252,11 @@ public:
   std::vector<std::shared_ptr<Animation>>& get_objects()
   {
     return objects;
+  }
+
+  void add_object(std::shared_ptr<Animation>& object)
+  {
+    objects.push_back(object);
   }
 
   /**
@@ -307,7 +313,6 @@ private:
                         });
   }
   void scan_convert(std::vector<Point>& vertices, int vertno, RGB8 color) const;
-  bool select_object(int mx, int my, int frame, bool is_right_click, int& selected_object);
   void polygon_scaling(int mx, int my, int frame, int selected_object);
   void polygon_rotation(int mx, int my, int frame, int selected_object);
 };

@@ -28,6 +28,7 @@
 		8E8BFDA01D02B1D400D116F7 /* canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E8BFD871D02B03600D116F7 /* canvas.cpp */; };
 		8E8BFDA11D02B1E100D116F7 /* rasterizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E8BFD8D1D02B05E00D116F7 /* rasterizer.cpp */; };
 		8E8BFDA21D02B1E500D116F7 /* rasterizer_unittest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E8BFD911D02B07600D116F7 /* rasterizer_unittest.cpp */; };
+		8EC6BBC21D221F8B0090187C /* libwx_osx_cocoau_gl-3.1.0.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8EC6BBC11D221F8B0090187C /* libwx_osx_cocoau_gl-3.1.0.0.0.dylib */; };
 		8ECFEC4C1D2021E10030D061 /* editor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8ECFEC4A1D2021E10030D061 /* editor.cpp */; };
 /* End PBXBuildFile section */
 
@@ -142,6 +143,7 @@
 		8E8BFD8E1D02B05E00D116F7 /* rasterizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rasterizer.h; path = ../src/rasterizer.h; sourceTree = "<group>"; };
 		8E8BFD911D02B07600D116F7 /* rasterizer_unittest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rasterizer_unittest.cpp; path = ../tests/rasterizer_unittest.cpp; sourceTree = "<group>"; };
 		8E8BFD981D02B11D00D116F7 /* rasterizer_unittest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = rasterizer_unittest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8EC6BBC11D221F8B0090187C /* libwx_osx_cocoau_gl-3.1.0.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau_gl-3.1.0.0.0.dylib"; path = "../../../../../usr/local/Cellar/wxmac/3.1.0_2/lib/libwx_osx_cocoau_gl-3.1.0.0.0.dylib"; sourceTree = "<group>"; };
 		8ECFEC421D2021370030D061 /* editor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = editor.h; path = ../src/editor.h; sourceTree = "<group>"; };
 		8ECFEC4A1D2021E10030D061 /* editor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = editor.cpp; path = ../src/editor.cpp; sourceTree = "<group>"; };
 		8EF25B591D02ADBE00C06F20 /* rasterizer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = rasterizer; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -169,6 +171,7 @@
 				8E49E63F1D034D5900202B93 /* libwx_osx_cocoau_xrc-3.1.0.0.0.dylib in Frameworks */,
 				8E49E63D1D034D4500202B93 /* libwx_osx_cocoau_html-3.1.0.0.0.dylib in Frameworks */,
 				8E49E63B1D034D3200202B93 /* libwx_osx_cocoau_qa-3.1.0.0.0.dylib in Frameworks */,
+				8EC6BBC21D221F8B0090187C /* libwx_osx_cocoau_gl-3.1.0.0.0.dylib in Frameworks */,
 				8E49E6391D034D0E00202B93 /* libwx_osx_cocoau_adv-3.1.0.0.0.dylib in Frameworks */,
 				8E49E6371D034CF900202B93 /* libwx_osx_cocoau_core-3.1.0.0.0.dylib in Frameworks */,
 				8E49E6351D034CDC00202B93 /* libwx_baseu_xml-3.1.0.0.0.dylib in Frameworks */,
@@ -245,6 +248,7 @@
 		8EF25B4E1D02AD9A00C06F20 = {
 			isa = PBXGroup;
 			children = (
+				8EC6BBC11D221F8B0090187C /* libwx_osx_cocoau_gl-3.1.0.0.0.dylib */,
 				8E8BFD891D02B03F00D116F7 /* Source */,
 				8EF25B5A1D02ADBE00C06F20 /* Products */,
 				8E49E6401D034D9600202B93 /* WX */,
@@ -413,9 +417,9 @@
 			files = (
 				8E8BFDA01D02B1D400D116F7 /* canvas.cpp in Sources */,
 				8E01F5EE1D036FAA008ACE7C /* control.cpp in Sources */,
-				8E8BFD9F1D02B1CA00D116F7 /* main.cpp in Sources */,
-				8E8BFD901D02B05E00D116F7 /* rasterizer.cpp in Sources */,
 				8ECFEC4C1D2021E10030D061 /* editor.cpp in Sources */,
+				8E8BFD901D02B05E00D116F7 /* rasterizer.cpp in Sources */,
+				8E8BFD9F1D02B1CA00D116F7 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
