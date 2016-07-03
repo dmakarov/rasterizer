@@ -59,6 +59,7 @@ Canvas::render(const wxDC& dc)
   glClear(GL_COLOR_BUFFER_BIT);
   glRasterPos2s(0, 0);
   glPixelZoom(1.0, -1.0);
+  // FIXME: use texture instead of removed glDrawPixels.
   glDrawPixels(w, h, GL_RGBA, GL_UNSIGNED_BYTE, rasterizer.get_pixels());
   SwapBuffers();
 }
