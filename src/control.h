@@ -1,10 +1,3 @@
-//
-//  control.h
-//  rasterizer
-//
-//  Created by Dmitri Makarov on 16-06-04.
-//
-//
 /**
    \file control.h
 

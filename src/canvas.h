@@ -17,7 +17,7 @@ class Canvas : public wxGLCanvas
 {
 public:
 
-  Canvas(Rasterizer& rasterizer, wxWindow* parent) : rasterizer(rasterizer), wxGLCanvas(parent)
+  Canvas(Rasterizer& rasterizer, wxWindow* parent) : wxGLCanvas(parent), rasterizer(rasterizer)
   {}
   virtual ~Canvas()
   {}
