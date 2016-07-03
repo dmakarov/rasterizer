@@ -9,8 +9,8 @@
 #include <cassert>
 #include <cmath>
 #include <fstream>
-#include <iostream>
 #include <list>
+#include <ostream>
 #include <random>
 #include <sstream>
 #include <string>
@@ -43,9 +43,15 @@ std::ostream& operator<<(std::ostream& os, const RGB8& obj)
   return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const RGB32& obj)
+{
+  os << '(' << obj.r << ',' << obj.g << ',' << obj.b << ')';
+  return os;
+}
+
 std::ostream& operator<<(std::ostream& os, const Animation& obj)
 {
-  os << "vertices " << obj.numVertices
+  os << "vertices " << obj.get_num_vertices()
      << ", frames " << obj.keyframes.size()
      << ", color " << obj.get_color();
   return os;
@@ -222,7 +228,7 @@ void Rasterizer::rasterize(int frame_num, bool aa_enabled, int num_aa_samples,
           // Here we grab the vertices for this object at this snapshot in time
           std::vector<Point> vertices;
           RGB8 color = get_vertices(obj, adj_frame, vertices);
-          int vertno = objects[obj]->numVertices;
+          int vertno = objects[obj]->get_num_vertices();
 
           // shift vertices
           for (int vv = 0; vv < vertno; ++vv)
@@ -234,7 +240,7 @@ void Rasterizer::rasterize(int frame_num, bool aa_enabled, int num_aa_samples,
           //DOUT(("OBJECT #%2d [%d,%d] sample: %2d vertices\n",
           //      obj, ii, jj, vertno));
 
-          pad.scan_convert(vertices, vertno, color);
+          pad.scan_convert(vertices, color);
           ++scans;
         }
         // accumulate:
@@ -254,16 +260,20 @@ void Rasterizer::rasterize(int frame_num, bool aa_enabled, int num_aa_samples,
   assert(samples != 0);
 
   clear();
-  // convert accumulation buffer to RGB8 and copy to the render canvas.
+  // convert accumulation buffer to RGB8 and copy to the render
+  // canvas.
   for (int x = 0; x < height * width; ++x)
   {
-    pixels[x] = abuf.get(x, samples);
+    auto v = abuf.get(x, samples);
+    //if (v) std::cout << std::dec << "P(" << x / width << ":" << x % width << ") " << v << std::endl;
+    pixels[x] = v;
   }
 } // Rasterize
 
-void Rasterizer::scan_convert(std::vector<Point>& vertex, int vertno, RGB8 color) const
+void Rasterizer::scan_convert(std::vector<Point>& vertex, RGB8 color) const
 {
 #ifdef DEBUG_RASTERIZER
+  int vertno = vertex.size();
   for ( int ii = 0; ii < vertno; ++ii )
   {
     DOUT(( "  VERTEX #%2d: <%g, %g>\n", ii, vertex[ii].x, vertex[ii].y ));
@@ -443,7 +453,7 @@ RGB8 Rasterizer::get_vertices(std::vector<std::shared_ptr<Animation>>::size_type
   {
     auto& next_keyframe_vertices = next_frame->vertices;
     float percent = (frame - prev_keyframe) / (next_keyframe - prev_keyframe);
-    for (int i = 0; i < objects[id]->numVertices; ++i)
+    for (int i = 0; i < objects[id]->get_num_vertices(); ++i)
     {
       auto x = (1 - percent) * prev_keyframe_vertices[i].x + percent * next_keyframe_vertices[i].x;
       auto y = (1 - percent) * prev_keyframe_vertices[i].y + percent * next_keyframe_vertices[i].y;
@@ -475,7 +485,7 @@ void Rasterizer::polygon_scaling(int mx, int my, int frame, int selected_object)
   float dp = sqrt(prev_rotationX*prev_rotationX + prev_rotationY*prev_rotationY);
 
   auto& vert = find_keyframe(objects[selected_object], frame)->vertices;
-  int vertno = objects[selected_object]->numVertices;
+  int vertno = objects[selected_object]->get_num_vertices();
 
   float sx = (dm > dp) ? 1.2 : 0.8;
   float sy = (dm > dp) ? 1.2 : 0.8;
@@ -519,7 +529,7 @@ void Rasterizer::polygon_rotation(int mx, int my, int frame, int selected_object
   float cs = cosf(te);
 
   auto& vert = find_keyframe(objects[selected_object], frame)->vertices;
-  int vertno = objects[selected_object]->numVertices;
+  int vertno = objects[selected_object]->get_num_vertices();
 
   for (int ii = 0; ii < vertno; ++ii)
   {
@@ -538,13 +548,12 @@ bool Rasterizer::motion(int mx, int my, int frame, int selected_object)
 {
   if (draw_curve)
   {
-    int px = active_object->keyframes[0].vertices[active_object->numVertices - 1].x;
-    int py = active_object->keyframes[0].vertices[active_object->numVertices - 1].y;
+    int px = active_object->keyframes[0].vertices.back().x;
+    int py = active_object->keyframes[0].vertices.back().y;
+    float x = mx, y = my;
     if (std::abs(px - mx) > 7 || std::abs(py - my) > 7)
     { // sqrt((px-mx)*(px-mx) + (py-my)*(py-my)) > 5)
-      active_object->keyframes[0].vertices[active_object->numVertices].x = mx;
-      active_object->keyframes[0].vertices[active_object->numVertices].y = my;
-      active_object->numVertices++;
+      active_object->keyframes[0].vertices.push_back(Point{x, y});
     }
     return true;
   }
@@ -597,7 +606,7 @@ bool Rasterizer::motion(int mx, int my, int frame, int selected_object)
   }
   else
   {
-    for (int i = 0; i < objects[selected_object]->numVertices; ++i)
+    for (int i = 0; i < objects[selected_object]->get_num_vertices(); ++i)
     {
       keyframe->vertices[i].x += (mx - originalX);
       keyframe->vertices[i].y += (my - originalY);
@@ -615,7 +624,7 @@ bool Rasterizer::select_object(long mx, long my, int frame, bool is_right_click,
   {
     std::vector<Point> vertices;
     get_vertices(i, frame, vertices);
-    for (int j = 0; j < objects[i]->numVertices; ++j)
+    for (int j = 0; j < objects[i]->get_num_vertices(); ++j)
     {
       Point vert = vertices[j];
       if (fabs(vert.x - mx) < 5 && fabs(vert.y - (my)) < 5)
@@ -672,6 +681,7 @@ bool Rasterizer::load_objects(const std::string& filename)
 
   for (int i = 0; i < num_of_objects; ++i)
   {
+    int num_vertices;
     unsigned int r, g, b;
     auto obj = std::make_shared<Animation>();
     // "%[^\n]\n"
@@ -696,7 +706,7 @@ bool Rasterizer::load_objects(const std::string& filename)
     std::getline(infile, line);
     iss.clear();
     iss.str(line.substr(line.find_first_of(":") + 1));
-    iss >> obj->numVertices;
+    iss >> num_vertices;
     // "Number of Keyframes: %d\n"
     std::getline(infile, line);
     iss.clear();
@@ -711,7 +721,7 @@ bool Rasterizer::load_objects(const std::string& filename)
       iss.clear();
       iss.str(line.substr(line.find_last_of(" ") + 1));
       iss >> obj->keyframes[j].number;
-      for (int k = 0; k < obj->numVertices; ++k)
+      for (int k = 0; k < num_vertices; ++k)
       {
         // "Vertex %d, x: %g, y: %g\n"
         std::getline(infile, line);
@@ -747,12 +757,12 @@ void Rasterizer::save_objects(const std::string& filename) const
     ofs << "Object Number: " << i << "\n";
     ofs << "Color: r: " << objects[i]->r << ", g: "
                         << objects[i]->g << ", b: " << objects[i]->b << "\n";
-    ofs << "Number of Vertices: " << objects[i]->numVertices << "\n";
+    ofs << "Number of Vertices: " << objects[i]->get_num_vertices() << "\n";
     ofs << "Number of Keyframes: " << get_num_keyframes(i) << "\n";
     for (decltype(get_num_keyframes(i)) j = 0; j != get_num_keyframes(i); ++j)
     {
       ofs << "Keyframe for Frame " << objects[i]->keyframes[j].number << "\n";
-      for (int k = 0; k < objects[i]->numVertices; ++k)
+      for (int k = 0; k < objects[i]->get_num_vertices(); ++k)
       {
         ofs << "Vertex " << k
             << ", x: " << objects[i]->keyframes[j].vertices[k].x

@@ -169,6 +169,7 @@ EditorCanvas::OnMouseMove(wxMouseEvent& event)
 {
   long mx, my;
   event.GetPosition(&mx, &my);
+  float x = mx, y = my;
   switch (event.GetModifiers())
   {
   case wxMOD_SHIFT:
@@ -179,15 +180,11 @@ EditorCanvas::OnMouseMove(wxMouseEvent& event)
     if (active_object == nullptr)
     {
       active_object.make_shared();
-      active_object->numVertices = 0;
       active_object->keyframes.push_back(Frame());
       active_object->keyframes[0].number = 1;
       //assign_random_color(active_object);
     }
-    active_object->keyframes[0].vertices.push_back(Point());
-    active_object->keyframes[0].vertices[0].x = mx;
-    active_object->keyframes[0].vertices[0].y = my;
-    active_object->numVertices++;
+    active_object->keyframes[0].vertices.push_back(Point{x, y});
     draw_curve = true;
     rotation_centerX = -1;
     break;
@@ -220,7 +217,7 @@ EditorCanvas::OnMouseMove(wxMouseEvent& event)
     {
       //if we don't have a polygon
 
-      if (active_object->numVertices < 3)
+      if (active_object->get_num_vertices() < 3)
       {
         active_object = nullptr;
       }

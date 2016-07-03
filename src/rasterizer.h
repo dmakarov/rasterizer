@@ -65,6 +65,12 @@ struct RGB8 {
   {
     pixel = (pixel & 0xff00ffff) | ((c << 16) & 0xff0000);
   }
+
+  operator bool() const
+  {
+    return pixel != 0;
+  }
+
 };
 
 struct RGB32 {
@@ -73,7 +79,10 @@ struct RGB32 {
   RGB32() : r(0), g(0), b(0)
   {}
 
-  RGB32(const RGB8& c) : r(c.get_red()), g(c.get_green()), b(c.get_blue())
+  RGB32(const RGB8& c)
+    : r(c.pixel & 0xff)
+    , g((c.pixel & 0xff00) >> 8)
+    , b((c.pixel & 0xff0000) >> 16)
   {}
 
   RGB8 get(unsigned int k) const
@@ -118,7 +127,6 @@ struct Frame {
 
 struct Animation {
   std::vector<Frame> keyframes;
-  int numVertices;
   unsigned int r, g, b;
 
   RGB8 get_color() const
@@ -129,6 +137,11 @@ struct Animation {
   void set_color(unsigned int R, unsigned int G, unsigned int B)
   {
     r = R; g = G; b = B;
+  }
+
+  auto get_num_vertices() const -> decltype(keyframes[0].vertices.size())
+  {
+    return keyframes[0].vertices.size();
   }
 
   std::vector<Point>& get_vertices(int frame)
@@ -277,8 +290,7 @@ public:
   bool any_keyframe(int frame) const
   {
     auto it = std::find_if(objects.begin(), objects.end(),
-                           [this, frame] (const std::shared_ptr<Animation>& a)
-                           {
+                           [this, frame] (const std::shared_ptr<Animation>& a) {
                              return find_keyframe(a, frame) != a->keyframes.end();
                            });
     return it != objects.end();
@@ -286,7 +298,7 @@ public:
 
   int get_num_vertices(std::vector<std::shared_ptr<Animation>>::size_type ix) const
   {
-    return objects[ix]->numVertices;
+    return objects[ix]->get_num_vertices();
   }
 
   decltype(objects[0]->keyframes.size())
@@ -297,8 +309,7 @@ public:
 
   void dump() const
   {
-    for (auto obj : objects)
-    {
+    for (auto obj : objects) {
       std::cout << *obj << "\n";
     }
   }
@@ -318,12 +329,11 @@ private:
   find_keyframe(const std::shared_ptr<Animation>& a, int frame) const
   {
     return std::find_if(a->keyframes.begin(), a->keyframes.end(),
-                        [this, frame] (const Frame& f)
-                        {
+                        [this, frame] (const Frame& f) {
                           return f.number == frame;
                         });
   }
-  void scan_convert(std::vector<Point>& vertices, int vertno, RGB8 color) const;
+  void scan_convert(std::vector<Point>& vertices, RGB8 color) const;
   void polygon_scaling(int mx, int my, int frame, int selected_object);
   void polygon_rotation(int mx, int my, int frame, int selected_object);
 };
