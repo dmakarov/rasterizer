@@ -447,6 +447,7 @@ RGB8 Rasterizer::get_vertices(std::vector<std::shared_ptr<Animation>>::size_type
   auto& prev_keyframe_vertices = prev_frame->vertices;
   if (next_frame == objects[id]->keyframes.end())
   { // if there are no more keyframes, just go with the last frame
+    vertices.resize(prev_keyframe_vertices.size());
     std::copy(prev_keyframe_vertices.begin(), prev_keyframe_vertices.end(), vertices.begin());
   }
   else // here we do the interpolation
