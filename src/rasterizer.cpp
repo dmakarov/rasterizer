@@ -197,8 +197,7 @@ void Rasterizer::rasterize(int frame_num, bool aa_enabled, int num_aa_samples,
     frame_shift = 1.0 / (float)num_mb_samples;
   }
   // frame
-  //DOUT(("FRAME #%2d: %dx%d AA + %d MS\n",
-  //      frame_num, tiles, tiles, numMotionSamples));
+  //printf("FRAME #%2d: %dx%d AA + %d MS\n", frame_num, tiles, tiles, num_mb_samples);
 
   int samples = 0;
   int yyfilt = 1;
@@ -237,8 +236,7 @@ void Rasterizer::rasterize(int frame_num, bool aa_enabled, int num_aa_samples,
             vertices[vv].y += aajitter[ii][jj].y;
           }
 
-          //DOUT(("OBJECT #%2d [%d,%d] sample: %2d vertices\n",
-          //      obj, ii, jj, vertno));
+          //printf("OBJECT #%2d [%d,%d] sample: %2d vertices\n", (int) obj, ii, jj, vertno);
 
           pad.scan_convert(vertices, color);
           ++scans;
@@ -272,11 +270,13 @@ void Rasterizer::rasterize(int frame_num, bool aa_enabled, int num_aa_samples,
 
 void Rasterizer::scan_convert(std::vector<Point>& vertex, RGB8 color) const
 {
-#ifdef DEBUG_RASTERIZER
   int vertno = vertex.size();
+
+#ifdef DEBUG_RASTERIZER
+  std::cout << "color " << color << std::endl;
   for ( int ii = 0; ii < vertno; ++ii )
   {
-    DOUT(( "  VERTEX #%2d: <%g, %g>\n", ii, vertex[ii].x, vertex[ii].y ));
+    printf( "  VERTEX #%2d: <%g, %g>\n", ii, vertex[ii].x, vertex[ii].y );
     //
     SET_RED(Pixels[vertex[ii].x-1 + (int)vertex[ii].y * Width], 255);
     SET_RED(Pixels[vertex[ii].x+0 + (int)vertex[ii].y * Width], 255);
@@ -286,7 +286,7 @@ void Rasterizer::scan_convert(std::vector<Point>& vertex, RGB8 color) const
 
   if (0 >= vertno)
   {
-    //DOUT(("NO VERTICES TO SCAN %d\n", vertno));
+    //std::cout << "NO VERTICES TO SCAN %d" << vertno << std::endl;
     return;
   }
 
@@ -303,7 +303,7 @@ void Rasterizer::scan_convert(std::vector<Point>& vertex, RGB8 color) const
   int bias = (int)ceilf(ymin);
   int range = (int)ceilf(ymax) - bias + 1;
 
-  //DOUT(("THE EDGE TABLE [%f,%f] size %d, bias %d\n", ymin, ymax, range, bias));
+  //printf("THE EDGE TABLE [%f,%f] size %d, bias %d\n", ymin, ymax, range, bias);
 
   // build the edge table
   std::unique_ptr<std::list<Edge>[]> edge_table(new std::list<Edge>[range]);
