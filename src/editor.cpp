@@ -15,7 +15,10 @@ wxBEGIN_EVENT_TABLE(EditorCanvas, wxWindow)
   EVT_PAINT(EditorCanvas::OnPaint)
 wxEND_EVENT_TABLE()
 
-EditorFrame::EditorFrame(Rasterizer& rasterizer) : wxFrame(nullptr, wxID_ANY, wxT("Objects"), wxDefaultPosition, wxSize(500, 500), wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE)
+EditorFrame::EditorFrame(Rasterizer& rasterizer)
+  : wxFrame(nullptr, wxID_ANY, wxT("Objects"),
+            wxDefaultPosition, wxSize(500, 500),
+            wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE)
 {
   panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(500, 500));
   canvas = new EditorCanvas(rasterizer, panel, wxID_ANY, nullptr, wxDefaultPosition, wxSize(500, 500));
@@ -36,8 +39,8 @@ EditorCanvas::EditorCanvas(Rasterizer&      rasterizer,
                            long             style,
                            const wxString&  name,
                            const wxPalette& palette)
-: wxGLCanvas(parent, id, attributes, pos, size, style, name, palette),
-  rasterizer(rasterizer)
+  : wxGLCanvas(parent, id, attributes, pos, size, style, name, palette)
+  , rasterizer(rasterizer)
 {
   animation_frame = 1;
   selected_object = -1;

@@ -17,16 +17,21 @@ class Canvas : public wxGLCanvas
 {
 public:
 
-  Canvas(Rasterizer& rasterizer, wxWindow* parent)
-    : wxGLCanvas(parent, wxID_ANY, nullptr, wxDefaultPosition, wxDefaultSize, 0, "Render Frame", wxNullPalette)
-    , rasterizer(rasterizer)
-  {}
+  Canvas(Rasterizer& rasterizer,
+         wxWindow* parent,
+         wxWindowID id,
+         const int* attributes,
+         const wxPoint& pos,
+         const wxSize& size);
+
   virtual ~Canvas()
   {}
 
 private:
 
   Rasterizer& rasterizer;
+  wxGLContext* context;
+
   void render(const wxDC& dc);
 
   void OnPaint(wxPaintEvent& event);

@@ -8,6 +8,7 @@
 #ifndef control_h
 #define control_h
 
+#include "canvas.h"
 #include "editor.h"
 #include "rasterizer.h"
 
@@ -36,16 +37,17 @@ private:
   int selected_object;
   Rasterizer rasterizer;
   EditorFrame editor;
-  bool multiple_frames;
+  RenderFrame render;
+  bool multiple_frames = false;
   std::string render_filename;
-  int current_frame;
+  int current_frame = 1;
   int first_frame;
   int final_frame;
 
-  bool anti_aliasing_enabled;
-  int num_alias_samples;
-  bool motion_blur_enabled;
-  int num_blur_samples;
+  bool anti_aliasing_enabled = false;
+  int num_alias_samples = 1;
+  bool motion_blur_enabled = false;
+  int num_blur_samples = 1;
   std::string aafilter_function;
 
   wxMenuBar* menu_bar;

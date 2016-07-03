@@ -10,12 +10,18 @@
 wxBEGIN_EVENT_TABLE(Control, wxWindow)
   EVT_PAINT(Control::OnPaint)
   EVT_BUTTON(ID_BUTTON_LOAD, Control::OnButtonLoad)
+  EVT_BUTTON(ID_BUTTON_SAVE, Control::OnButtonSave)
+  EVT_BUTTON(ID_BUTTON_RENDER, Control::OnButtonRender)
   EVT_CHECKBOX(ID_CHECK_AA, Control::OnCheckAA)
   EVT_CHECKBOX(ID_CHECK_MB, Control::OnCheckMB)
   EVT_RADIOBOX(ID_RADIO_FRAME, Control::OnRadioFrame)
 wxEND_EVENT_TABLE()
 
-Control::Control(wxFrame* frame) : wxPanel(frame, wxID_ANY), rasterizer{400, 400}, editor(rasterizer)
+Control::Control(wxFrame* frame)
+  : wxPanel(frame, wxID_ANY)
+  , rasterizer{400, 400}
+  , editor(rasterizer)
+  , render(rasterizer)
 {
   wxMenu* file_menu = new wxMenu;
   file_menu->Append(wxID_NEW, wxGetStockLabel(wxID_NEW));
@@ -287,6 +293,7 @@ Control::OnButtonRender(wxCommandEvent& event)
     //glutShowWindow();
     //glutSetWindow(main_window);
   }
+  render.Show();
 }
 
 std::string
