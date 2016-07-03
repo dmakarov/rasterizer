@@ -1,3 +1,10 @@
+/**
+   \file rasterizer.cpp
+
+   Created by Dmitri Makarov on 16-05-31.
+   Copyright © 2016 Dmitri Makarov. All rights reserved.
+ */
+
 #include "rasterizer.h"
 #include <cassert>
 #include <cmath>

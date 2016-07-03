@@ -1,10 +1,9 @@
-//
-//  rasterizer.h
-//  rasterizer
-//
-//  Created by Dmitri Makarov on 16-05-31.
-//  Copyright © 2016 Dmitri Makarov. All rights reserved.
-//
+/**
+   \file rasterizer.h
+
+   Created by Dmitri Makarov on 16-05-31.
+   Copyright © 2016 Dmitri Makarov. All rights reserved.
+ */
 
 #ifndef rasterizer_h
 #define rasterizer_h
@@ -238,6 +237,18 @@ public:
   bool delete_object(int id);
   bool motion(int mx, int my, int frame, int selected_object);
   bool select_object(long mx, long my, int frame, bool is_right_click, int& selected_object);
+  int get_width()
+  {
+    return width;
+  }
+  int get_height()
+  {
+    return height;
+  }
+  void* get_pixels()
+  {
+    return pixels.get();
+  }
   /**
    \brief get_vertices
    This function takes in an object <id>, a frame number and an

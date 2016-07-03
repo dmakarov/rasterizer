@@ -1,10 +1,9 @@
-//
-//  editor.cpp
-//  rasterizer
-//
-//  Created by Dmitri Makarov on 16-06-26.
-//
-//
+/**
+   \file editor.cpp
+
+   Created by Dmitri Makarov on 16-06-26.
+   Copyright © 2016 Dmitri Makarov. All rights reserved.
+ */
 
 #include "editor.h"
 

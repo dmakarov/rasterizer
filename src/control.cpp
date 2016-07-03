@@ -1,10 +1,9 @@
-//
-//  control.cpp
-//  rasterizer
-//
-//  Created by Dmitri Makarov on 16-06-04.
-//
-//
+/**
+   \file control.cpp
+
+   Created by Dmitri Makarov on 16-06-04.
+   Copyright © 2016 Dmitri Makarov. All rights reserved.
+ */
 
 #include "control.h"
 
@@ -255,6 +254,50 @@ Control::update_info()
   }
 }
 
+void
+Control::OnButtonRender(wxCommandEvent& event)
+{
+  if (multiple_frames) {
+    auto pathless = get_basename(render_filename);
+    auto buf = render_filename + ".list";
+    FILE* listFile = fopen(buf.c_str(), "w");
+    assert(listFile != NULL);
+
+    for (int i = first_frame; i <= final_frame; ++i) {
+      rasterizer.rasterize(i, anti_aliasing_enabled, num_alias_samples, motion_blur_enabled, num_blur_samples, aafilter_function);
+      if (!render_filename.empty()) {
+        std::ostringstream buf;
+        buf << render_filename << "." << i << ".ppm";
+        rasterizer.save_image(buf.str());
+        fprintf(listFile, "%s.%d.ppm\n", pathless.c_str(), i);
+      }
+      //glutPostWindowRedisplay(render_window);
+      //glutSetWindow(render_window);
+      //glutShowWindow();
+      //glutSetWindow(main_window);
+    }
+    fclose(listFile);
+  } else { // single frame
+    rasterizer.rasterize(current_frame, anti_aliasing_enabled, num_alias_samples, motion_blur_enabled, num_blur_samples, aafilter_function);
+    if (!render_filename.empty()) {
+      rasterizer.save_image(render_filename + ".ppm");
+    }
+    //glutPostWindowRedisplay(render_window);
+    //glutSetWindow(render_window);
+    //glutShowWindow();
+    //glutSetWindow(main_window);
+  }
+}
+
+std::string
+Control::get_basename(const std::string& filename)
+{
+  auto pos = filename.find_last_of("/");
+  if (pos == std::string::npos)
+    return filename;
+  return filename.substr(pos + 1);
+}
+
 #if 0
   void check_delete_keyframe_status()
   {
@@ -350,13 +393,5 @@ Control::update_info()
       num_blur_samples_editor->enable();
     else
       num_blur_samples_editor->disable();
-  }
-
-  std::string get_basename(const std::string& filename)
-  {
-    auto pos = filename.find_last_of("/");
-    if (pos == std::string::npos)
-      return filename;
-    return filename.substr(pos + 1);
   }
 #endif

@@ -5,6 +5,12 @@
 //  Created by Dmitri Makarov on 16-06-04.
 //
 //
+/**
+   \file control.h
+
+   Created by Dmitri Makarov on 16-06-04.
+   Copyright © 2016 Dmitri Makarov. All rights reserved.
+ */
 
 #ifndef control_h
 #define control_h
@@ -37,6 +43,17 @@ private:
   int selected_object;
   Rasterizer rasterizer;
   EditorFrame editor;
+  bool multiple_frames;
+  std::string render_filename;
+  int current_frame;
+  int first_frame;
+  int final_frame;
+
+  bool anti_aliasing_enabled;
+  int num_alias_samples;
+  bool motion_blur_enabled;
+  int num_blur_samples;
+  std::string aafilter_function;
 
   wxMenuBar* menu_bar;
 
@@ -64,11 +81,13 @@ private:
 
   void OnButtonLoad(wxCommandEvent& event);
   void OnButtonSave(wxCommandEvent& event);
+  void OnButtonRender(wxCommandEvent& event);
   void OnCheckAA(wxCommandEvent& event);
   void OnCheckMB(wxCommandEvent& event);
   void OnRadioFrame(wxCommandEvent& event);
 
   void update_info();
+  std::string get_basename(const std::string& filename);
 
   wxDECLARE_EVENT_TABLE();
 };
