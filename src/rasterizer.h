@@ -296,7 +296,8 @@ public:
     return it != objects.end();
   }
 
-  int get_num_vertices(std::vector<std::shared_ptr<Animation>>::size_type ix) const
+  auto get_num_vertices(std::vector<std::shared_ptr<Animation>>::size_type ix)
+       const -> decltype(objects[ix]->get_num_vertices())
   {
     return objects[ix]->get_num_vertices();
   }

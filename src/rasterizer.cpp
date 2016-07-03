@@ -227,7 +227,7 @@ void Rasterizer::rasterize(int frame_num, bool aa_enabled, int num_aa_samples,
           // Here we grab the vertices for this object at this snapshot in time
           std::vector<Point> vertices;
           RGB8 color = get_vertices(obj, adj_frame, vertices);
-          int vertno = objects[obj]->get_num_vertices();
+          auto vertno = objects[obj]->get_num_vertices();
 
           // shift vertices
           for (int vv = 0; vv < vertno; ++vv)
@@ -270,11 +270,11 @@ void Rasterizer::rasterize(int frame_num, bool aa_enabled, int num_aa_samples,
 
 void Rasterizer::scan_convert(std::vector<Point>& vertex, RGB8 color) const
 {
-  int vertno = vertex.size();
+  auto vertno = vertex.size();
 
 #ifdef DEBUG_RASTERIZER
   std::cout << "color " << color << std::endl;
-  for ( int ii = 0; ii < vertno; ++ii )
+  for (int ii = 0; ii < vertno; ++ii)
   {
     printf( "  VERTEX #%2d: <%g, %g>\n", ii, vertex[ii].x, vertex[ii].y );
     //
@@ -486,7 +486,7 @@ void Rasterizer::polygon_scaling(int mx, int my, int frame, int selected_object)
   float dp = sqrt(prev_rotationX*prev_rotationX + prev_rotationY*prev_rotationY);
 
   auto& vert = find_keyframe(objects[selected_object], frame)->vertices;
-  int vertno = objects[selected_object]->get_num_vertices();
+  auto vertno = objects[selected_object]->get_num_vertices();
 
   float sx = (dm > dp) ? 1.2 : 0.8;
   float sy = (dm > dp) ? 1.2 : 0.8;
@@ -530,7 +530,7 @@ void Rasterizer::polygon_rotation(int mx, int my, int frame, int selected_object
   float cs = cosf(te);
 
   auto& vert = find_keyframe(objects[selected_object], frame)->vertices;
-  int vertno = objects[selected_object]->get_num_vertices();
+  auto vertno = objects[selected_object]->get_num_vertices();
 
   for (int ii = 0; ii < vertno; ++ii)
   {
