@@ -46,8 +46,11 @@ Canvas::Canvas(Rasterizer& rasterizer,
   int w, h;
   this->GetClientSize(&w, &h);
   glOrtho(0, w, -h, 0, -1, 1);
+  glGenTextures(1, &texture_object);
+  glBindTexture(GL_TEXTURE_2D, texture_object);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
-
 
 void
 Canvas::render(const wxDC& dc)
@@ -59,8 +62,16 @@ Canvas::render(const wxDC& dc)
   glClear(GL_COLOR_BUFFER_BIT);
   glRasterPos2s(0, 0);
   glPixelZoom(1.0, -1.0);
-  // FIXME: use texture instead of removed glDrawPixels.
-  glDrawPixels(w, h, GL_RGBA, GL_UNSIGNED_BYTE, rasterizer.get_pixels());
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+               rasterizer.get_pixels());
+  glEnable(GL_TEXTURE_2D);
+  glBegin(GL_QUADS); {
+    glTexCoord2f(0, 0); glVertex2d(0, 0);
+    glTexCoord2f(0, 1); glVertex2d(0, -h);
+    glTexCoord2f(1, 1); glVertex2d(w, -h);
+    glTexCoord2f(1, 0); glVertex2d(w, 0);
+  } glEnd();
+  glDisable(GL_TEXTURE_2D);
   SwapBuffers();
 }
 

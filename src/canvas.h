@@ -31,6 +31,7 @@ private:
 
   Rasterizer& rasterizer;
   wxGLContext* context;
+  GLuint texture_object;
 
   void render(const wxDC& dc);
 
