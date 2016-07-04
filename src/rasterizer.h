@@ -250,18 +250,9 @@ public:
   bool delete_object(int id);
   bool motion(int mx, int my, int frame, int selected_object);
   bool select_object(long mx, long my, int frame, bool is_right_click, int& selected_object);
-  int get_width()
-  {
-    return width;
-  }
-  int get_height()
-  {
-    return height;
-  }
-  void* get_pixels()
-  {
-    return pixels.get();
-  }
+  int get_width() const { return width; }
+  int get_height() const { return height; }
+  void* get_pixels() { return pixels.get(); }
   /**
    \brief get_vertices
    This function takes in an object <id>, a frame number and an
@@ -296,8 +287,8 @@ public:
     return it != objects.end();
   }
 
-  auto get_num_vertices(std::vector<std::shared_ptr<Animation>>::size_type ix)
-       const -> decltype(objects[ix]->get_num_vertices())
+  decltype(objects[0]->get_num_vertices())
+  get_num_vertices(std::vector<std::shared_ptr<Animation>>::size_type ix) const
   {
     return objects[ix]->get_num_vertices();
   }
@@ -308,23 +299,19 @@ public:
     return objects[ix]->keyframes.size();
   }
 
-  void dump() const
-  {
-    for (auto obj : objects) {
-      std::cout << *obj << "\n";
-    }
-  }
-
 private:
   /**
    \brief find_keyframe
    This function will tell you if object <a> has a keyframe at
    frame <frame>, and, if it does, its index in the object's
-   keyframe array.  find_keyframe will return -1 if the object does
-   not have a keyframe at that frame.  For example, if object a has
-   keyframes at frames 1, 5, and 10, calling find_keyframe(a, 1)
-   will return 0, find_keyframe(a, 10) will return 2, and
-   find_keyframe(a, 20) will return -1.
+   keyframe array.
+   For example, if an object has keyframes at frames 1, 5, and 10,
+   calling find_keyframe(a, 1) will return 0, find_keyframe(a, 10)
+   will return 2, and find_keyframe(a, 20) will return -1.
+   \param a - a pointer to an Animation object
+   \param frame - a frame to check whether it's a keyframe
+   \return -1 if the object does not have a keyframe at frame,
+           otherwise the index of the keyframe in the array of keyframes.
   */
   std::vector<Frame>::iterator
   find_keyframe(const std::shared_ptr<Animation>& a, int frame) const

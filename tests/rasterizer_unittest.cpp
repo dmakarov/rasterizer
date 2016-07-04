@@ -1,6 +1,5 @@
 //
 //  rasterizer_unittest.cpp
-//  rasterizer
 //
 //  Created by Dmitri Makarov on 16-06-01.
 //  Copyright © 2016 Dmitri Makarov. All rights reserved.
@@ -25,7 +24,7 @@ TEST(RGB8, ConstructFromValue) {
 
 TEST(Rasterizer, RenderToFile) {
   Rasterizer r{400, 400};
-  std::vector<std::string> args{"1", "1", "/Users/dmakarov/work/rasterizer/examples/sample1.obs", "image"};
+  std::vector<std::string> args{"1", "1", "../examples/sample1.obs", "image"};
   r.render_to_file(args);
 }
 

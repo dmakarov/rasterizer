@@ -117,7 +117,7 @@
    arguments:
 
    #+BEGIN_EXAMPLE
-     rasterizer [-a<# of samples>] [-m<# of samples>] <start frame> <end frame> <input OBS file> <output label>
+     $ rasterizer [-a<# of samples>] [-m<# of samples>] <start frame> <end frame> <input OBS file> <output label>
    #+END_EXAMPLE
 
    So, if we wanted to make a Tazmanian devil animation, we might do something
@@ -250,7 +250,7 @@
    compress them into an animation. After it does this, you can watch your
    animation by typing:
    #+BEGIN_SRC sh
-      $ xanim tdevil.flc
+     $ xanim tdevil.flc
    #+END_SRC
 
    That should be it! Check ~objects.hpp~ for more implementation-specific

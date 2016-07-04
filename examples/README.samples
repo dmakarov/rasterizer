@@ -1,9 +1,6 @@
-# Sample .obs files and .ppm/.fli files.
-# The examples below are in /samples.
+# Example .obs files and .fli files.
 
-sample1.fli: 16 AA samples, 10 frames, 8 samples/frame
-sample2.ppm: 16 AA samples
-sample3.ppm:  8 AA samples
+sample1.fli: 16 AA samples, 10 frames,  8 samples/frame
 sample4.fli:  0 AA samples,  7 frames, 16 samples/frame
 sample5.fli: 16 AA samples, 13 frames,  8 samples/frame
 
