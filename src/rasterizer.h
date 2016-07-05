@@ -3,7 +3,7 @@
 
    Created by Dmitri Makarov on 16-05-31.
    Copyright © 2016 Dmitri Makarov. All rights reserved.
- */
+*/
 
 #ifndef rasterizer_h
 #define rasterizer_h
