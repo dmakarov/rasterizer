@@ -266,8 +266,8 @@ Control::OnButtonRender(wxCommandEvent& event)
   if (multiple_frames) {
     auto pathless = get_basename(render_filename);
     auto buf = render_filename + ".list";
-    FILE* listFile = fopen(buf.c_str(), "w");
-    assert(listFile != NULL);
+    FILE* list_file = fopen(buf.c_str(), "w");
+    assert(list_file != NULL);
 
     for (int i = first_frame; i <= final_frame; ++i) {
       rasterizer.rasterize(i, anti_aliasing_enabled, num_alias_samples, motion_blur_enabled, num_blur_samples, aafilter_function);
@@ -275,23 +275,15 @@ Control::OnButtonRender(wxCommandEvent& event)
         std::ostringstream buf;
         buf << render_filename << "." << i << ".ppm";
         rasterizer.save_image(buf.str());
-        fprintf(listFile, "%s.%d.ppm\n", pathless.c_str(), i);
+        fprintf(list_file, "%s.%d.ppm\n", pathless.c_str(), i);
       }
-      //glutPostWindowRedisplay(render_window);
-      //glutSetWindow(render_window);
-      //glutShowWindow();
-      //glutSetWindow(main_window);
     }
-    fclose(listFile);
+    fclose(list_file);
   } else { // single frame
     rasterizer.rasterize(current_frame, anti_aliasing_enabled, num_alias_samples, motion_blur_enabled, num_blur_samples, aafilter_function);
     if (!render_filename.empty()) {
       rasterizer.save_image(render_filename + ".ppm");
     }
-    //glutPostWindowRedisplay(render_window);
-    //glutSetWindow(render_window);
-    //glutShowWindow();
-    //glutSetWindow(main_window);
   }
   render.Show();
 }
