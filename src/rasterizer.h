@@ -8,6 +8,8 @@
 #ifndef rasterizer_h
 #define rasterizer_h
 
+#include "observer.h"
+
 #include <algorithm>
 #include <cassert>
 #include <functional>
@@ -204,18 +206,21 @@ struct Abuffer {
 /**
   \class Rasterizer
 */
-class Rasterizer {
+class Rasterizer : public Subject {
+  typedef std::vector<std::shared_ptr<Animation>>::size_type vertex_id_type;
+  typedef std::vector<std::shared_ptr<Animation>>::size_type objects_size_type;
   static const auto MAX_ALIAS_SAMPLES = 64;
   static const auto MAX_BLUR_SAMPLES = 64;
   int width;
   int height;
-  long originalX;
-  long originalY;
+  Point original;
   int prev_rotationX;
   int prev_rotationY;
   int rotation_centerX = -1;
   int rotation_centerY;
-  int selectedVertex = -1;
+  vertex_id_type selected_vertex;
+  objects_size_type selected_object;
+  bool is_object_selected = false;
   bool rotate_polygon = false;
   bool scale_polygon = false;
   bool draw_curve = false;
@@ -248,8 +253,8 @@ public:
   void save_image(const std::string& filename) const;
   void delete_keyframe(int frame);
   bool delete_object(int id);
-  bool motion(int mx, int my, int frame, int selected_object);
-  bool select_object(long mx, long my, int frame, bool is_right_click, int& selected_object);
+  bool motion(float mx, float my, int frame, objects_size_type selected_object);
+  bool select_object(float mx, float my, int frame, bool is_right_click);
   int get_width() const { return width; }
   int get_height() const { return height; }
   void* get_pixels() { return pixels.get(); }
@@ -299,6 +304,16 @@ public:
     return objects[ix]->keyframes.size();
   }
 
+  auto get_selected_object() -> decltype(selected_object)
+  {
+    return is_object_selected ? selected_object : objects.size();
+  }
+
+  auto get_selected_vertex() -> decltype(selected_vertex)
+  {
+    return selected_vertex;
+  }
+
 private:
   /**
    \brief find_keyframe
@@ -322,8 +337,8 @@ private:
                         });
   }
   void scan_convert(std::vector<Point>& vertices, RGB8 color) const;
-  void polygon_scaling(int mx, int my, int frame, int selected_object);
-  void polygon_rotation(int mx, int my, int frame, int selected_object);
+  void polygon_scaling(int mx, int my, int frame, objects_size_type selected_object);
+  void polygon_rotation(int mx, int my, int frame, objects_size_type selected_object);
 };
 
 #endif /* rasterizer_h */

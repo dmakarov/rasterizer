@@ -121,7 +121,8 @@ static void parse_aafilter_func(const std::string& expr)
   }
 }
 
-static void add_edge(std::unique_ptr<std::list<Edge>[]>& et, Point* lo, Point* hi, int bias)
+static void add_edge(std::unique_ptr<std::list<Edge>[]>& et,
+                     Point* lo, Point* hi, int bias)
 {
   float slope = (hi->x - lo->x) / (hi->y - lo->y);
   float ymin = ceilf(lo->y);
@@ -153,7 +154,8 @@ void Rasterizer::save_image(const std::string& filename) const
  *
  *
  */
-void Rasterizer::rasterize(int frame_num, bool aa_enabled, int num_aa_samples,
+void Rasterizer::rasterize(int frame_num,
+                           bool aa_enabled, int num_aa_samples,
                            bool mb_enabled, int num_mb_samples,
                            const std::string& aa_filter) const
 {
@@ -219,7 +221,8 @@ void Rasterizer::rasterize(int frame_num, bool aa_enabled, int num_aa_samples,
           continue;
         }
         pad.clear();
-        for (std::vector<std::shared_ptr<Animation>>::size_type obj = 0; obj < objects.size(); ++obj)
+        for (std::vector<std::shared_ptr<Animation>>::size_type obj = 0;
+             obj < objects.size(); ++obj)
         {
           // make sure it hasn't gone beyond the last frame
           float max_frame = (objects[obj]->keyframes.end() - 1)->number;
@@ -230,7 +233,7 @@ void Rasterizer::rasterize(int frame_num, bool aa_enabled, int num_aa_samples,
           auto vertno = objects[obj]->get_num_vertices();
 
           // shift vertices
-          for (int vv = 0; vv < vertno; ++vv)
+          for (decltype(vertno) vv = 0; vv < vertno; ++vv)
           {
             vertices[vv].x += aajitter[ii][jj].x;
             vertices[vv].y += aajitter[ii][jj].y;
@@ -294,7 +297,7 @@ void Rasterizer::scan_convert(std::vector<Point>& vertex, RGB8 color) const
   float ymax = vertex[0].y;
   float ymin = ymax;
 
-  for (int ii = 1; ii < vertno; ++ii)
+  for (decltype(vertno) ii = 1; ii < vertno; ++ii)
   {
     if (ymax < vertex[ii].y) ymax = vertex[ii].y;
     if (ymin > vertex[ii].y) ymin = vertex[ii].y;
@@ -308,7 +311,7 @@ void Rasterizer::scan_convert(std::vector<Point>& vertex, RGB8 color) const
   // build the edge table
   std::unique_ptr<std::list<Edge>[]> edge_table(new std::list<Edge>[range]);
 
-  for (int ii = 0; ii < vertno; ++ii)
+  for (decltype(vertno) ii = 0; ii < vertno; ++ii)
   {
     // do not add horizontal edges to the edge table.
     int jj = (ii + 1) % vertno;
@@ -421,8 +424,9 @@ void Rasterizer::scan_convert(std::vector<Point>& vertex, RGB8 color) const
  *  This function returns the set of vertices for the passed object in
  *  the current frame
  */
-RGB8 Rasterizer::get_vertices(std::vector<std::shared_ptr<Animation>>::size_type id,
-                              float frame, std::vector<Point>& vertices) const
+RGB8 Rasterizer::get_vertices(vertex_id_type id,
+                              float frame,
+                              std::vector<Point>& vertices) const
 {
   float prev_keyframe = -1.0f, next_keyframe = -1.0f;
   auto prev_frame = objects[id]->keyframes.end();
@@ -454,7 +458,7 @@ RGB8 Rasterizer::get_vertices(std::vector<std::shared_ptr<Animation>>::size_type
   {
     auto& next_keyframe_vertices = next_frame->vertices;
     float percent = (frame - prev_keyframe) / (next_keyframe - prev_keyframe);
-    for (int i = 0; i < objects[id]->get_num_vertices(); ++i)
+    for (decltype(objects[0]->get_num_vertices()) i = 0; i < objects[id]->get_num_vertices(); ++i)
     {
       auto x = (1 - percent) * prev_keyframe_vertices[i].x + percent * next_keyframe_vertices[i].x;
       auto y = (1 - percent) * prev_keyframe_vertices[i].y + percent * next_keyframe_vertices[i].y;
@@ -472,9 +476,9 @@ bool Rasterizer::delete_object(int id)
   return true;
 }
 
-void Rasterizer::polygon_scaling(int mx, int my, int frame, int selected_object)
+void Rasterizer::polygon_scaling(int mx, int my, int frame, objects_size_type selected_object)
 {
-  if (selectedVertex == -1) return;
+  if (!is_object_selected) return;
 
   mx -= rotation_centerX;
   my -= rotation_centerY;
@@ -491,7 +495,7 @@ void Rasterizer::polygon_scaling(int mx, int my, int frame, int selected_object)
   float sx = (dm > dp) ? 1.2 : 0.8;
   float sy = (dm > dp) ? 1.2 : 0.8;
 
-  for (int ii = 0; ii < vertno; ++ii)
+  for (decltype(vertno) ii = 0; ii < vertno; ++ii)
   {
     vert[ii].x -= rotation_centerX;
     vert[ii].y -= rotation_centerY;
@@ -504,9 +508,9 @@ void Rasterizer::polygon_scaling(int mx, int my, int frame, int selected_object)
   prev_rotationY = my;
 }
 
-void Rasterizer::polygon_rotation(int mx, int my, int frame, int selected_object)
+void Rasterizer::polygon_rotation(int mx, int my, int frame, objects_size_type selected_object)
 {
-  if (selectedVertex == -1) return;
+  if (!is_object_selected) return;
 
   mx -= rotation_centerX;
   my -= rotation_centerY;
@@ -532,7 +536,7 @@ void Rasterizer::polygon_rotation(int mx, int my, int frame, int selected_object
   auto& vert = find_keyframe(objects[selected_object], frame)->vertices;
   auto vertno = objects[selected_object]->get_num_vertices();
 
-  for (int ii = 0; ii < vertno; ++ii)
+  for (decltype(vertno) ii = 0; ii < vertno; ++ii)
   {
     vert[ii].x -= rotation_centerX;
     vert[ii].y -= rotation_centerY;
@@ -545,24 +549,26 @@ void Rasterizer::polygon_rotation(int mx, int my, int frame, int selected_object
   prev_rotationY = my;
 }
 
-bool Rasterizer::motion(int mx, int my, int frame, int selected_object)
+bool Rasterizer::motion(float mx, float my, int frame, objects_size_type selected_object)
 {
   if (draw_curve)
   {
-    int px = active_object->keyframes[0].vertices.back().x;
-    int py = active_object->keyframes[0].vertices.back().y;
-    float x = mx, y = my;
+    auto px = active_object->keyframes[0].vertices.back().x;
+    auto py = active_object->keyframes[0].vertices.back().y;
     if (std::abs(px - mx) > 7 || std::abs(py - my) > 7)
     { // sqrt((px-mx)*(px-mx) + (py-my)*(py-my)) > 5)
-      active_object->keyframes[0].vertices.push_back(Point{x, y});
+      active_object->keyframes[0].vertices.push_back(Point{mx, my});
     }
     return true;
   }
 
+#if 0 // FIXME:
   if (selected_object == -1)
     return false;
+#endif
   decltype(find_keyframe(objects[selected_object], frame)) keyframe;
-  if ((keyframe = find_keyframe(objects[selected_object], frame)) == objects[selected_object]->keyframes.end())
+  if ((keyframe = find_keyframe(objects[selected_object], frame)) ==
+      objects[selected_object]->keyframes.end())
   { // look for a keyframe at this frame
     // if we don't find it, then create a new one in the right place
     std::vector<Point> vertices;
@@ -600,50 +606,57 @@ bool Rasterizer::motion(int mx, int my, int frame, int selected_object)
 
   rotation_centerX = -1;
 
-  if (selectedVertex != -1)
+  if (!is_object_selected)
   {
-    keyframe->vertices[selectedVertex].x = mx;
-    keyframe->vertices[selectedVertex].y = my;
+    keyframe->vertices[selected_vertex].x = mx;
+    keyframe->vertices[selected_vertex].y = my;
   }
   else
   {
-    for (int i = 0; i < objects[selected_object]->get_num_vertices(); ++i)
+    for (decltype(objects[0]->get_num_vertices()) i = 0;
+         i < objects[selected_object]->get_num_vertices(); ++i)
     {
-      keyframe->vertices[i].x += (mx - originalX);
-      keyframe->vertices[i].y += (my - originalY);
+      keyframe->vertices[i].x += (mx - original.x);
+      keyframe->vertices[i].y += (my - original.y);
     }
-    originalX = mx;
-    originalY = my;
+    original = Point{mx, my};
   }
   return true;
 }
 
-bool Rasterizer::select_object(long mx, long my, int frame, bool is_right_click, int& selected_object)
+bool Rasterizer::select_object(float mx, float my, int frame,
+                               bool is_right_click)
 {
   bool foundVertex = false;
-  for (std::vector<std::shared_ptr<Animation>>::size_type i = 0; i < objects.size(); ++i)
+  for (objects_size_type i = 0; !foundVertex && i < objects.size(); ++i)
   {
     std::vector<Point> vertices;
     get_vertices(i, frame, vertices);
-    for (int j = 0; j < objects[i]->get_num_vertices(); ++j)
+    for (decltype(objects[0]->get_num_vertices()) j = 0;
+         !foundVertex && j < objects[i]->get_num_vertices(); ++j)
     {
-      Point vert = vertices[j];
+      Point& vert = vertices[j];
+      std::cout << "V" << j << " x(" << vert.x << "-" << mx
+                << ") y(" << vert.y << "-" << my << ")\n";
       if (fabs(vert.x - mx) < 5 && fabs(vert.y - (my)) < 5)
       { // check for proximity
         foundVertex = true;
-        selected_object = (int) i;
-        selectedVertex = j;
+        selected_object = i;
+        selected_vertex = j;
 
         //implement right-click drag
         if (is_right_click)
         {
-          selectedVertex = -1;
-          originalX = mx;
-          originalY = my;
+          selected_vertex = vertices.size();
+          original = Point{mx, my};
         }
       }
     }
   }
+  if (foundVertex) {
+    notify();
+  }
+  is_object_selected = foundVertex;
   return foundVertex;
 }
 
@@ -753,7 +766,8 @@ void Rasterizer::save_objects(const std::string& filename) const
   // write out the number of objects
   ofs << "Number of Objects: " << objects.size() << "\n";
   // write out each object
-  for (std::vector<std::shared_ptr<Animation>>::size_type i = 0; i != objects.size(); ++i)
+  for (std::vector<std::shared_ptr<Animation>>::size_type i = 0;
+       i != objects.size(); ++i)
   {
     ofs << "Object Number: " << i << "\n";
     ofs << "Color: r: " << objects[i]->r << ", g: "
@@ -763,7 +777,8 @@ void Rasterizer::save_objects(const std::string& filename) const
     for (decltype(get_num_keyframes(i)) j = 0; j != get_num_keyframes(i); ++j)
     {
       ofs << "Keyframe for Frame " << objects[i]->keyframes[j].number << "\n";
-      for (int k = 0; k < objects[i]->get_num_vertices(); ++k)
+      for (decltype(objects[0]->get_num_vertices()) k = 0;
+           k < objects[i]->get_num_vertices(); ++k)
       {
         ofs << "Vertex " << k
             << ", x: " << objects[i]->keyframes[j].vertices[k].x

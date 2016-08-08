@@ -21,8 +21,9 @@ Control::Control(wxFrame* frame)
   : wxPanel(frame, wxID_ANY)
   , rasterizer{400, 400}
   , editor(rasterizer)
-  , render(rasterizer)
+  , viewer(rasterizer)
 {
+  rasterizer.attach(this);
   wxMenu* file_menu = new wxMenu;
   file_menu->Append(wxID_NEW, wxGetStockLabel(wxID_NEW));
   file_menu->Append(wxID_PRINT, wxGetStockLabel(wxID_PRINT));
@@ -43,7 +44,8 @@ Control::Control(wxFrame* frame)
   auto* top_sizer = new wxBoxSizer(wxHORIZONTAL);
   auto* vsizer = new wxBoxSizer(wxVERTICAL);
   auto* hsizer = new wxBoxSizer(wxHORIZONTAL);
-  auto* sbox = new wxStaticBox(this, wxID_ANY, wxT("Info"), wxDefaultPosition, wxSize(SBOX_WIDTH, -1));
+  auto* sbox = new wxStaticBox(this, wxID_ANY, wxT("Info"),
+                               wxDefaultPosition, wxSize(SBOX_WIDTH, -1));
   auto* ssizer = new wxStaticBoxSizer(sbox, wxVERTICAL);
   stxt_objectid = new wxStaticText(sbox, wxID_ANY, wxT("Object ID:"));
   stxt_objectid->Disable();
@@ -56,19 +58,26 @@ Control::Control(wxFrame* frame)
   ssizer->Add(stxt_keyframe, 0, wxALIGN_LEFT | wxALL, 5);
   vsizer->Add(ssizer, 0, wxALIGN_CENTER | wxALL, 5);
 
-  sbox = new wxStaticBox(this, wxID_ANY, wxT("Animation"), wxDefaultPosition, wxSize(SBOX_WIDTH, -1));
+  sbox = new wxStaticBox(this, wxID_ANY, wxT("Animation"),
+                         wxDefaultPosition, wxSize(SBOX_WIDTH, -1));
   ssizer = new wxStaticBoxSizer(sbox, wxHORIZONTAL);
-  button_delete_keyframe = new wxButton(sbox, wxID_ANY, wxT("Delete keyframe"));
+  button_delete_keyframe = new wxButton(sbox, wxID_ANY,
+                                        wxT("Delete keyframe"));
   button_delete_keyframe->Disable();
   ssizer->Add(button_delete_keyframe, 0, wxALIGN_LEFT | wxALL, 5);
-  spin_delete_keyframe = new wxSpinCtrl(sbox, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(SPIN_CTRL_WIDTH, -1));
+  spin_delete_keyframe = new wxSpinCtrl(sbox, wxID_ANY, wxEmptyString,
+                                        wxDefaultPosition,
+                                        wxSize(SPIN_CTRL_WIDTH, -1));
   spin_delete_keyframe->Disable();
   ssizer->Add(spin_delete_keyframe, 0, wxALIGN_RIGHT | wxALL, 5);
   vsizer->Add(ssizer, 0, wxALIGN_LEFT | wxALL, 5);
 
-  sbox = new wxStaticBox(this, wxID_ANY, wxT("Objects"), wxDefaultPosition, wxSize(SBOX_WIDTH, -1));
+  sbox = new wxStaticBox(this, wxID_ANY, wxT("Objects"),
+                         wxDefaultPosition, wxSize(SBOX_WIDTH, -1));
   ssizer = new wxStaticBoxSizer(sbox, wxVERTICAL);
-  text_filename = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(TEXT_CTRL_WIDTH, -1));
+  text_filename = new wxTextCtrl(this, wxID_ANY, wxEmptyString,
+                                 wxDefaultPosition,
+                                 wxSize(TEXT_CTRL_WIDTH, -1));
   ssizer->Add(text_filename, 0, wxALIGN_CENTER | wxALL, 5);
   auto* button = new wxButton(this, ID_BUTTON_LOAD, wxT("Load"));
   hsizer->Add(button, 0, wxALIGN_LEFT | wxALL, 5);
@@ -80,12 +89,15 @@ Control::Control(wxFrame* frame)
   top_sizer->Add(vsizer, 0, wxALIGN_LEFT | wxALL, 5);
 
   vsizer = new wxBoxSizer(wxVERTICAL);
-  sbox = new wxStaticBox(this, wxID_ANY, wxT("Rendering"), wxDefaultPosition, wxSize(SBOX_WIDTH, -1));
+  sbox = new wxStaticBox(this, wxID_ANY, wxT("Rendering"),
+                         wxDefaultPosition, wxSize(SBOX_WIDTH, -1));
   ssizer = new wxStaticBoxSizer(sbox, wxVERTICAL);
   // Render out text control
   hsizer = new wxBoxSizer(wxHORIZONTAL);
   auto* label = new wxStaticText(this, wxID_ANY, wxT("Render out"));
-  text_renderto = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(TEXT_CTRL_WIDTH, -1));
+  text_renderto = new wxTextCtrl(this, wxID_ANY, wxEmptyString,
+                                 wxDefaultPosition,
+                                 wxSize(TEXT_CTRL_WIDTH, -1));
   hsizer->Add(label, 0, wxALIGN_LEFT | wxALL, 0);
   hsizer->Add(text_renderto, 0, wxALIGN_RIGHT | wxALL, 0);
   ssizer->Add(hsizer, 0, wxALIGN_CENTER | wxALL);
@@ -104,7 +116,9 @@ Control::Control(wxFrame* frame)
   hsizer = new wxBoxSizer(wxHORIZONTAL);
   stxt_aa_filter = new wxStaticText(this, wxID_ANY, wxT("Filter"));
   stxt_aa_filter->Disable();
-  text_aa_filter = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(TEXT_CTRL_WIDTH, -1));
+  text_aa_filter = new wxTextCtrl(this, wxID_ANY, wxEmptyString,
+                                  wxDefaultPosition,
+                                  wxSize(TEXT_CTRL_WIDTH, -1));
   text_aa_filter->Disable();
   hsizer->Add(stxt_aa_filter, 0, wxALIGN_LEFT | wxALL, 0);
   hsizer->Add(text_aa_filter, 0, wxALIGN_RIGHT | wxALL, 0);
@@ -124,7 +138,12 @@ Control::Control(wxFrame* frame)
   wxArrayString radio_buttons_labels;
   radio_buttons_labels.Add(wxT("This Frame Only"));
   radio_buttons_labels.Add(wxT("Multiple Frames"));
-  auto* radio_box = new wxRadioBox(this, ID_RADIO_FRAME, wxT("Single/Multiple"), wxDefaultPosition, wxDefaultSize, radio_buttons_labels, 2, wxRA_SPECIFY_ROWS);
+  auto* radio_box = new wxRadioBox(this, ID_RADIO_FRAME,
+                                   wxT("Single/Multiple"),
+                                   wxDefaultPosition,
+                                   wxDefaultSize,
+                                   radio_buttons_labels,
+                                   2, wxRA_SPECIFY_ROWS);
   ssizer->Add(radio_box, 0, wxALIGN_LEFT | wxALL);
   /*
     "Start Frame:", GLUI_EDITTEXT_INT, &first_frame);
@@ -139,15 +158,20 @@ Control::Control(wxFrame* frame)
   stxt_sframe = new wxStaticText(this, wxID_ANY, wxT("First frame"));
   stxt_sframe->Disable();
   auto size = stxt_sframe->GetSize();
-  text_sframe = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(TEXT_CTRL_WIDTH, -1));
+  text_sframe = new wxTextCtrl(this, wxID_ANY, wxEmptyString,
+                               wxDefaultPosition,
+                               wxSize(TEXT_CTRL_WIDTH, -1));
   text_sframe->Disable();
   hsizer->Add(stxt_sframe, 0, wxALIGN_LEFT | wxALL, 0);
   hsizer->Add(text_sframe, 0, wxALIGN_RIGHT | wxALL, 0);
   ssizer->Add(hsizer, 0, wxALIGN_LEFT | wxALL);
   hsizer = new wxBoxSizer(wxHORIZONTAL);
-  stxt_eframe = new wxStaticText(this, wxID_ANY, wxT("Last frame"), wxDefaultPosition, size);
+  stxt_eframe = new wxStaticText(this, wxID_ANY, wxT("Last frame"),
+                                 wxDefaultPosition, size);
   stxt_eframe->Disable();
-  text_eframe = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(TEXT_CTRL_WIDTH, -1));
+  text_eframe = new wxTextCtrl(this, wxID_ANY, wxEmptyString,
+                               wxDefaultPosition,
+                               wxSize(TEXT_CTRL_WIDTH, -1));
   text_eframe->Disable();
   hsizer->Add(stxt_eframe, 0, wxALIGN_LEFT | wxALL, 0);
   hsizer->Add(text_eframe, 0, wxALIGN_RIGHT | wxALL, 0);
@@ -270,7 +294,12 @@ Control::OnButtonRender(wxCommandEvent& event)
     assert(list_file != NULL);
 
     for (int i = first_frame; i <= final_frame; ++i) {
-      rasterizer.rasterize(i, anti_aliasing_enabled, num_alias_samples, motion_blur_enabled, num_blur_samples, aafilter_function);
+      rasterizer.rasterize(i,
+                           anti_aliasing_enabled,
+                           num_alias_samples,
+                           motion_blur_enabled,
+                           num_blur_samples,
+                           aafilter_function);
       if (!render_filename.empty()) {
         std::ostringstream buf;
         buf << render_filename << "." << i << ".ppm";
@@ -280,12 +309,17 @@ Control::OnButtonRender(wxCommandEvent& event)
     }
     fclose(list_file);
   } else { // single frame
-    rasterizer.rasterize(current_frame, anti_aliasing_enabled, num_alias_samples, motion_blur_enabled, num_blur_samples, aafilter_function);
+    rasterizer.rasterize(current_frame,
+                         anti_aliasing_enabled,
+                         num_alias_samples,
+                         motion_blur_enabled,
+                         num_blur_samples,
+                         aafilter_function);
     if (!render_filename.empty()) {
       rasterizer.save_image(render_filename + ".ppm");
     }
   }
-  render.Show();
+  viewer.Show();
 }
 
 std::string
@@ -295,6 +329,14 @@ Control::get_basename(const std::string& filename)
   if (pos == std::string::npos)
     return filename;
   return filename.substr(pos + 1);
+}
+
+void
+Control::update(Subject& subject)
+{
+  std::cout << "Observer updated.\n";
+  selected_object = rasterizer.get_selected_object();
+  update_info();
 }
 
 #if 0

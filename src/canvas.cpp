@@ -21,7 +21,8 @@ RenderFrame::RenderFrame(Rasterizer& rasterizer)
             wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE)
 {
   panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(500, 500));
-  canvas = new Canvas(rasterizer, panel, wxID_ANY, nullptr, wxDefaultPosition, wxSize(500, 500));
+  canvas = new Canvas(rasterizer, panel, wxID_ANY, nullptr,
+                      wxDefaultPosition, wxSize(500, 500));
 }
 
 void
@@ -37,12 +38,11 @@ Canvas::Canvas(Rasterizer& rasterizer,
                const int* attributes,
                const wxPoint& pos,
                const wxSize& size)
-  : wxGLCanvas(parent, id, nullptr, pos, size, 0, "Render Frame", wxNullPalette)
+  : wxGLCanvas(parent, id, nullptr, pos, size, 0,
+               "Render Frame", wxNullPalette)
   , rasterizer(rasterizer)
 {
   context = new wxGLContext(this);
-  this->SetCurrent(*context);
-
   int w, h;
   this->GetClientSize(&w, &h);
   glOrtho(0, w, -h, 0, -1, 1);

@@ -3,7 +3,7 @@ cmake_policy(SET CMP0015 NEW)
 
 project(rasterizer)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -g")
 
 set(SOURCE_FILES
   src/canvas.cpp
@@ -12,11 +12,17 @@ set(SOURCE_FILES
   src/control.h
   src/editor.cpp
   src/editor.h
+  src/observer.h
   src/rasterizer.cpp
   src/rasterizer.h
   src/main.cpp)
 
 include_directories(/usr/local/include)
+
+set(SYSTEM_SPECIFIC_LIBRARIES "")
+if ("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
+  set(SYSTEM_SPECIFIC_LIBRARIES " -lGL")
+endif ()
 
 set(wxWidgets_USE_LIBS)
 find_package(wxWidgets REQUIRED gl core base)
@@ -24,7 +30,7 @@ find_package(wxWidgets REQUIRED gl core base)
 # adv aui base core gl html net propgrid qa ribbon richtext stc webview xml xrc
 if(wxWidgets_FOUND)
   include("${wxWidgets_USE_FILE}")
-  set(EXTRA_LIBS ${wxWidgets_LIBRARIES})
+  set(EXTRA_LIBS "${wxWidgets_LIBRARIES}${SYSTEM_SPECIFIC_LIBRARIES}")
   add_executable(rasterizer ${SOURCE_FILES})
   target_link_libraries(rasterizer ${EXTRA_LIBS})
 else(wxWidgets_FOUND)

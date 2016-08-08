@@ -14,8 +14,10 @@
 class MainFrame : public wxFrame
 {
 public:
-  MainFrame(wxFrame* frame, const wxString& title, const wxPoint& pos, const wxSize& size)
-  : wxFrame(frame, wxID_ANY, title, pos, size, wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE)
+  MainFrame(wxFrame* frame, const wxString& title,
+            const wxPoint& pos, const wxSize& size)
+  : wxFrame(frame, wxID_ANY, title, pos, size,
+            wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE)
   {}
 
   virtual ~MainFrame() {}
@@ -57,7 +59,8 @@ public:
       r.render_to_file(args);
       return true;
     }
-    auto* frame = new MainFrame(nullptr, wxT("Rasterizer"), wxDefaultPosition, wxSize(465, 400));
+    auto* frame = new MainFrame(nullptr, wxT("Rasterizer"),
+                                wxDefaultPosition, wxSize(465, 400));
     (void) new Control(frame);
     frame->Show(true);
     return true;

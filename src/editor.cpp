@@ -7,12 +7,15 @@
 
 #include "editor.h"
 
+#include <execinfo.h>
+
 wxBEGIN_EVENT_TABLE(EditorFrame, wxWindow)
   EVT_CLOSE(EditorFrame::OnClose)
 wxEND_EVENT_TABLE()
 
 wxBEGIN_EVENT_TABLE(EditorCanvas, wxWindow)
   EVT_PAINT(EditorCanvas::OnPaint)
+  EVT_MOUSE_EVENTS(EditorCanvas::OnMouse)
 wxEND_EVENT_TABLE()
 
 EditorFrame::EditorFrame(Rasterizer& rasterizer)
@@ -21,7 +24,8 @@ EditorFrame::EditorFrame(Rasterizer& rasterizer)
             wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE)
 {
   panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(500, 500));
-  canvas = new EditorCanvas(rasterizer, panel, wxID_ANY, nullptr, wxDefaultPosition, wxSize(500, 500));
+  canvas = new EditorCanvas(rasterizer, panel, wxID_ANY, nullptr,
+                            wxDefaultPosition, wxSize(500, 500));
 }
 
 void
@@ -43,51 +47,62 @@ EditorCanvas::EditorCanvas(Rasterizer&      rasterizer,
   , rasterizer(rasterizer)
 {
   animation_frame = 1;
-  selected_object = -1;
-  selected_vertex = -1;
   rotation_centerX = -1;
   rotation_centerY = -1;
 
   context = new wxGLContext(this);
-  this->SetCurrent(*context);
+}
 
+void
+EditorCanvas::paint()
+{
+#if 0
+  {
+    void *buffer[100];
+    char **strings;
+    int nptrs;
+
+    nptrs = backtrace(buffer, 100);
+    printf("backtrace() returned %d addresses\n", nptrs);
+    strings = backtrace_symbols(buffer, nptrs);
+    if (strings == NULL) {
+      perror("backtrace_symbols");
+      exit(EXIT_FAILURE);
+    }
+    for (int j = 0; j < nptrs; ++j) {
+      printf("%s\n", strings[j]);
+    }
+    free(strings);
+  }
+#endif
+  auto status = this->SetCurrent(*context);
+  assert(status);
   int w, h;
   this->GetClientSize(&w, &h);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
   glOrtho(0, w, -h, 0, -1, 1);
-}
-
-void
-EditorCanvas::draw()
-{
-  wxClientDC dc(this);
-  this->paint(dc);
-}
-
-void
-EditorCanvas::paint(const wxDC& dc)
-{
-  this->SetCurrent(*context);
   glClearColor(0.f, 0.f, 0.f, 0.f);
   glClear(GL_COLOR_BUFFER_BIT);
   if (rasterizer.any_keyframe(animation_frame)) {
     // add a red border if it is a keyframe
-    int w, h;
-    this->GetClientSize(&w, &h);
-    glLineWidth(10);
+    glLineWidth(8);
     glColor3d(1, 0, 0);
     glBegin(GL_LINE_STRIP);
     {
       glVertex2d(0, 0);
-      glVertex2d(0, -h);
-      glVertex2d(w, -h);
-      glVertex2d(w, 0);
+      glVertex2d(0, -h + 1);
+      glVertex2d(w - 1, -h + 1);
+      glVertex2d(w - 1, 0);
       glVertex2d(0, 0);
     }
     glEnd();
   }
+
   glLineWidth(1);
   auto objects = rasterizer.get_objects();
-  for (int obj = 0; obj < objects.size(); ++obj) {
+  auto selected_object = rasterizer.get_selected_object();
+  for (decltype(objects.size()) obj = 0; obj < objects.size(); ++obj) {
     std::vector<Point> vertices;
     auto color = rasterizer.get_vertices(obj, animation_frame, vertices);
     glColor3d(color.get_red(), color.get_green(), color.get_blue());
@@ -95,15 +110,17 @@ EditorCanvas::paint(const wxDC& dc)
     // draw the edges
     glBegin(GL_LINE_STRIP);
     {
-      std::for_each(vertices.begin(), vertices.end(), [](Point& p){ glVertex2d(p.x, -p.y); });
+      std::for_each(vertices.begin(), vertices.end(), [](Point& p){
+        glVertex2d(p.x, -p.y); });
       glVertex2d(vertices[0].x, -vertices[0].y);
     }
     glEnd();
     // now draw the vertices on top of the lines
     if (selected_object == obj) {
+      auto selected_vertex = rasterizer.get_selected_vertex();
       glBegin(GL_LINES);
       {
-        for (int j = 0; j < vertices.size(); ++j) {
+        for (decltype(vertices.size()) j = 0; j < vertices.size(); ++j) {
           glColor3d(0, 1, j == selected_vertex ? 0 : 1);
           glVertex2d(vertices[j].x + 5, -vertices[j].y);
           glVertex2d(vertices[j].x - 5, -vertices[j].y);
@@ -135,7 +152,8 @@ EditorCanvas::paint(const wxDC& dc)
     auto& v = active_object->keyframes[0].vertices;
     glBegin(GL_LINE_STRIP);
     {
-      std::for_each(v.begin(), v.end(), [](Point& p) { glVertex2d(p.x, -p.y); });
+      std::for_each(v.begin(), v.end(), [](Point& p) {
+        glVertex2d(p.x, -p.y); });
     }
     glEnd();
     // now draw the vertices
@@ -152,110 +170,91 @@ EditorCanvas::paint(const wxDC& dc)
     glEnd();
     glLineWidth(1);
   }
+
   glFlush();
-  SwapBuffers();
+  status = this->SwapBuffers();
+  assert(status);
 }
 
 void
 EditorCanvas::OnPaint(wxPaintEvent& event)
 {
-  wxPaintDC dc(this);
-  paint(dc);
+  paint();
   event.Skip();
+  std::cout << "EditorCanvas::OnPaint\n";
+  std::cout << "------------------------------------------------------------------\n";
 }
 
 void
-EditorCanvas::OnMouseMove(wxMouseEvent& event)
+EditorCanvas::OnMouse(wxMouseEvent& event)
 {
   long mx, my;
   event.GetPosition(&mx, &my);
   float x = mx, y = my;
-  switch (event.GetModifiers())
-  {
-  case wxMOD_SHIFT:
-    // clear the selection
-    selected_object = -1;
-    selected_vertex = -1;
-    // create a new object if one isn't being drawn
-    if (active_object == nullptr)
-    {
-      active_object.make_shared();
-      active_object->keyframes.push_back(Frame());
-      active_object->keyframes[0].number = 1;
-      //assign_random_color(active_object);
-    }
-    active_object->keyframes[0].vertices.push_back(Point{x, y});
-    draw_curve = true;
-    rotation_centerX = -1;
-    break;
-  case wxMOD_CONTROL:
-    if (rasterizer.select_object(mx, my, animation_frame, false, selected_object) && (rotation_centerX != -1))
-    {
-      scale_polygon = false;
-      rotate_polygon = true;
-      prev_rotationX = mx - rotation_centerX;
-      prev_rotationY = my - rotation_centerY;
-    }
-    else
-    {
-      rotation_centerX = mx;
-      rotation_centerY = my;
-    }
-    break;
-  case wxMOD_CONTROL | wxMOD_SHIFT:
-    if (rasterizer.select_object(mx, my, animation_frame, false, selected_object) && (rotation_centerX != -1))
-    {
-      scale_polygon = true;
-      rotate_polygon = false;
-      prev_rotationX = mx - rotation_centerX;
-      prev_rotationY = my - rotation_centerY;
-    }
-    break;
-  default:
-    // if we're in the middle of drawing something, then end it
-    if (active_object)
-    {
-      //if we don't have a polygon
 
-      if (active_object->get_num_vertices() < 3)
-      {
-        active_object = nullptr;
-      }
-      else
-      {
-        rasterizer.add_object(active_object);
-      }
-      active_object = nullptr;
-    }
-    // if there's a vertex in the area, select it
-    if (!rasterizer.select_object(mx, my, animation_frame, false, selected_object))
-    {
-      selected_object = -1;
-      selected_vertex = -1;
-    }
-    rotation_centerX = -1;
-  }
-}
-
-void
-EditorCanvas::OnLeftMouse(wxMouseEvent& event)
-{
-}
-
-void
-EditorCanvas::OnLeftMouseUp(wxMouseEvent& event)
-{
   rotate_polygon = false;
   scale_polygon = false;
   draw_curve = false;
-}
 
-void
-EditorCanvas::OnRightMouse(wxMouseEvent& event)
-{
-}
+  switch (event.GetModifiers())
+  {
+    case wxMOD_SHIFT:
+      // create a new object if one isn't being drawn
+      if (active_object == nullptr)
+      {
+        active_object = std::make_shared<Animation>();
+        active_object->keyframes.push_back(Frame());
+        active_object->keyframes[0].number = 1;
+        //assign_random_color(active_object);
+      }
+      active_object->keyframes[0].vertices.push_back(Point{x, y});
+      draw_curve = true;
+      rotation_centerX = -1;
+      break;
+    case wxMOD_CONTROL:
+      if (rasterizer.select_object(x, y, animation_frame, false)
+          && rotation_centerX != -1)
+      {
+        scale_polygon = false;
+        rotate_polygon = true;
+        prev_rotationX = mx - rotation_centerX;
+        prev_rotationY = my - rotation_centerY;
+      }
+      else
+      {
+        rotation_centerX = mx;
+        rotation_centerY = my;
+      }
+      break;
+    case wxMOD_CONTROL | wxMOD_SHIFT:
+      if (rasterizer.select_object(x, y, animation_frame, false)
+          && rotation_centerX != -1)
+      {
+        scale_polygon = true;
+        rotate_polygon = false;
+        prev_rotationX = mx - rotation_centerX;
+        prev_rotationY = my - rotation_centerY;
+      }
+      break;
+    default:
+      // if we're in the middle of drawing something, then end it
+      if (active_object)
+      {
+        //if we don't have a polygon
 
-void
-EditorCanvas::OnRightMouseUp(wxMouseEvent& event)
-{
+        if (active_object->get_num_vertices() < 3)
+        {
+          active_object = nullptr;
+        }
+        else
+        {
+          rasterizer.add_object(active_object);
+        }
+        active_object = nullptr;
+      }
+      // if there's a vertex in the area, select it
+      rasterizer.select_object(x, y, animation_frame, false);
+      rotation_centerX = -1;
+  }
+  paint();
 }

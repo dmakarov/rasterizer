@@ -30,8 +30,6 @@ private:
 
   Rasterizer& rasterizer;
   int animation_frame;
-  int selected_object;
-  int selected_vertex;
   long rotation_centerX;
   long rotation_centerY;
   long prev_rotationX;
@@ -42,15 +40,10 @@ private:
   bool scale_polygon = false;
   bool rotate_polygon = false;
 
-  void draw();
-  void paint(const wxDC& dc);
+  void paint();
 
   void OnPaint(wxPaintEvent& event);
-  void OnMouseMove(wxMouseEvent& event);
-  void OnLeftMouse(wxMouseEvent& event);
-  void OnLeftMouseUp(wxMouseEvent& event);
-  void OnRightMouse(wxMouseEvent& event);
-  void OnRightMouseUp(wxMouseEvent& event);
+  void OnMouse(wxMouseEvent& event);
 
   wxDECLARE_EVENT_TABLE();
 

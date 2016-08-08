@@ -10,6 +10,7 @@
 
 #include "canvas.h"
 #include "editor.h"
+#include "observer.h"
 #include "rasterizer.h"
 
 #include <wx/wx.h>
@@ -19,14 +20,22 @@
 #include <sstream>
 
 // Define a new canvas which can receive some events
-class Control : public wxPanel
+class Control : public wxPanel, public Observer
 {
-  enum { ID_BUTTON_LOAD = wxID_HIGHEST + 1, ID_BUTTON_SAVE, ID_BUTTON_RENDER, ID_RADIO_FRAME, ID_CHECK_AA, ID_CHECK_MB };
+  enum { ID_BUTTON_LOAD = wxID_HIGHEST + 1,
+         ID_BUTTON_SAVE,
+         ID_BUTTON_RENDER,
+         ID_RADIO_FRAME,
+         ID_CHECK_AA,
+         ID_CHECK_MB
+  };
 
 public:
   Control(wxFrame* frame);
 
   virtual ~Control() {}
+
+  void update(Subject& subject);
 
 private:
 
@@ -37,7 +46,7 @@ private:
   int selected_object;
   Rasterizer rasterizer;
   EditorFrame editor;
-  RenderFrame render;
+  RenderFrame viewer;
   bool multiple_frames = false;
   std::string render_filename;
   int current_frame = 1;
