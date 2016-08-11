@@ -28,17 +28,17 @@ public:
 
 private:
 
+  wxGLContext* context;
   Rasterizer& rasterizer;
   int animation_frame;
   long rotation_centerX;
   long rotation_centerY;
   long prev_rotationX;
   long prev_rotationY;
-  std::shared_ptr<Animation> active_object;
-  wxGLContext* context;
   bool draw_curve = false;
   bool scale_polygon = false;
   bool rotate_polygon = false;
+  std::shared_ptr<Animation> active_object;
 
   void paint();
 

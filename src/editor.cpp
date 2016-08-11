@@ -75,30 +75,29 @@ EditorCanvas::paint()
     free(strings);
   }
 #endif
-  auto status = this->SetCurrent(*context);
+  auto status = SetCurrent(*context);
   assert(status);
   int w, h;
-  this->GetClientSize(&w, &h);
+  GetClientSize(&w, &h);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  glOrtho(0, w, -h, 0, -1, 1);
+  glOrtho(0, w, -h, 0, 0, 1);
   glClearColor(0.f, 0.f, 0.f, 0.f);
   glClear(GL_COLOR_BUFFER_BIT);
+  // add a red border if it is a keyframe
   if (rasterizer.any_keyframe(animation_frame)) {
-    // add a red border if it is a keyframe
     glLineWidth(8);
     glColor3d(1, 0, 0);
     glBegin(GL_LINE_STRIP);
     {
-      glVertex2d(0, 0);
-      glVertex2d(0, -h + 1);
+      glVertex2d(    1,     -1);
+      glVertex2d(    1, -h + 1);
       glVertex2d(w - 1, -h + 1);
-      glVertex2d(w - 1, 0);
-      glVertex2d(0, 0);
+      glVertex2d(w - 1,     -1);
+      glVertex2d(    1,     -1);
     }
     glEnd();
   }
-
   glLineWidth(1);
   auto objects = rasterizer.get_objects();
   auto selected_object = rasterizer.get_selected_object();
@@ -110,22 +109,24 @@ EditorCanvas::paint()
     // draw the edges
     glBegin(GL_LINE_STRIP);
     {
-      std::for_each(vertices.begin(), vertices.end(), [](Point& p){
-        glVertex2d(p.x, -p.y); });
+      for (auto& p : vertices) {
+        glVertex2d(p.x, -p.y);
+      };
       glVertex2d(vertices[0].x, -vertices[0].y);
     }
     glEnd();
     // now draw the vertices on top of the lines
     if (selected_object == obj) {
-      auto selected_vertex = rasterizer.get_selected_vertex();
+      auto v = rasterizer.get_selected_vertex();
       glBegin(GL_LINES);
       {
-        for (decltype(vertices.size()) j = 0; j < vertices.size(); ++j) {
-          glColor3d(0, 1, j == selected_vertex ? 0 : 1);
-          glVertex2d(vertices[j].x + 5, -vertices[j].y);
-          glVertex2d(vertices[j].x - 5, -vertices[j].y);
-          glVertex2d(vertices[j].x, -vertices[j].y + 5);
-          glVertex2d(vertices[j].x, -vertices[j].y - 5);
+        decltype(vertices.size()) j = 0;
+        for (auto& p : vertices) {
+            glColor3d(0, 1, j++ == v ? 0 : 1);
+            glVertex2d(p.x + 5, -p.y);
+            glVertex2d(p.x - 5, -p.y);
+            glVertex2d(p.x, -p.y + 5);
+            glVertex2d(p.x, -p.y - 5);
         }
       }
       glEnd();
@@ -136,7 +137,7 @@ EditorCanvas::paint()
     glBegin(GL_LINES);
     {
       glColor3d(0.5, 0.5, 0.5);
-      glVertex2d(rotation_centerX + 5, - rotation_centerY);
+      glVertex2d(rotation_centerX + 5, -rotation_centerY);
       glVertex2d(rotation_centerX - 5, -rotation_centerY);
       glVertex2d(rotation_centerX, -rotation_centerY + 5);
       glVertex2d(rotation_centerX, -rotation_centerY - 5);
@@ -147,32 +148,32 @@ EditorCanvas::paint()
   if (active_object) {
     glLineWidth(3);
     // first draw the edges
-    auto color = active_object->get_color();
-    glColor3d(color.get_red(), color.get_green(), color.get_blue());
+    const auto& c = active_object->get_color();
+    glColor3d(c.get_red(), c.get_green(), c.get_blue());
     auto& v = active_object->keyframes[0].vertices;
     glBegin(GL_LINE_STRIP);
     {
-      std::for_each(v.begin(), v.end(), [](Point& p) {
-        glVertex2d(p.x, -p.y); });
+      for (auto& p : v) {
+        glVertex2d(p.x, -p.y);
+      };
     }
     glEnd();
     // now draw the vertices
     glColor3d(0, 1, 1);
     glBegin(GL_LINES);
     {
-      std::for_each(v.begin(), v.end(), [](Point& p) {
+      for (auto& p : v) {
           glVertex2d(p.x + 5, -p.y);
           glVertex2d(p.x - 5, -p.y);
           glVertex2d(p.x, -p.y + 5);
           glVertex2d(p.x, -p.y - 5);
-        });
+      };
     }
     glEnd();
-    glLineWidth(1);
   }
 
   glFlush();
-  status = this->SwapBuffers();
+  status = SwapBuffers();
   assert(status);
 }
 
