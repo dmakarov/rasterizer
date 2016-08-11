@@ -191,6 +191,7 @@ EditorCanvas::OnMouse(wxMouseEvent& event)
 {
   long mx, my;
   event.GetPosition(&mx, &my);
+  std::cout << "Mouse at " << mx << ":" << my << '\n';
   float x = mx, y = my;
 
   rotate_polygon = false;

@@ -195,8 +195,7 @@ Control::OnButtonLoad(wxCommandEvent& event)
   }
   auto name = text_filename->GetLineText(0) + ".obs";
   if (rasterizer.load_objects(name.ToStdString())) {
-    selected_object = -1;
-    update_info();
+    update(rasterizer);
     editor.Show();
   }
 }
@@ -256,35 +255,6 @@ Control::OnRadioFrame(wxCommandEvent& event)
 }
 
 void
-Control::update_info()
-{
-  if (selected_object != -1)
-  {
-    std::ostringstream oss;
-    oss << "Object ID: " << selected_object;
-    stxt_objectid->SetLabel(oss.str());
-    stxt_objectid->Enable();
-    oss.str("");
-    oss << "Vertices: " << rasterizer.get_num_vertices(selected_object);
-    stxt_vertices->SetLabel(oss.str());
-    stxt_vertices->Enable();
-    oss.str("");
-    oss << "Keyframes: " << rasterizer.get_num_keyframes(selected_object);
-    stxt_keyframe->SetLabel(oss.str());
-    stxt_keyframe->Enable();
-  }
-  else
-  {
-    stxt_objectid->SetLabel(wxT("Object ID:"));
-    stxt_objectid->Disable();
-    stxt_vertices->SetLabel(wxT("Vertices:"));
-    stxt_vertices->Disable();
-    stxt_keyframe->SetLabel(wxT("Keyframes:"));
-    stxt_keyframe->Disable();
-  }
-}
-
-void
 Control::OnButtonRender(wxCommandEvent& event)
 {
   if (multiple_frames) {
@@ -334,9 +304,31 @@ Control::get_basename(const std::string& filename)
 void
 Control::update(Subject& subject)
 {
-  std::cout << "Observer updated.\n";
-  selected_object = rasterizer.get_selected_object();
-  update_info();
+  if (rasterizer.is_selected())
+  {
+    auto selected_object = rasterizer.get_selected_object();
+    std::ostringstream oss;
+    oss << "Object ID: " << selected_object;
+    stxt_objectid->SetLabel(oss.str());
+    stxt_objectid->Enable();
+    oss.str("");
+    oss << "Vertices: " << rasterizer.get_num_vertices(selected_object);
+    stxt_vertices->SetLabel(oss.str());
+    stxt_vertices->Enable();
+    oss.str("");
+    oss << "Keyframes: " << rasterizer.get_num_keyframes(selected_object);
+    stxt_keyframe->SetLabel(oss.str());
+    stxt_keyframe->Enable();
+  }
+  else
+  {
+    stxt_objectid->SetLabel(wxT("Object ID:"));
+    stxt_objectid->Disable();
+    stxt_vertices->SetLabel(wxT("Vertices:"));
+    stxt_vertices->Disable();
+    stxt_keyframe->SetLabel(wxT("Keyframes:"));
+    stxt_keyframe->Disable();
+  }
 }
 
 #if 0

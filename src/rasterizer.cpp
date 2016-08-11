@@ -638,7 +638,7 @@ bool Rasterizer::select_object(float mx, float my, int frame,
       Point& vert = vertices[j];
       std::cout << "V" << j << " x(" << vert.x << "-" << mx
                 << ") y(" << vert.y << "-" << my << ")\n";
-      if (fabs(vert.x - mx) < 5 && fabs(vert.y - (my)) < 5)
+      if (fabs(vert.x - mx) < 5 && fabs(vert.y - my) < 5)
       { // check for proximity
         foundVertex = true;
         selected_object = i;

@@ -43,7 +43,6 @@ private:
   static const int TEXT_CTRL_WIDTH = 180;
   static const int SBOX_WIDTH = TEXT_CTRL_WIDTH + 30;
 
-  int selected_object;
   Rasterizer rasterizer;
   EditorFrame editor;
   RenderFrame viewer;
@@ -79,19 +78,15 @@ private:
   wxStaticText* stxt_eframe;
   wxTextCtrl* text_eframe;
 
-  void OnPaint(wxPaintEvent& event)
-  {
-  }
+  std::string get_basename(const std::string& filename);
 
+  void OnPaint(wxPaintEvent& event) {}
   void OnButtonLoad(wxCommandEvent& event);
   void OnButtonSave(wxCommandEvent& event);
   void OnButtonRender(wxCommandEvent& event);
   void OnCheckAA(wxCommandEvent& event);
   void OnCheckMB(wxCommandEvent& event);
   void OnRadioFrame(wxCommandEvent& event);
-
-  void update_info();
-  std::string get_basename(const std::string& filename);
 
   wxDECLARE_EVENT_TABLE();
 };

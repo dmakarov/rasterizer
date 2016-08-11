@@ -314,6 +314,11 @@ public:
     return selected_vertex;
   }
 
+  bool is_selected()
+  {
+    return is_object_selected;
+  }
+
 private:
   /**
    \brief find_keyframe
