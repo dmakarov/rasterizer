@@ -6,8 +6,9 @@
  */
 
 #include "editor.h"
-
+#if 0
 #include <execinfo.h>
+#endif
 
 wxBEGIN_EVENT_TABLE(EditorFrame, wxWindow)
   EVT_CLOSE(EditorFrame::OnClose)
@@ -183,15 +184,18 @@ EditorCanvas::OnPaint(wxPaintEvent& event)
   paint();
   event.Skip();
   std::cout << "EditorCanvas::OnPaint\n";
-  std::cout << "------------------------------------------------------------------\n";
 }
 
 void
 EditorCanvas::OnMouse(wxMouseEvent& event)
 {
+  if (event.ButtonDown(wxMOUSE_BTN_LEFT) || !(event.Dragging() || event.ButtonUp())) {
+    event.Skip();
+    return;
+  }
+
   long mx, my;
   event.GetPosition(&mx, &my);
-  std::cout << "Mouse at " << mx << ":" << my << '\n';
   float x = mx, y = my;
 
   rotate_polygon = false;

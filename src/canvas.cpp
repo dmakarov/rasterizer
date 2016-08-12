@@ -43,21 +43,25 @@ Canvas::Canvas(Rasterizer& rasterizer,
   , rasterizer(rasterizer)
 {
   context = new wxGLContext(this);
+}
+
+void
+Canvas::paint()
+{
+  SetCurrent(*context);
+  auto w = rasterizer.get_width();
+  auto h = rasterizer.get_height();
+#if 0
   int w, h;
-  this->GetClientSize(&w, &h);
-  glOrtho(0, w, -h, 0, -1, 1);
+  GetClientSize(&w, &h);
+#endif
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glOrtho(0, w, -h, 0, 0, 1);
   glGenTextures(1, &texture_object);
   glBindTexture(GL_TEXTURE_2D, texture_object);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-}
-
-void
-Canvas::render(const wxDC& dc)
-{
-  this->SetCurrent(*context);
-  auto w = rasterizer.get_width();
-  auto h = rasterizer.get_height();
   glClearColor(0.f, 0.f, 0.f, 0.f);
   glClear(GL_COLOR_BUFFER_BIT);
   glRasterPos2s(0, 0);
@@ -65,7 +69,8 @@ Canvas::render(const wxDC& dc)
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE,
                rasterizer.get_pixels());
   glEnable(GL_TEXTURE_2D);
-  glBegin(GL_QUADS); {
+  glBegin(GL_QUADS);
+  {
     glTexCoord2f(0, 0); glVertex2d(0, 0);
     glTexCoord2f(0, 1); glVertex2d(0, -h);
     glTexCoord2f(1, 1); glVertex2d(w, -h);
@@ -78,7 +83,5 @@ Canvas::render(const wxDC& dc)
 void
 Canvas::OnPaint(wxPaintEvent& event)
 {
-  wxPaintDC dc(this);
-  PrepareDC(dc);
-  render(dc);
+  paint();
 }

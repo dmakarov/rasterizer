@@ -33,7 +33,7 @@ private:
   wxGLContext* context;
   GLuint texture_object;
 
-  void render(const wxDC& dc);
+  void paint();
 
   void OnPaint(wxPaintEvent& event);
 

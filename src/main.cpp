@@ -55,7 +55,7 @@ public:
       for (auto it = 1; it < argc; ++it) {
         args.push_back(std::string{argv[it]});
       }
-      Rasterizer r{400, 400};
+      Rasterizer r{500, 500};
       r.render_to_file(args);
       return true;
     }
