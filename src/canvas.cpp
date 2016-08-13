@@ -15,14 +15,16 @@ wxBEGIN_EVENT_TABLE(Canvas, wxWindow)
   EVT_PAINT(Canvas::OnPaint)
 wxEND_EVENT_TABLE()
 
-RenderFrame::RenderFrame(Rasterizer& rasterizer)
-  : wxFrame(nullptr, wxID_ANY, wxT("Rendered Image"),
-            wxDefaultPosition, wxSize(500, 500),
+RenderFrame::RenderFrame(Rasterizer& rasterizer, wxWindowID id, const wxPoint& pos)
+  : wxFrame(nullptr, id, wxT("Rendered Image"), pos,
+            wxSize(rasterizer.get_width(), rasterizer.get_height()),
             wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE)
 {
-  panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(500, 500));
+  auto size = GetClientSize();
+  panel = new wxPanel(this, wxID_ANY,
+                      wxDefaultPosition, size);
   canvas = new Canvas(rasterizer, panel, wxID_ANY, nullptr,
-                      wxDefaultPosition, wxSize(500, 500));
+                      wxDefaultPosition, size);
 }
 
 void
@@ -51,6 +53,7 @@ Canvas::paint()
   SetCurrent(*context);
   auto w = rasterizer.get_width();
   auto h = rasterizer.get_height();
+  std::cout << "Canvas::paint: w " << w << ", h " << h << '\n';
 #if 0
   int w, h;
   GetClientSize(&w, &h);

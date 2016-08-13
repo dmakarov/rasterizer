@@ -21,7 +21,7 @@ public:
                const int* attributes,
                const wxPoint& pos,
                const wxSize& size,
-               long style = 0,
+               const long style = 0,
                const wxString& name = "Objects",
                const wxPalette& palette = wxNullPalette);
   virtual ~EditorCanvas() {}
@@ -49,10 +49,15 @@ private:
 
 };
 
+/**
+   \brief The editor window.
+ */
 class EditorFrame : public wxFrame {
 public:
 
-  EditorFrame(Rasterizer& rasterizer);
+  EditorFrame(Rasterizer& rasterizer,
+              wxWindowID id,
+              const wxPoint& pos);
   virtual ~EditorFrame() {}
   void OnClose(wxCloseEvent& event);
 

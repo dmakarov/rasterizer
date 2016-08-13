@@ -44,7 +44,7 @@ private:
 class RenderFrame : public wxFrame {
 public:
 
-  RenderFrame(Rasterizer& rasterizer);
+  RenderFrame(Rasterizer& rasterizer, wxWindowID id, const wxPoint& pos);
   virtual ~RenderFrame() {}
   void OnClose(wxCloseEvent& event);
 

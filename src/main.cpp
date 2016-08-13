@@ -59,12 +59,47 @@ public:
       r.render_to_file(args);
       return true;
     }
+    compute_window_positions();
     auto* frame = new MainFrame(nullptr, wxT("Rasterizer"),
-                                wxDefaultPosition, wxSize(465, 400));
-    (void) new Control(frame);
+                                control_position, wxSize(465, 400));
+    (void) new Control(frame, editor_position, viewer_position);
     frame->Show(true);
     return true;
   }
+
+private:
+
+  wxPoint control_position;
+  wxPoint editor_position;
+  wxPoint viewer_position;
+
+  void compute_window_positions()
+  {
+    auto area = wxGetClientDisplayRect();
+    control_position.x = area.x + 10;
+    control_position.y = area.y + 5;
+    if (control_position.x + 470 + 500 < area.x + area.width) {
+      editor_position.x = control_position.x + 470;
+      editor_position.y = control_position.y;
+    } else if (control_position.y + 410 + 500 < area.y + area.height) {
+      editor_position.x = control_position.x;
+      editor_position.y = control_position.y + 410;
+    } else {
+      editor_position.x = wxDefaultPosition.x;
+      editor_position.y = wxDefaultPosition.y;
+    }
+    if (editor_position.x + 505 + 500 < area.x + area.width) {
+      viewer_position.x = editor_position.x + 505;
+      viewer_position.y = editor_position.y;
+    } else if (editor_position.y + 505 + 500 < area.y + area.height) {
+      viewer_position.x = editor_position.x;
+      viewer_position.y = editor_position.y + 505;
+    } else {
+      viewer_position.x = wxDefaultPosition.x;
+      viewer_position.y = wxDefaultPosition.y;
+    }
+  }
+
 };
 
 wxIMPLEMENT_APP(Application);

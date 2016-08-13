@@ -19,14 +19,17 @@ wxBEGIN_EVENT_TABLE(EditorCanvas, wxWindow)
   EVT_MOUSE_EVENTS(EditorCanvas::OnMouse)
 wxEND_EVENT_TABLE()
 
-EditorFrame::EditorFrame(Rasterizer& rasterizer)
-  : wxFrame(nullptr, wxID_ANY, wxT("Objects"),
-            wxDefaultPosition, wxSize(500, 500),
+EditorFrame::EditorFrame(Rasterizer& rasterizer,
+                         wxWindowID id,
+                         const wxPoint& pos)
+  : wxFrame(nullptr, id, wxT("Objects"), pos,
+            wxSize(rasterizer.get_width(), rasterizer.get_height()),
             wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE)
 {
-  panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(500, 500));
+  auto size = GetClientSize();
+  panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, size);
   canvas = new EditorCanvas(rasterizer, panel, wxID_ANY, nullptr,
-                            wxDefaultPosition, wxSize(500, 500));
+                            wxDefaultPosition, size);
 }
 
 void
@@ -41,7 +44,7 @@ EditorCanvas::EditorCanvas(Rasterizer&      rasterizer,
                            const int*       attributes,
                            const wxPoint&   pos,
                            const wxSize&    size,
-                           long             style,
+                           const long       style,
                            const wxString&  name,
                            const wxPalette& palette)
   : wxGLCanvas(parent, id, attributes, pos, size, style, name, palette)

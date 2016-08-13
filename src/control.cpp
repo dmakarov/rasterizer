@@ -17,11 +17,13 @@ wxBEGIN_EVENT_TABLE(Control, wxWindow)
   EVT_RADIOBOX(ID_RADIO_FRAME, Control::OnRadioFrame)
 wxEND_EVENT_TABLE()
 
-Control::Control(wxFrame* frame)
+Control::Control(wxFrame* frame,
+                 const wxPoint& editor_pos,
+                 const wxPoint& viewer_pos)
   : wxPanel(frame, wxID_ANY)
-  , rasterizer{400, 400}
-  , editor(rasterizer)
-  , viewer(rasterizer)
+  , rasterizer{500, 500}
+  , editor(rasterizer, wxID_ANY, editor_pos)
+  , viewer(rasterizer, wxID_ANY, viewer_pos)
 {
   rasterizer.attach(this);
   wxMenu* file_menu = new wxMenu;

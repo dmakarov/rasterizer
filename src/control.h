@@ -31,7 +31,9 @@ class Control : public wxPanel, public Observer
   };
 
 public:
-  Control(wxFrame* frame);
+  Control(wxFrame* frame,
+          const wxPoint& editor_pos,
+          const wxPoint& viewer_pos);
 
   virtual ~Control() {}
 

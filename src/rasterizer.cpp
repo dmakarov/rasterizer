@@ -26,8 +26,7 @@ bool validate_aet(std::list<edge_type>& el)
   if (0 == el.size())
     return true;
   auto prev = el.begin()->xx;
-  for (auto li = el.begin() + 1; li != el.end(); ++li)
-  {
+  for (auto li = el.begin() + 1; li != el.end(); ++li) {
     auto curr = li->xx;
     if (prev > curr)
       return false;
@@ -74,8 +73,7 @@ static float shift_function(int mode)
 // Every value in data array is in the range [-0.5, 0.5].
 static void precompute_shifts(Point data[8][8], int dim)
 {
-  if (1 == dim)
-  {
+  if (1 == dim) {
     data[0][0].x = 0.0;
     data[0][0].y = 0.0;
     return;
@@ -85,17 +83,14 @@ static void precompute_shifts(Point data[8][8], int dim)
   float shift = 1.0 / (float)dim;
   float start = shift / 2.0 - 0.5;
 
-  for (int ii = 0; ii < dim; ++ii)
-  {
-    for (int jj = 0; jj < dim; ++jj)
-    {
+  for (int ii = 0; ii < dim; ++ii) {
+    for (int jj = 0; jj < dim; ++jj) {
       float incell = shift_function(shift_mode);
       data[ii][jj].x = start + ii * shift + incell * shift;
       data[ii][jj].y = start + jj * shift + incell * shift;
     }
   }
-  if (1 == dim % 2)
-  {
+  if (1 == dim % 2) {
     data[dim/2][dim/2].x = 0.0;
     data[dim/2][dim/2].y = 0.0;
   }
@@ -103,20 +98,16 @@ static void precompute_shifts(Point data[8][8], int dim)
 
 static void parse_aafilter_func(const std::string& expr)
 {
-  if (std::string::npos != expr.find("rand"))
-  {
+  if (std::string::npos != expr.find("rand")) {
     shift_mode = RANDOM;
   }
-  if (std::string::npos != expr.find("grid"))
-  {
+  if (std::string::npos != expr.find("grid")) {
     shift_mode = GRID;
   }
-  if (std::string::npos != expr.find("bart"))
-  {
+  if (std::string::npos != expr.find("bart")) {
     weight_mode = BARTLETT;
   }
-  if (std::string::npos != expr.find("box"))
-  {
+  if (std::string::npos != expr.find("box")) {
     weight_mode = BOX;
   }
 }
@@ -127,8 +118,7 @@ static void add_edge(std::unique_ptr<std::list<Edge>[]>& et,
   float slope = (hi->x - lo->x) / (hi->y - lo->y);
   float ymin = ceilf(lo->y);
   float xmin = lo->x + slope * (ymin - lo->y);
-  if ((slope < 0.0f && xmin < hi->x) || (slope > 0.0f && xmin > hi->x))
-  {
+  if ((slope < 0.0f && xmin < hi->x) || (slope > 0.0f && xmin > hi->x)) {
     xmin = hi->x;
   }
   int bucket = ymin - bias;
@@ -143,16 +133,13 @@ void Rasterizer::save_image(const std::string& filename) const
   output << "P6\n# Comment Line\n" << width << " " << height << "\n255\n";
   // output every pixel as 3 bytes
   auto* buffer = pixels.get();
-  for (auto i = 0; i < width * height; ++i, ++buffer)
-  {
+  for (auto i = 0; i < width * height; ++i, ++buffer) {
     output.write(reinterpret_cast<char*>(buffer), 3);
   }
 }
 
-/** Function: Rasterize
- * -------------------
- *
- *
+/**
+   \brief drive the rasterization of a frame
  */
 void Rasterizer::rasterize(int frame_num,
                            bool aa_enabled, int num_aa_samples,
@@ -566,11 +553,10 @@ bool Rasterizer::motion(float mx, float my, int frame, objects_size_type selecte
   if (selected_object == -1)
     return false;
 #endif
-  decltype(find_keyframe(objects[selected_object], frame)) keyframe;
-  if ((keyframe = find_keyframe(objects[selected_object], frame)) ==
-      objects[selected_object]->keyframes.end())
-  { // look for a keyframe at this frame
-    // if we don't find it, then create a new one in the right place
+  // look for a keyframe at this frame
+  // if we don't find it, then create a new one in the right place
+  auto keyframe = find_keyframe(objects[selected_object], frame);
+  if (keyframe == objects[selected_object]->keyframes.end()) {
     std::vector<Point> vertices;
     get_vertices(selected_object, frame, vertices);
 
@@ -593,31 +579,25 @@ bool Rasterizer::motion(float mx, float my, int frame, objects_size_type selecte
     assert(keyframe != objects[selected_object]->keyframes.end());
   }
 
-  if (scale_polygon)
-  {
+  if (scale_polygon) {
     polygon_scaling(mx, my, frame, selected_object);
     return true;
   }
-  if (rotate_polygon)
-  {
+  if (rotate_polygon) {
     polygon_rotation(mx, my, frame, selected_object);
     return true;
   }
 
   rotation_centerX = -1;
 
-  if (!is_object_selected)
-  {
+  if (!is_object_selected) {
     keyframe->vertices[selected_vertex].x = mx;
     keyframe->vertices[selected_vertex].y = my;
   }
-  else
-  {
-    for (decltype(objects[0]->get_num_vertices()) i = 0;
-         i < objects[selected_object]->get_num_vertices(); ++i)
-    {
-      keyframe->vertices[i].x += (mx - original.x);
-      keyframe->vertices[i].y += (my - original.y);
+  else {
+    for (auto& v : keyframe->vertices) {
+      v.x += (mx - original.x);
+      v.y += (my - original.y);
     }
     original = Point{mx, my};
   }
@@ -628,29 +608,26 @@ bool Rasterizer::select_object(float mx, float my, int frame,
                                bool is_right_click)
 {
   bool foundVertex = false;
-  for (objects_size_type i = 0; !foundVertex && i < objects.size(); ++i)
-  {
+  for (objects_size_type i = 0; !foundVertex && i < objects.size(); ++i) {
     std::vector<Point> vertices;
     get_vertices(i, frame, vertices);
-    for (decltype(objects[0]->get_num_vertices()) j = 0;
-         !foundVertex && j < objects[i]->get_num_vertices(); ++j)
-    {
-      Point& vert = vertices[j];
-      std::cout << "V" << j << " x(" << vert.x << "-" << mx
-                << ") y(" << vert.y << "-" << my << ")\n";
-      if (fabs(vert.x - mx) < 5 && fabs(vert.y - my) < 5)
-      { // check for proximity
+    auto j = 0;
+    for (auto& v : vertices) {
+      std::cout << "V" << j << " x(" << v.x << "-" << mx
+                << ") y(" << v.y << "-" << my << ")\n";
+      // check for proximity
+      if (fabs(v.x - mx) < 5 && fabs(v.y - my) < 5) {
         foundVertex = true;
         selected_object = i;
         selected_vertex = j;
-
         //implement right-click drag
-        if (is_right_click)
-        {
+        if (is_right_click) {
           selected_vertex = vertices.size();
           original = Point{mx, my};
         }
+        break;
       }
+      ++j;
     }
   }
   if (foundVertex) {
@@ -662,17 +639,19 @@ bool Rasterizer::select_object(float mx, float my, int frame,
 
 void Rasterizer::delete_keyframe(int frame)
 {
-  if (frame == 1 || !any_keyframe(frame))
+  if (frame == 1 || !any_keyframe(frame)) {
     return;
-
-  decltype(find_keyframe(objects[0], frame)) keyframe;
-  for (auto obj : objects)
-    if ((keyframe = find_keyframe(obj, frame)) != obj->keyframes.end())
+  }
+  decltype(find_keyframe(objects[0], frame)) k;
+  for (auto o : objects) {
+    if ((k = find_keyframe(o, frame)) != o->keyframes.end())
     {
-      for (auto j = keyframe; j != obj->keyframes.end() - 1; ++j)
+      for (auto j = k, E = o->keyframes.end() - 1; j != E; ++j) {
         std::copy(j + 1, j + 2, j);
-      obj->keyframes.pop_back();
+      }
+      o->keyframes.pop_back();
     }
+  }
 }
 
 bool Rasterizer::load_objects(const std::string& filename)
@@ -766,23 +745,17 @@ void Rasterizer::save_objects(const std::string& filename) const
   // write out the number of objects
   ofs << "Number of Objects: " << objects.size() << "\n";
   // write out each object
-  for (std::vector<std::shared_ptr<Animation>>::size_type i = 0;
-       i != objects.size(); ++i)
-  {
-    ofs << "Object Number: " << i << "\n";
-    ofs << "Color: r: " << objects[i]->r << ", g: "
-                        << objects[i]->g << ", b: " << objects[i]->b << "\n";
-    ofs << "Number of Vertices: " << objects[i]->get_num_vertices() << "\n";
+  auto i = 0;
+  for (auto& o : objects) {
+    ofs << "Object Number: " << i++ << "\n";
+    ofs << "Color: r: " << o->r << ", g: " << o->g << ", b: " << o->b << "\n";
+    ofs << "Number of Vertices: " << o->get_num_vertices() << "\n";
     ofs << "Number of Keyframes: " << get_num_keyframes(i) << "\n";
-    for (decltype(get_num_keyframes(i)) j = 0; j != get_num_keyframes(i); ++j)
-    {
-      ofs << "Keyframe for Frame " << objects[i]->keyframes[j].number << "\n";
-      for (decltype(objects[0]->get_num_vertices()) k = 0;
-           k < objects[i]->get_num_vertices(); ++k)
-      {
-        ofs << "Vertex " << k
-            << ", x: " << objects[i]->keyframes[j].vertices[k].x
-            << ", y: " << objects[i]->keyframes[j].vertices[k].y << "\n";
+    for (auto& f : o->keyframes) {
+      ofs << "Keyframe for Frame " << f.number << "\n";
+      auto k = 0;
+      for (auto& v : f.vertices) {
+        ofs << "Vertex " << k++ << ", x: " << v.x << ", y: " << v.y << "\n";
       }
     }
   }
