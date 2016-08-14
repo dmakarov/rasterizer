@@ -25,67 +25,75 @@
 		8E8BFD9F1D02B1CA00D116F7 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E8BFD8C1D02B05E00D116F7 /* main.cpp */; };
 		8E8BFDA11D02B1E100D116F7 /* rasterizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E8BFD8D1D02B05E00D116F7 /* rasterizer.cpp */; };
 		8E8BFDA21D02B1E500D116F7 /* rasterizer_unittest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E8BFD911D02B07600D116F7 /* rasterizer_unittest.cpp */; };
+		8EBA1BBD1D6131C9006FA127 /* gtest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8EE8A8F71D612EA300D23B84 /* gtest.framework */; };
 		8EC6BBC21D221F8B0090187C /* libwx_osx_cocoau_gl-3.1.0.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8EC6BBC11D221F8B0090187C /* libwx_osx_cocoau_gl-3.1.0.0.0.dylib */; };
 		8ECFEC4C1D2021E10030D061 /* editor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8ECFEC4A1D2021E10030D061 /* editor.cpp */; };
-		8EE14BE51D61276700F7FBF4 /* libgtest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8EE14BD71D61260300F7FBF4 /* libgtest.a */; };
+		8EE8A9061D612F6400D23B84 /* libgtest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8EE8A8F91D612EA300D23B84 /* libgtest.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		8EE14BD41D61260300F7FBF4 /* PBXContainerItemProxy */ = {
+		8EBA1BBB1D61307F006FA127 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8E49E6061D03270200202B93 /* gtest.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 40C848F9101A209C0083642A;
+			remoteInfo = "gtest-static";
+		};
+		8EBA1BBE1D6131CF006FA127 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8E49E6061D03270200202B93 /* gtest.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 8D07F2BC0486CC7A007CD1D0;
+			remoteInfo = "gtest-framework";
+		};
+		8EE8A8F61D612EA300D23B84 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8E49E6061D03270200202B93 /* gtest.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 4539C8FF0EC27F6400A70F4C;
 			remoteInfo = "gtest-framework";
 		};
-		8EE14BD61D61260300F7FBF4 /* PBXContainerItemProxy */ = {
+		8EE8A8F81D612EA300D23B84 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8E49E6061D03270200202B93 /* gtest.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 40C848FA101A209C0083642A;
 			remoteInfo = "gtest-static";
 		};
-		8EE14BD81D61260300F7FBF4 /* PBXContainerItemProxy */ = {
+		8EE8A8FA1D612EA300D23B84 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8E49E6061D03270200202B93 /* gtest.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 40C8490B101A217E0083642A;
 			remoteInfo = "gtest_main-static";
 		};
-		8EE14BDA1D61260300F7FBF4 /* PBXContainerItemProxy */ = {
+		8EE8A8FC1D612EA300D23B84 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8E49E6061D03270200202B93 /* gtest.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 40899F430FFA7184000B29AE;
 			remoteInfo = "gtest_unittest-framework";
 		};
-		8EE14BDC1D61260300F7FBF4 /* PBXContainerItemProxy */ = {
+		8EE8A8FE1D612EA300D23B84 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8E49E6061D03270200202B93 /* gtest.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 40C84987101A36850083642A;
 			remoteInfo = "gtest_unittest-static";
 		};
-		8EE14BDE1D61260300F7FBF4 /* PBXContainerItemProxy */ = {
+		8EE8A9001D612EA300D23B84 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8E49E6061D03270200202B93 /* gtest.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 4089A0130FFACEFC000B29AE;
 			remoteInfo = "sample1_unittest-framework";
 		};
-		8EE14BE01D61260300F7FBF4 /* PBXContainerItemProxy */ = {
+		8EE8A9021D612EA300D23B84 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8E49E6061D03270200202B93 /* gtest.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 40C84997101A36A60083642A;
 			remoteInfo = "sample1_unittest-static";
-		};
-		8EE14BE61D61277100F7FBF4 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8E49E6061D03270200202B93 /* gtest.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 40C848F9101A209C0083642A;
-			remoteInfo = "gtest-static";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -114,7 +122,7 @@
 		8E01F5EC1D036AB1008ACE7C /* control.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = control.h; path = ../src/control.h; sourceTree = "<group>"; };
 		8E01F5ED1D036FAA008ACE7C /* control.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = control.cpp; path = ../src/control.cpp; sourceTree = "<group>"; };
 		8E157E3D1D6004B300B78FEB /* viewer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = viewer.h; path = ../src/viewer.h; sourceTree = "<group>"; };
-		8E49E6061D03270200202B93 /* gtest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gtest.xcodeproj; path = ../gtest/googletest/xcode/gtest.xcodeproj; sourceTree = "<group>"; };
+		8E49E6061D03270200202B93 /* gtest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gtest.xcodeproj; path = ../../googletest/googletest/xcode/gtest.xcodeproj; sourceTree = "<group>"; };
 		8E49E6261D034BB400202B93 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		8E49E6281D034BC900202B93 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
 		8E49E62A1D034BD200202B93 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -145,7 +153,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8EE14BE51D61276700F7FBF4 /* libgtest.a in Frameworks */,
+				8EBA1BBD1D6131C9006FA127 /* gtest.framework in Frameworks */,
+				8EE8A9061D612F6400D23B84 /* libgtest.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -222,16 +231,16 @@
 			name = tests;
 			sourceTree = "<group>";
 		};
-		8EE14BC91D61260300F7FBF4 /* Products */ = {
+		8EE8A8EB1D612EA300D23B84 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8EE14BD51D61260300F7FBF4 /* gtest.framework */,
-				8EE14BD71D61260300F7FBF4 /* libgtest.a */,
-				8EE14BD91D61260300F7FBF4 /* libgtest_main.a */,
-				8EE14BDB1D61260300F7FBF4 /* gtest_unittest-framework */,
-				8EE14BDD1D61260300F7FBF4 /* gtest_unittest */,
-				8EE14BDF1D61260300F7FBF4 /* sample1_unittest-framework */,
-				8EE14BE11D61260300F7FBF4 /* sample1_unittest-static */,
+				8EE8A8F71D612EA300D23B84 /* gtest.framework */,
+				8EE8A8F91D612EA300D23B84 /* libgtest.a */,
+				8EE8A8FB1D612EA300D23B84 /* libgtest_main.a */,
+				8EE8A8FD1D612EA300D23B84 /* gtest_unittest-framework */,
+				8EE8A8FF1D612EA300D23B84 /* gtest_unittest */,
+				8EE8A9011D612EA300D23B84 /* sample1_unittest-framework */,
+				8EE8A9031D612EA300D23B84 /* sample1_unittest-static */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -274,7 +283,8 @@
 			buildRules = (
 			);
 			dependencies = (
-				8EE14BE71D61277100F7FBF4 /* PBXTargetDependency */,
+				8EBA1BBF1D6131CF006FA127 /* PBXTargetDependency */,
+				8EBA1BBC1D61307F006FA127 /* PBXTargetDependency */,
 			);
 			name = rasterizer_unittest;
 			productName = rasterizer_unittest;
@@ -326,7 +336,7 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 8EE14BC91D61260300F7FBF4 /* Products */;
+					ProductGroup = 8EE8A8EB1D612EA300D23B84 /* Products */;
 					ProjectRef = 8E49E6061D03270200202B93 /* gtest.xcodeproj */;
 				},
 			);
@@ -339,53 +349,53 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		8EE14BD51D61260300F7FBF4 /* gtest.framework */ = {
+		8EE8A8F71D612EA300D23B84 /* gtest.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
 			path = gtest.framework;
-			remoteRef = 8EE14BD41D61260300F7FBF4 /* PBXContainerItemProxy */;
+			remoteRef = 8EE8A8F61D612EA300D23B84 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		8EE14BD71D61260300F7FBF4 /* libgtest.a */ = {
+		8EE8A8F91D612EA300D23B84 /* libgtest.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libgtest.a;
-			remoteRef = 8EE14BD61D61260300F7FBF4 /* PBXContainerItemProxy */;
+			remoteRef = 8EE8A8F81D612EA300D23B84 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		8EE14BD91D61260300F7FBF4 /* libgtest_main.a */ = {
+		8EE8A8FB1D612EA300D23B84 /* libgtest_main.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libgtest_main.a;
-			remoteRef = 8EE14BD81D61260300F7FBF4 /* PBXContainerItemProxy */;
+			remoteRef = 8EE8A8FA1D612EA300D23B84 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		8EE14BDB1D61260300F7FBF4 /* gtest_unittest-framework */ = {
+		8EE8A8FD1D612EA300D23B84 /* gtest_unittest-framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = "compiled.mach-o.executable";
 			path = "gtest_unittest-framework";
-			remoteRef = 8EE14BDA1D61260300F7FBF4 /* PBXContainerItemProxy */;
+			remoteRef = 8EE8A8FC1D612EA300D23B84 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		8EE14BDD1D61260300F7FBF4 /* gtest_unittest */ = {
+		8EE8A8FF1D612EA300D23B84 /* gtest_unittest */ = {
 			isa = PBXReferenceProxy;
 			fileType = "compiled.mach-o.executable";
 			path = gtest_unittest;
-			remoteRef = 8EE14BDC1D61260300F7FBF4 /* PBXContainerItemProxy */;
+			remoteRef = 8EE8A8FE1D612EA300D23B84 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		8EE14BDF1D61260300F7FBF4 /* sample1_unittest-framework */ = {
+		8EE8A9011D612EA300D23B84 /* sample1_unittest-framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = "compiled.mach-o.executable";
 			path = "sample1_unittest-framework";
-			remoteRef = 8EE14BDE1D61260300F7FBF4 /* PBXContainerItemProxy */;
+			remoteRef = 8EE8A9001D612EA300D23B84 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		8EE14BE11D61260300F7FBF4 /* sample1_unittest-static */ = {
+		8EE8A9031D612EA300D23B84 /* sample1_unittest-static */ = {
 			isa = PBXReferenceProxy;
 			fileType = "compiled.mach-o.executable";
 			path = "sample1_unittest-static";
-			remoteRef = 8EE14BE01D61260300F7FBF4 /* PBXContainerItemProxy */;
+			remoteRef = 8EE8A9021D612EA300D23B84 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -414,10 +424,15 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		8EE14BE71D61277100F7FBF4 /* PBXTargetDependency */ = {
+		8EBA1BBC1D61307F006FA127 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "gtest-static";
-			targetProxy = 8EE14BE61D61277100F7FBF4 /* PBXContainerItemProxy */;
+			targetProxy = 8EBA1BBB1D61307F006FA127 /* PBXContainerItemProxy */;
+		};
+		8EBA1BBF1D6131CF006FA127 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "gtest-framework";
+			targetProxy = 8EBA1BBE1D6131CF006FA127 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -459,7 +474,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = ../gtest/googletest/include;
+				HEADER_SEARCH_PATHS = ../../googletest/googletest/include;
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -499,7 +514,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = ../gtest/googletest/include;
+				HEADER_SEARCH_PATHS = ../../googletest/googletest/include;
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -526,6 +541,7 @@
 					"/usr/local/include/wx-3.1",
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -549,6 +565,7 @@
 					"/usr/local/include/wx-3.1",
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 			};
 			name = Release;
