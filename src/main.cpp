@@ -7,6 +7,7 @@
 
 #include "control.h"
 #include <wx/wx.h>
+#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -49,14 +50,11 @@ class Application : public wxApp
 public:
   bool OnInit()
   {
-    // if they set command-line arguments, don't show the GUI
+    // command-line arguments are set for batch mode, don't show the GUI
     if (argc > 1) {
-      std::vector<std::string> args;
-      for (auto it = 1; it < argc; ++it) {
-        args.push_back(std::string{argv[it]});
-      }
       Rasterizer r{500, 500};
-      r.render_to_file(args);
+      r.render_to_file(std::vector<std::string>(static_cast<char**>(argv) + 1,
+                                                static_cast<char**>(argv) + argc));
       return true;
     }
     compute_window_positions();

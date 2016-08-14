@@ -761,7 +761,7 @@ void Rasterizer::save_objects(const std::string& filename) const
   }
 }
 
-void Rasterizer::render_to_file(std::vector<std::string>& args)
+void Rasterizer::render_to_file(const std::vector<std::string>& args)
 {
   std::string infile;
   std::string outfile;
@@ -781,17 +781,14 @@ void Rasterizer::render_to_file(std::vector<std::string>& args)
     return;
   }
 
-  outfile = args.back();
-  args.pop_back();
-  infile = args.back();
-  args.pop_back();
-  iss.str(args.back());
+  auto arg = args.crbegin();
+  outfile = *arg++;
+  infile = *arg++;
+  iss.str(*arg++);
   iss >> final_frame;
-  args.pop_back();
   iss.clear();
-  iss.str(args.back());
+  iss.str(*arg++);
   iss >> first_frame;
-  args.pop_back();
   if (first_frame == 0 || final_frame == 0)
   {
     std::cerr << "Incorrect arguments. Type 'rasterizer -help' for more info\n";
@@ -841,4 +838,31 @@ void Rasterizer::render_to_file(std::vector<std::string>& args)
     save_image(oss.str());
     listfile << basename << "." << frame << ".ppm" << "\n";
   }
+}
+
+unsigned char* Rasterizer::get_pixels() const
+{
+  auto* data = static_cast<unsigned char*>(malloc(width * height * 3));
+  auto* t = reinterpret_cast<unsigned int*>(data);
+  auto i = 0;
+  for (; i < width * height; i += 4) {
+    auto p0 = pixels[i + 0].pixel;
+    auto p1 = pixels[i + 1].pixel;
+    auto p2 = pixels[i + 2].pixel;
+    auto p3 = pixels[i + 3].pixel;
+    t[0] = ((p1 << 24) & 0xff000000) | ( p0        & 0xffffff);
+    t[1] = ((p2 << 16) & 0xffff0000) | ((p1 >>  8) & 0x00ffff);
+    t[2] = ((p3 <<  8) & 0xffffff00) | ((p2 >> 16) & 0x0000ff);
+    t += 3;
+  }
+  if (i != width * height) {
+    for (i -= 3; i < width * height; ++i) {
+      auto p = pixels[i].pixel;
+      auto* t = data + 3 * i;
+      t[0] = (p & 0x0000ff);
+      t[1] = (p & 0x00ff00) >> 0x08;
+      t[2] = (p & 0xff0000) >> 0x10;
+    }
+  }
+  return data;
 }

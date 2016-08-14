@@ -8,10 +8,10 @@
 #ifndef control_h
 #define control_h
 
-#include "canvas.h"
 #include "editor.h"
 #include "observer.h"
 #include "rasterizer.h"
+#include "viewer.h"
 
 #include <wx/wx.h>
 #include <wx/spinctrl.h>
@@ -47,7 +47,7 @@ private:
 
   Rasterizer rasterizer;
   EditorFrame editor;
-  RenderFrame viewer;
+  ViewerFrame viewer;
   bool multiple_frames = false;
   std::string render_filename;
   int current_frame = 1;

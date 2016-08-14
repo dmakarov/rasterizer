@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		8E01F5EE1D036FAA008ACE7C /* control.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E01F5ED1D036FAA008ACE7C /* control.cpp */; };
+		8E157E3E1D6004B300B78FEB /* viewer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E157E3C1D6004B300B78FEB /* viewer.cpp */; };
 		8E49E6241D03273100202B93 /* libgtest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E49E6151D03270200202B93 /* libgtest.a */; };
 		8E49E6251D03273800202B93 /* gtest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E49E6131D03270200202B93 /* gtest.framework */; };
 		8E49E6271D034BB400202B93 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E49E6261D034BB400202B93 /* IOKit.framework */; };
@@ -25,7 +26,6 @@
 		8E49E63F1D034D5900202B93 /* libwx_osx_cocoau_xrc-3.1.0.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E49E63E1D034D5900202B93 /* libwx_osx_cocoau_xrc-3.1.0.0.0.dylib */; };
 		8E8BFD901D02B05E00D116F7 /* rasterizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E8BFD8D1D02B05E00D116F7 /* rasterizer.cpp */; };
 		8E8BFD9F1D02B1CA00D116F7 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E8BFD8C1D02B05E00D116F7 /* main.cpp */; };
-		8E8BFDA01D02B1D400D116F7 /* canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E8BFD871D02B03600D116F7 /* canvas.cpp */; };
 		8E8BFDA11D02B1E100D116F7 /* rasterizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E8BFD8D1D02B05E00D116F7 /* rasterizer.cpp */; };
 		8E8BFDA21D02B1E500D116F7 /* rasterizer_unittest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E8BFD911D02B07600D116F7 /* rasterizer_unittest.cpp */; };
 		8EC6BBC21D221F8B0090187C /* libwx_osx_cocoau_gl-3.1.0.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8EC6BBC11D221F8B0090187C /* libwx_osx_cocoau_gl-3.1.0.0.0.dylib */; };
@@ -122,6 +122,8 @@
 /* Begin PBXFileReference section */
 		8E01F5EC1D036AB1008ACE7C /* control.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = control.h; path = ../src/control.h; sourceTree = "<group>"; };
 		8E01F5ED1D036FAA008ACE7C /* control.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = control.cpp; path = ../src/control.cpp; sourceTree = "<group>"; };
+		8E157E3C1D6004B300B78FEB /* viewer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = viewer.cpp; path = ../src/viewer.cpp; sourceTree = "<group>"; };
+		8E157E3D1D6004B300B78FEB /* viewer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = viewer.h; path = ../src/viewer.h; sourceTree = "<group>"; };
 		8E49E6061D03270200202B93 /* gtest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gtest.xcodeproj; path = ../../googletest/googletest/xcode/gtest.xcodeproj; sourceTree = "<group>"; };
 		8E49E6261D034BB400202B93 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		8E49E6281D034BC900202B93 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
@@ -136,8 +138,6 @@
 		8E49E63A1D034D3200202B93 /* libwx_osx_cocoau_qa-3.1.0.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau_qa-3.1.0.0.0.dylib"; path = "/usr/local/Cellar/wxmac/3.1.0_2/lib/libwx_osx_cocoau_qa-3.1.0.0.0.dylib"; sourceTree = "<absolute>"; };
 		8E49E63C1D034D4500202B93 /* libwx_osx_cocoau_html-3.1.0.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau_html-3.1.0.0.0.dylib"; path = "/usr/local/Cellar/wxmac/3.1.0_2/lib/libwx_osx_cocoau_html-3.1.0.0.0.dylib"; sourceTree = "<absolute>"; };
 		8E49E63E1D034D5900202B93 /* libwx_osx_cocoau_xrc-3.1.0.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libwx_osx_cocoau_xrc-3.1.0.0.0.dylib"; path = "/usr/local/Cellar/wxmac/3.1.0_2/lib/libwx_osx_cocoau_xrc-3.1.0.0.0.dylib"; sourceTree = "<absolute>"; };
-		8E8BFD871D02B03600D116F7 /* canvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = canvas.cpp; path = ../src/canvas.cpp; sourceTree = "<group>"; };
-		8E8BFD8B1D02B05E00D116F7 /* canvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = canvas.h; path = ../src/canvas.h; sourceTree = "<group>"; };
 		8E8BFD8C1D02B05E00D116F7 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../src/main.cpp; sourceTree = "<group>"; };
 		8E8BFD8D1D02B05E00D116F7 /* rasterizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rasterizer.cpp; path = ../src/rasterizer.cpp; sourceTree = "<group>"; };
 		8E8BFD8E1D02B05E00D116F7 /* rasterizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rasterizer.h; path = ../src/rasterizer.h; sourceTree = "<group>"; };
@@ -227,8 +227,6 @@
 			isa = PBXGroup;
 			children = (
 				8EB84F591D581BBE00476797 /* observer.h */,
-				8E8BFD8B1D02B05E00D116F7 /* canvas.h */,
-				8E8BFD871D02B03600D116F7 /* canvas.cpp */,
 				8E01F5EC1D036AB1008ACE7C /* control.h */,
 				8E01F5ED1D036FAA008ACE7C /* control.cpp */,
 				8ECFEC421D2021370030D061 /* editor.h */,
@@ -236,6 +234,8 @@
 				8E8BFD8C1D02B05E00D116F7 /* main.cpp */,
 				8E8BFD8E1D02B05E00D116F7 /* rasterizer.h */,
 				8E8BFD8D1D02B05E00D116F7 /* rasterizer.cpp */,
+				8E157E3D1D6004B300B78FEB /* viewer.h */,
+				8E157E3C1D6004B300B78FEB /* viewer.cpp */,
 			);
 			name = src;
 			sourceTree = "<group>";
@@ -417,10 +417,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8E8BFDA01D02B1D400D116F7 /* canvas.cpp in Sources */,
 				8E01F5EE1D036FAA008ACE7C /* control.cpp in Sources */,
 				8ECFEC4C1D2021E10030D061 /* editor.cpp in Sources */,
 				8E8BFD901D02B05E00D116F7 /* rasterizer.cpp in Sources */,
+				8E157E3E1D6004B300B78FEB /* viewer.cpp in Sources */,
 				8E8BFD9F1D02B1CA00D116F7 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
