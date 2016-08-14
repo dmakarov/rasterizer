@@ -301,7 +301,7 @@ void Rasterizer::scan_convert(std::vector<Point>& vertex, RGB8 color) const
   for (decltype(vertno) ii = 0; ii < vertno; ++ii)
   {
     // do not add horizontal edges to the edge table.
-    int jj = (ii + 1) % vertno;
+    auto jj = (ii + 1) % vertno;
     if (vertex[ii].y < vertex[jj].y)
     {
       add_edge(edge_table, &vertex[ii], &vertex[jj], bias);
@@ -840,7 +840,14 @@ void Rasterizer::render_to_file(const std::vector<std::string>& args)
   }
 }
 
-unsigned char* Rasterizer::get_pixels() const
+/**
+   \brief Copy the pixel data to an unsigned char array dynamically allocated.
+
+   This function assumes little endian representation of integers,
+   and the address of a block returned by malloc is always a multiple of eight
+   (or sixteen on 64-bit systems).
+ */
+unsigned char* Rasterizer::getPixelsAsRGB() const
 {
   auto* data = static_cast<unsigned char*>(malloc(width * height * 3));
   auto* t = reinterpret_cast<unsigned int*>(data);

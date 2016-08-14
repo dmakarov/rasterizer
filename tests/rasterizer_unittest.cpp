@@ -28,6 +28,12 @@ TEST(Rasterizer, RenderToFile) {
   r.render_to_file(args);
 }
 
+TEST(Rasterizer, Rasterize) {
+  Rasterizer r{500, 500};
+  r.rasterize(1, false, 1, false, 1, "");
+  (void) r.getPixelsAsRGB();
+}
+
 int main(int argc, char** argv)
 {
   ::testing::InitGoogleTest(&argc, argv);

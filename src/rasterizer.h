@@ -257,7 +257,7 @@ public:
   bool select_object(float mx, float my, int frame, bool is_right_click);
   int get_width() const { return width; }
   int get_height() const { return height; }
-  unsigned char* get_pixels() const;
+  unsigned char* getPixelsAsRGB() const;
   /**
    \brief get_vertices
    This function takes in an object <id>, a frame number and an

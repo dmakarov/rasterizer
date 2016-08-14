@@ -40,7 +40,7 @@ private:
     if (gc) {
       auto w = rasterizer.get_width();
       auto h = rasterizer.get_height();
-      wxBitmap bmp(wxImage(w, h, rasterizer.get_pixels()));
+      wxBitmap bmp(wxImage(w, h, rasterizer.getPixelsAsRGB()));
       gc->DrawBitmap(bmp, 0, 0, w, h);
       delete gc;
     }
