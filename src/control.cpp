@@ -206,7 +206,14 @@ Control::OnButtonLoad(wxCommandEvent& event)
   auto name = text_filename->GetLineText(0) + ".obs";
   if (rasterizer.load_objects(name.ToStdString())) {
     update(rasterizer);
-    editor.Show();
+    if (editor.IsShown()) {
+      editor.Refresh();
+    } else {
+      editor.Show();
+    }
+    if (viewer.IsShown()) {
+      viewer.Refresh();
+    }
   }
 }
 
@@ -299,7 +306,11 @@ Control::OnButtonRender(wxCommandEvent& event)
       rasterizer.save_image(render_filename + ".ppm");
     }
   }
-  viewer.Show();
+  if (viewer.IsShown()) {
+    viewer.Refresh();
+  } else {
+    viewer.Show();
+  }
 }
 
 std::string
