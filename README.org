@@ -11,6 +11,14 @@
 
   Install ~wxWidgets~ (e.g. on Mac OS X ~brew install wxmac~).
 
+  To run tests, clone googletest repository on the same level as rasterizer
+  repository.  Assuming rasterizer is cloned to =~/rasterizer=
+
+  #+BEGIN_SRC sh
+    cd
+    git clone git@github.com:google/googletest.git
+  #+END_SRC
+
 * Functionality
 
   This program implements a rasterizer.  The rasterizer is capable of
@@ -94,6 +102,29 @@
   type '~cmake . ; make~' in the top level directory.
 
   The program depends on OpenGL and wxWidgets (see http://wxwidgets.org/).
+
+* TESTING
+  Build googletest static library
+
+  #+BEGIN_SRC sh
+    cd ~/rasterizer
+    mkdir -p build/gtest
+    cd build/gtest
+    cmake ../../../googletest/googletest
+    make
+  #+END_SRC
+
+  Build rasterizer with tests enabled
+
+  #+BEGIN_SRC sh
+    cd ~/rasterizer/build
+    cmake -Dbuild_test=ON ..
+    make
+    ctest
+  #+END_SRC
+
+  Running ~./rasterizer_unittest~ in ~build/~ produces more verbose output than
+  ctest.
 
 * How to use the GUI
 ** Command Line Arguments
