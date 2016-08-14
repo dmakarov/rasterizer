@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		8E01F5EE1D036FAA008ACE7C /* control.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E01F5ED1D036FAA008ACE7C /* control.cpp */; };
-		8E157E3E1D6004B300B78FEB /* viewer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E157E3C1D6004B300B78FEB /* viewer.cpp */; };
 		8E49E6241D03273100202B93 /* libgtest.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E49E6151D03270200202B93 /* libgtest.a */; };
 		8E49E6251D03273800202B93 /* gtest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E49E6131D03270200202B93 /* gtest.framework */; };
 		8E49E6271D034BB400202B93 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E49E6261D034BB400202B93 /* IOKit.framework */; };
@@ -122,7 +121,6 @@
 /* Begin PBXFileReference section */
 		8E01F5EC1D036AB1008ACE7C /* control.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = control.h; path = ../src/control.h; sourceTree = "<group>"; };
 		8E01F5ED1D036FAA008ACE7C /* control.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = control.cpp; path = ../src/control.cpp; sourceTree = "<group>"; };
-		8E157E3C1D6004B300B78FEB /* viewer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = viewer.cpp; path = ../src/viewer.cpp; sourceTree = "<group>"; };
 		8E157E3D1D6004B300B78FEB /* viewer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = viewer.h; path = ../src/viewer.h; sourceTree = "<group>"; };
 		8E49E6061D03270200202B93 /* gtest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gtest.xcodeproj; path = ../../googletest/googletest/xcode/gtest.xcodeproj; sourceTree = "<group>"; };
 		8E49E6261D034BB400202B93 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
@@ -227,6 +225,7 @@
 			isa = PBXGroup;
 			children = (
 				8EB84F591D581BBE00476797 /* observer.h */,
+				8E157E3D1D6004B300B78FEB /* viewer.h */,
 				8E01F5EC1D036AB1008ACE7C /* control.h */,
 				8E01F5ED1D036FAA008ACE7C /* control.cpp */,
 				8ECFEC421D2021370030D061 /* editor.h */,
@@ -234,8 +233,6 @@
 				8E8BFD8C1D02B05E00D116F7 /* main.cpp */,
 				8E8BFD8E1D02B05E00D116F7 /* rasterizer.h */,
 				8E8BFD8D1D02B05E00D116F7 /* rasterizer.cpp */,
-				8E157E3D1D6004B300B78FEB /* viewer.h */,
-				8E157E3C1D6004B300B78FEB /* viewer.cpp */,
 			);
 			name = src;
 			sourceTree = "<group>";
@@ -420,7 +417,6 @@
 				8E01F5EE1D036FAA008ACE7C /* control.cpp in Sources */,
 				8ECFEC4C1D2021E10030D061 /* editor.cpp in Sources */,
 				8E8BFD901D02B05E00D116F7 /* rasterizer.cpp in Sources */,
-				8E157E3E1D6004B300B78FEB /* viewer.cpp in Sources */,
 				8E8BFD9F1D02B1CA00D116F7 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

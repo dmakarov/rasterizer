@@ -7,6 +7,14 @@
 
 #include "control.h"
 
+wxBEGIN_EVENT_TABLE(Viewer, wxWindow)
+  EVT_PAINT(Viewer::OnPaint)
+wxEND_EVENT_TABLE()
+
+wxBEGIN_EVENT_TABLE(ViewerFrame, wxWindow)
+  EVT_CLOSE(ViewerFrame::OnClose)
+wxEND_EVENT_TABLE()
+
 wxBEGIN_EVENT_TABLE(Control, wxWindow)
   EVT_PAINT(Control::OnPaint)
   EVT_BUTTON(ID_BUTTON_LOAD, Control::OnButtonLoad)

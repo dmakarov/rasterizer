@@ -7,14 +7,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -g")
 
 set(SOURCE_FILES
   src/observer.h
+  src/viewer.h
   src/control.cpp
   src/control.h
   src/editor.cpp
   src/editor.h
   src/rasterizer.cpp
   src/rasterizer.h
-  src/viewer.cpp
-  src/viewer.h
   src/main.cpp)
 
 include_directories(/usr/local/include)

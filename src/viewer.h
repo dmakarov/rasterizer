@@ -33,18 +33,43 @@ private:
 
   Rasterizer& rasterizer;
 
-  void OnPaint(wxPaintEvent& event);
+  void OnPaint(wxPaintEvent& event)
+  {
+    wxPaintDC dc(this);
+    auto* gc = wxGraphicsContext::Create(dc);
+    if (gc) {
+      auto w = rasterizer.get_width();
+      auto h = rasterizer.get_height();
+      wxBitmap bmp(wxImage(w, h, rasterizer.get_pixels()));
+      gc->DrawBitmap(bmp, 0, 0, w, h);
+      delete gc;
+    }
+  }
 
   wxDECLARE_EVENT_TABLE();
 
 };
 
 class ViewerFrame : public wxFrame {
+
 public:
 
-  ViewerFrame(Rasterizer& rasterizer, wxWindowID id, const wxPoint& pos);
+  ViewerFrame(Rasterizer& rasterizer, wxWindowID id, const wxPoint& pos)
+    : wxFrame(nullptr, id, wxT("Rendered Image"), pos,
+              wxSize(rasterizer.get_width(), rasterizer.get_height()),
+              wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE)
+  {
+    auto size = GetClientSize();
+    viewer = new Viewer(rasterizer, this, wxID_ANY, nullptr,
+                        wxDefaultPosition, size);
+  }
+
   virtual ~ViewerFrame() {}
-  void OnClose(wxCloseEvent& event);
+
+  void OnClose(wxCloseEvent& event)
+  {
+    Destroy();
+  }
 
 private:
 
