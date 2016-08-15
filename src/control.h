@@ -34,17 +34,7 @@ public:
   Control(wxFrame* frame,
           const wxPoint& editor_pos,
           const wxPoint& viewer_pos);
-
-  virtual ~Control() {
-    rasterizer.detach(this);
-    if (editor != nullptr) {
-      delete editor;
-    }
-    if (viewer != nullptr) {
-      delete viewer;
-    }
-  }
-
+  virtual ~Control();
   void update(Subject* subject);
 
 private:
@@ -91,6 +81,7 @@ private:
   wxTextCtrl* text_eframe;
 
   std::string get_basename(const std::string& filename);
+  void collectSettings();
 
   void OnPaint(wxPaintEvent& event) {}
   void OnButtonLoad(wxCommandEvent& event);

@@ -201,6 +201,54 @@ Control::Control(wxFrame* frame,
   SetSizer(top_sizer);
 }
 
+Control::~Control() {
+  rasterizer.detach(this);
+  if (editor != nullptr) {
+    delete editor;
+  }
+  if (viewer != nullptr) {
+    delete viewer;
+  }
+}
+
+void
+Control::update(Subject* subject)
+{
+  if (subject == dynamic_cast<Subject*>(editor)) {
+    editor = nullptr;
+    return;
+  }
+  if (subject == dynamic_cast<Subject*>(viewer)) {
+    viewer = nullptr;
+    return;
+  }
+  if (rasterizer.is_selected())
+  {
+    auto selected_object = rasterizer.get_selected_object();
+    std::ostringstream oss;
+    oss << "Object ID: " << selected_object;
+    stxt_objectid->SetLabel(oss.str());
+    stxt_objectid->Enable();
+    oss.str("");
+    oss << "Vertices: " << rasterizer.get_num_vertices(selected_object);
+    stxt_vertices->SetLabel(oss.str());
+    stxt_vertices->Enable();
+    oss.str("");
+    oss << "Keyframes: " << rasterizer.get_num_keyframes(selected_object);
+    stxt_keyframe->SetLabel(oss.str());
+    stxt_keyframe->Enable();
+  }
+  else
+  {
+    stxt_objectid->SetLabel(wxT("Object ID:"));
+    stxt_objectid->Disable();
+    stxt_vertices->SetLabel(wxT("Vertices:"));
+    stxt_vertices->Disable();
+    stxt_keyframe->SetLabel(wxT("Keyframes:"));
+    stxt_keyframe->Disable();
+  }
+}
+
 void
 Control::OnButtonLoad(wxCommandEvent& event)
 {
@@ -325,8 +373,7 @@ Control::OnButtonRender(wxCommandEvent& event)
   }
 }
 
-std::string
-Control::get_basename(const std::string& filename)
+std::string Control::get_basename(const std::string& filename)
 {
   auto pos = filename.find_last_of("/");
   if (pos == std::string::npos)
@@ -334,41 +381,10 @@ Control::get_basename(const std::string& filename)
   return filename.substr(pos + 1);
 }
 
-void
-Control::update(Subject* subject)
+void Control::collectSettings()
 {
-  if (subject == dynamic_cast<Subject*>(editor)) {
-    editor = nullptr;
-    return;
-  }
-  if (subject == dynamic_cast<Subject*>(viewer)) {
-    viewer = nullptr;
-    return;
-  }
-  if (rasterizer.is_selected())
-  {
-    auto selected_object = rasterizer.get_selected_object();
-    std::ostringstream oss;
-    oss << "Object ID: " << selected_object;
-    stxt_objectid->SetLabel(oss.str());
-    stxt_objectid->Enable();
-    oss.str("");
-    oss << "Vertices: " << rasterizer.get_num_vertices(selected_object);
-    stxt_vertices->SetLabel(oss.str());
-    stxt_vertices->Enable();
-    oss.str("");
-    oss << "Keyframes: " << rasterizer.get_num_keyframes(selected_object);
-    stxt_keyframe->SetLabel(oss.str());
-    stxt_keyframe->Enable();
-  }
-  else
-  {
-    stxt_objectid->SetLabel(wxT("Object ID:"));
-    stxt_objectid->Disable();
-    stxt_vertices->SetLabel(wxT("Vertices:"));
-    stxt_vertices->Disable();
-    stxt_keyframe->SetLabel(wxT("Keyframes:"));
-    stxt_keyframe->Disable();
+  if (text_renderto->GetLineLength(0)) {
+    render_filename = text_renderto->GetLineText(0);
   }
 }
 
