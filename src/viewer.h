@@ -9,6 +9,7 @@
 #define viewer_h
 
 #include "rasterizer.h"
+#include <wx/graphics.h>
 #include <wx/wx.h>
 
 // Define a new canvas which can receive some events
