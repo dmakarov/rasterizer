@@ -121,7 +121,8 @@ Control::Control(wxFrame* frame,
   hsizer = new wxBoxSizer(wxHORIZONTAL);
   stxt_aa_nos = new wxStaticText(this, wxID_ANY, wxT("Number of samples"));
   stxt_aa_nos->Disable();
-  spin_aa_nos = new wxSpinCtrl(this, wxID_ANY, wxT("1"));
+  spin_aa_nos = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition,
+                               wxDefaultSize, wxSP_ARROW_KEYS, 1, 10, 1);
   spin_aa_nos->Disable();
   hsizer->Add(stxt_aa_nos, 0, wxALIGN_LEFT | wxALL, 0);
   hsizer->Add(spin_aa_nos, 0, wxALIGN_RIGHT | wxALL, 0);
@@ -143,7 +144,8 @@ Control::Control(wxFrame* frame,
   hsizer = new wxBoxSizer(wxHORIZONTAL);
   stxt_mb_nos = new wxStaticText(this, wxID_ANY, wxT("Number of samples"));
   stxt_mb_nos->Disable();
-  spin_mb_nos = new wxSpinCtrl(this, wxID_ANY, wxT("1"));
+  spin_mb_nos = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition,
+                               wxDefaultSize, wxSP_ARROW_KEYS, 1, 10, 1);
   spin_mb_nos->Disable();
   hsizer->Add(stxt_mb_nos, 0, wxALIGN_LEFT | wxALL, 0);
   hsizer->Add(spin_mb_nos, 0, wxALIGN_RIGHT | wxALL, 0);
@@ -291,11 +293,13 @@ Control::OnCheckAA(wxCommandEvent& event)
     spin_aa_nos->Enable();
     stxt_aa_filter->Enable();
     text_aa_filter->Enable();
+    anti_aliasing_enabled = true;
   } else {
     stxt_aa_nos->Disable();
     spin_aa_nos->Disable();
     stxt_aa_filter->Disable();
     text_aa_filter->Disable();
+    anti_aliasing_enabled = false;
   }
 }
 
@@ -305,9 +309,11 @@ Control::OnCheckMB(wxCommandEvent& event)
   if (event.IsChecked()) {
     stxt_mb_nos->Enable();
     spin_mb_nos->Enable();
+    motion_blur_enabled = true;
   } else {
     stxt_mb_nos->Disable();
     spin_mb_nos->Disable();
+    motion_blur_enabled = false;
   }
 }
 
@@ -330,6 +336,7 @@ Control::OnRadioFrame(wxCommandEvent& event)
 void
 Control::OnButtonRender(wxCommandEvent& event)
 {
+  collectSettings();
   if (multiple_frames) {
     auto pathless = get_basename(render_filename);
     auto buf = render_filename + ".list";
@@ -386,6 +393,8 @@ void Control::collectSettings()
   if (text_renderto->GetLineLength(0)) {
     render_filename = text_renderto->GetLineText(0);
   }
+  num_alias_samples = spin_aa_nos->GetValue();
+  num_blur_samples = spin_mb_nos->GetValue();
 }
 
 #if 0
@@ -395,11 +404,6 @@ void Control::collectSettings()
       delete_keyframe_button->enable();
     else
       delete_keyframe_button->disable();
-  }
-
-  void edit_screen_display_callback()
-  {
-    canvas->display(current_frame, selected_object);
   }
 
   void myKeyboardFunc(unsigned char key, int, int)
@@ -447,41 +451,5 @@ void Control::collectSettings()
   {
     canvas->delete_keyframe(id, current_frame);
     check_delete_keyframe_status();
-  }
-
-  void SingMultChanged(int)
-  {
-    if (multiple_frames)
-    {
-      start_frame_editor->enable();
-      end_frame_editor->enable();
-    }
-    else
-    {
-      start_frame_editor->disable();
-      end_frame_editor->disable();
-    }
-  }
-
-  void AntiAliasChanged(int)
-  {
-    if (anti_aliasing_enabled)
-    {
-      num_alias_samples_editor->enable();
-      alias_func_edit->enable();
-    }
-    else
-    {
-      num_alias_samples_editor->disable();
-      alias_func_edit->disable();
-    }
-  }
-
-  void MotionBlurChanged(int)
-  {
-    if (motion_blur_enabled)
-      num_blur_samples_editor->enable();
-    else
-      num_blur_samples_editor->disable();
   }
 #endif
