@@ -30,10 +30,14 @@ Control::Control(wxFrame* frame,
                  const wxPoint& viewer_pos)
   : wxPanel(frame, wxID_ANY)
   , rasterizer{500, 500}
-  , editor(rasterizer, wxID_ANY, editor_pos)
-  , viewer(rasterizer, wxID_ANY, viewer_pos)
+  , editor(new EditorFrame(rasterizer, wxID_ANY, editor_pos))
+  , viewer(new ViewerFrame(rasterizer, wxID_ANY, viewer_pos))
+  , editor_pos(editor_pos)
+  , viewer_pos(viewer_pos)
 {
   rasterizer.attach(this);
+  editor->attach(this);
+  viewer->attach(this);
   wxMenu* file_menu = new wxMenu;
   file_menu->Append(wxID_NEW, wxGetStockLabel(wxID_NEW));
   file_menu->Append(wxID_PRINT, wxGetStockLabel(wxID_PRINT));
@@ -205,14 +209,18 @@ Control::OnButtonLoad(wxCommandEvent& event)
   }
   auto name = text_filename->GetLineText(0) + ".obs";
   if (rasterizer.load_objects(name.ToStdString())) {
-    update(rasterizer);
-    if (editor.IsShown()) {
-      editor.Refresh();
+    if (editor != nullptr && editor->IsShown()) {
+      update(&rasterizer);
+      editor->Refresh();
     } else {
-      editor.Show();
+      if (editor == nullptr) {
+        editor = new EditorFrame(rasterizer, wxID_ANY, editor_pos);
+        editor->attach(this);
+      }
+      editor->Show();
     }
-    if (viewer.IsShown()) {
-      viewer.Refresh();
+    if (viewer != nullptr && viewer->IsShown()) {
+      viewer->Refresh();
     }
   }
 }
@@ -306,10 +314,14 @@ Control::OnButtonRender(wxCommandEvent& event)
       rasterizer.save_image(render_filename + ".ppm");
     }
   }
-  if (viewer.IsShown()) {
-    viewer.Refresh();
+  if (viewer != nullptr && viewer->IsShown()) {
+    viewer->Refresh();
   } else {
-    viewer.Show();
+    if (viewer == nullptr) {
+      viewer = new ViewerFrame(rasterizer, wxID_ANY, viewer_pos);
+      viewer->attach(this);
+    }
+    viewer->Show();
   }
 }
 
@@ -323,8 +335,16 @@ Control::get_basename(const std::string& filename)
 }
 
 void
-Control::update(Subject& subject)
+Control::update(Subject* subject)
 {
+  if (subject == dynamic_cast<Subject*>(editor)) {
+    editor = nullptr;
+    return;
+  }
+  if (subject == dynamic_cast<Subject*>(viewer)) {
+    viewer = nullptr;
+    return;
+  }
   if (rasterizer.is_selected())
   {
     auto selected_object = rasterizer.get_selected_object();

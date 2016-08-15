@@ -35,7 +35,8 @@ EditorFrame::EditorFrame(Rasterizer& rasterizer,
 void
 EditorFrame::OnClose(wxCloseEvent& event)
 {
-  this->Destroy();
+  notify();
+  Destroy();
 }
 
 EditorCanvas::EditorCanvas(Rasterizer&      rasterizer,

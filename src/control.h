@@ -35,9 +35,17 @@ public:
           const wxPoint& editor_pos,
           const wxPoint& viewer_pos);
 
-  virtual ~Control() {}
+  virtual ~Control() {
+    rasterizer.detach(this);
+    if (editor != nullptr) {
+      delete editor;
+    }
+    if (viewer != nullptr) {
+      delete viewer;
+    }
+  }
 
-  void update(Subject& subject);
+  void update(Subject* subject);
 
 private:
 
@@ -46,8 +54,10 @@ private:
   static const int SBOX_WIDTH = TEXT_CTRL_WIDTH + 30;
 
   Rasterizer rasterizer;
-  EditorFrame editor;
-  ViewerFrame viewer;
+  EditorFrame* editor;
+  ViewerFrame* viewer;
+  wxPoint editor_pos;
+  wxPoint viewer_pos;
   bool multiple_frames = false;
   std::string render_filename;
   int current_frame = 1;

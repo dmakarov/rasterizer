@@ -8,6 +8,7 @@
 #ifndef editor_h
 #define editor_h
 
+#include "observer.h"
 #include "rasterizer.h"
 #include <wx/wx.h>
 #include <wx/glcanvas.h>
@@ -52,7 +53,7 @@ private:
 /**
    \brief The editor window.
  */
-class EditorFrame : public wxFrame {
+class EditorFrame : public wxFrame, public Subject {
 public:
 
   EditorFrame(Rasterizer& rasterizer,

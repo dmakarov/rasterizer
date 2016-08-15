@@ -16,7 +16,7 @@ class Subject;
 class Observer {
 public:
   virtual ~Observer() {}
-  virtual void update(Subject& subject) = 0;
+  virtual void update(Subject* subject) = 0;
 
 protected:
   Observer() {}
@@ -40,7 +40,7 @@ public:
 
   virtual void notify() {
     for (auto& it : observers) {
-      it->update(*this);
+      it->update(this);
     }
   }
 

@@ -50,7 +50,7 @@ private:
 
 };
 
-class ViewerFrame : public wxFrame {
+class ViewerFrame : public wxFrame, public Subject {
 
 public:
 
@@ -68,6 +68,7 @@ public:
 
   void OnClose(wxCloseEvent& event)
   {
+    notify();
     Destroy();
   }
 
