@@ -4,7 +4,7 @@ compiler:
   - clang
   - gcc
 os:
-#  - linux
+  - linux
   - osx
 addons:
   apt:
@@ -13,10 +13,11 @@ addons:
     packages:
       - gcc-4.9
       - g++-4.9
-      - libwxgtk2.8-dev
+      - libwxgtk3.0-dev
 install:
   - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${CXX}" = "g++" ]; then export CXX="g++-4.9"; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew update; brew install wxmac; fi;
 script:
-  - cmake .
+  - cmake -Dbuild_test=ON .
   - make
+  - ctest
