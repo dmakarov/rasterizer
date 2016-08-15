@@ -45,7 +45,7 @@ if (build_tests)
 
   link_directories(build/gtest)
   add_executable(rasterizer_unittest tests/rasterizer_unittest.cpp src/rasterizer.cpp)
-  target_include_directories(rasterizer_unittest PUBLIC src ../googletest/googletest/include)
+  target_include_directories(rasterizer_unittest PUBLIC src ../googletest/googletest/include googletest/googletest/include)
   target_link_libraries(rasterizer_unittest gtest)
   add_test(rasterizer_unittest rasterizer_unittest)
 
