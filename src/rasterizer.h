@@ -133,7 +133,9 @@ struct Animation {
 
   RGB8 get_color() const
   {
-    return r + (g << 8) + (b << 16);
+    return (0xff0000 & ((0xff & b) << 16)) |
+           (0x00ff00 & ((0xff & g) <<  8)) |
+                        (0xff & r);
   }
 
   void set_color(unsigned int R, unsigned int G, unsigned int B)
