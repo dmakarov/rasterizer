@@ -6,6 +6,7 @@
  */
 
 #include "control.h"
+#include <wx/filename.h>
 
 wxBEGIN_EVENT_TABLE(Viewer, wxWindow)
   EVT_PAINT(Viewer::OnPaint)
@@ -255,7 +256,13 @@ void
 Control::OnButtonLoad(wxCommandEvent& event)
 {
   if (text_filename->GetLineLength(0) == 0) {
-    return;
+    auto selected = wxLoadFileSelector("objects", "obs");
+    if (selected.IsEmpty()) {
+      return;
+    }
+    wxFileName filename(selected);
+    wxFileName pathname(filename.GetPath(), filename.GetName());
+    (*text_filename) << pathname.GetFullPath();
   }
   auto name = text_filename->GetLineText(0) + ".obs";
   if (rasterizer.load_objects(name.ToStdString())) {
