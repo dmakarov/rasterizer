@@ -25,6 +25,7 @@ class Control : public wxPanel, public Observer
   enum { ID_BUTTON_LOAD = wxID_HIGHEST + 1,
          ID_BUTTON_SAVE,
          ID_BUTTON_RENDER,
+         ID_SPIN_FRAME,
          ID_RADIO_FRAME,
          ID_CHECK_AA,
          ID_CHECK_MB
@@ -90,6 +91,7 @@ private:
   void OnCheckAA(wxCommandEvent& event);
   void OnCheckMB(wxCommandEvent& event);
   void OnRadioFrame(wxCommandEvent& event);
+  void OnSpinFrame(wxSpinEvent& event);
 
   wxDECLARE_EVENT_TABLE();
 };

@@ -26,6 +26,9 @@ public:
                const wxString& name = "Objects",
                const wxPalette& palette = wxNullPalette);
   virtual ~EditorCanvas() {}
+  void setAnimationFrame(int frame) {
+    animation_frame = frame;
+  }
 
 private:
 
@@ -60,12 +63,16 @@ public:
               wxWindowID id,
               const wxPoint& pos);
   virtual ~EditorFrame() {}
-  void OnClose(wxCloseEvent& event);
+  void setAnimationFrame(int frame) {
+    canvas->setAnimationFrame(frame);
+  }
 
 private:
 
   wxPanel* panel;
   EditorCanvas* canvas;
+
+  void OnClose(wxCloseEvent& event);
 
   wxDECLARE_EVENT_TABLE();
 

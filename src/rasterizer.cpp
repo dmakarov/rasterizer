@@ -630,10 +630,8 @@ bool Rasterizer::select_object(float mx, float my, int frame,
       ++j;
     }
   }
-  if (foundVertex) {
-    notify();
-  }
   is_object_selected = foundVertex;
+  notify();
   return foundVertex;
 }
 

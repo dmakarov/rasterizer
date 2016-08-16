@@ -187,7 +187,6 @@ EditorCanvas::OnPaint(wxPaintEvent& event)
 {
   paint();
   event.Skip();
-  std::cout << "EditorCanvas::OnPaint\n";
 }
 
 void
@@ -263,6 +262,7 @@ EditorCanvas::OnMouse(wxMouseEvent& event)
         active_object = nullptr;
       }
       // if there's a vertex in the area, select it
+      std::cout << "Left click may select an object\n";
       rasterizer.select_object(x, y, animation_frame, false);
       rotation_centerX = -1;
   }

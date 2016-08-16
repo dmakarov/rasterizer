@@ -24,6 +24,7 @@ wxBEGIN_EVENT_TABLE(Control, wxWindow)
   EVT_CHECKBOX(ID_CHECK_AA, Control::OnCheckAA)
   EVT_CHECKBOX(ID_CHECK_MB, Control::OnCheckMB)
   EVT_RADIOBOX(ID_RADIO_FRAME, Control::OnRadioFrame)
+  EVT_SPINCTRL(ID_SPIN_FRAME, Control::OnSpinFrame)
 wxEND_EVENT_TABLE()
 
 Control::Control(wxFrame* frame,
@@ -80,9 +81,11 @@ Control::Control(wxFrame* frame,
                                         wxT("Delete keyframe"));
   button_delete_keyframe->Disable();
   ssizer->Add(button_delete_keyframe, 0, wxALIGN_LEFT | wxALL, 5);
-  spin_delete_keyframe = new wxSpinCtrl(sbox, wxID_ANY, wxEmptyString,
+  spin_delete_keyframe = new wxSpinCtrl(sbox, ID_SPIN_FRAME,
+                                        wxEmptyString,
                                         wxDefaultPosition,
-                                        wxSize(SPIN_CTRL_WIDTH, -1));
+                                        wxSize(SPIN_CTRL_WIDTH, -1),
+                                        wxSP_ARROW_KEYS, 1, 99, 1);
   spin_delete_keyframe->Disable();
   ssizer->Add(spin_delete_keyframe, 0, wxALIGN_RIGHT | wxALL, 5);
   vsizer->Add(ssizer, 0, wxALIGN_LEFT | wxALL, 5);
@@ -217,11 +220,11 @@ Control::~Control() {
 void
 Control::update(Subject* subject)
 {
-  if (subject == dynamic_cast<Subject*>(editor)) {
+  if (subject == editor) {
     editor = nullptr;
     return;
   }
-  if (subject == dynamic_cast<Subject*>(viewer)) {
+  if (subject == viewer) {
     viewer = nullptr;
     return;
   }
@@ -252,6 +255,15 @@ Control::update(Subject* subject)
   }
 }
 
+void Control::OnSpinFrame(wxSpinEvent& event)
+{
+  event.Skip();
+  if (editor != nullptr && editor->IsShown()) {
+    editor->setAnimationFrame(spin_delete_keyframe->GetValue());
+    editor->Refresh();
+  }
+}
+
 void
 Control::OnButtonLoad(wxCommandEvent& event)
 {
@@ -266,8 +278,10 @@ Control::OnButtonLoad(wxCommandEvent& event)
   }
   auto name = text_filename->GetLineText(0) + ".obs";
   if (rasterizer.load_objects(name.ToStdString())) {
+    spin_delete_keyframe->Enable();
     if (editor != nullptr && editor->IsShown()) {
       update(&rasterizer);
+      editor->setAnimationFrame(1);
       editor->Refresh();
     } else {
       if (editor == nullptr) {
