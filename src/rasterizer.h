@@ -209,8 +209,9 @@ struct Abuffer {
   \class Rasterizer
 */
 class Rasterizer : public Subject {
-  typedef std::vector<std::shared_ptr<Animation>>::size_type vertex_id_type;
-  typedef std::vector<std::shared_ptr<Animation>>::size_type objects_size_type;
+  using ObjSP = std::shared_ptr<Animation>;
+  using vertex_id_type = std::vector<ObjSP>::size_type;
+  using objects_size_type = std::vector<ObjSP>::size_type;
   static const auto MAX_ALIAS_SAMPLES = 64;
   static const auto MAX_BLUR_SAMPLES = 64;
   int width;
@@ -227,17 +228,16 @@ class Rasterizer : public Subject {
   bool scale_polygon = false;
   bool draw_curve = false;
   std::unique_ptr<RGB8[]> pixels;
-  std::vector<std::shared_ptr<Animation>> objects;
-  std::shared_ptr<Animation> active_object;
+  std::vector<ObjSP> objects;
+  ObjSP active_object;
 
 public:
-  Rasterizer(int w = 0, int h = 0) : width(w), height(h), pixels(new RGB8[w * h])
-  {
+  Rasterizer(int w = 0, int h = 0)
+  : width(w), height(h), pixels(new RGB8[w * h]) {
     clear();
   }
 
-  void clear() const
-  {
+  void clear() const {
     std::fill(pixels.get(), pixels.get() + width * height, 0);
   }
   /**
@@ -248,14 +248,13 @@ public:
   void rasterize(int frame, bool aa_enabled, int num_aa_samples,
                  bool mb_enabled, int num_mb_samples,
                  const std::string& aa_filter) const;
-  void render() const;
   void render_to_file(const std::vector<std::string>& args);
   bool load_objects(const std::string& filename);
   void save_objects(const std::string& filename) const;
   void save_image(const std::string& filename) const;
   void delete_keyframe(int frame);
   void delete_selected_object();
-  bool motion(float mx, float my, int frame, objects_size_type selected_object);
+  bool move(float mx, float my, int frame);
   bool select_object(float mx, float my, int frame, bool is_right_click);
   int get_width() const { return width; }
   int get_height() const { return height; }
@@ -268,15 +267,15 @@ public:
    between keyframes, get_vertices will automatically interpolate
    linearly and give you the correct values.
   */
-  RGB8 get_vertices(std::vector<std::shared_ptr<Animation>>::size_type id,
-                    float frame, std::vector<Point>& holderFrame) const;
+  RGB8 get_vertices(objects_size_type id, float frame,
+                    std::vector<Point>& vertices) const;
 
-  std::vector<std::shared_ptr<Animation>>& get_objects()
+  std::vector<ObjSP>& get_objects()
   {
     return objects;
   }
 
-  void add_object(std::shared_ptr<Animation>& object)
+  void add_object(ObjSP& object)
   {
     objects.push_back(object);
   }
@@ -287,21 +286,20 @@ public:
   */
   bool any_keyframe(int frame) const
   {
-    auto it = std::find_if(objects.begin(), objects.end(),
-                           [this, frame] (const std::shared_ptr<Animation>& a) {
-                             return find_keyframe(a, frame) != a->keyframes.end();
-                           });
-    return it != objects.end();
+    auto E = objects.end();
+    return E !=
+      std::find_if(objects.begin(), E, [this, frame] (const ObjSP& a) {
+                   return find_keyframe(a, frame) != a->keyframes.end(); });
   }
 
   decltype(objects[0]->get_num_vertices())
-  get_num_vertices(std::vector<std::shared_ptr<Animation>>::size_type ix) const
+  get_num_vertices(objects_size_type ix) const
   {
     return objects[ix]->get_num_vertices();
   }
 
   decltype(objects[0]->keyframes.size())
-  get_num_keyframes(std::vector<std::shared_ptr<Animation>>::size_type ix) const
+  get_num_keyframes(objects_size_type ix) const
   {
     return objects[ix]->keyframes.size();
   }
@@ -336,16 +334,14 @@ private:
            otherwise the index of the keyframe in the array of keyframes.
   */
   std::vector<Frame>::iterator
-  find_keyframe(const std::shared_ptr<Animation>& a, int frame) const
+  find_keyframe(const ObjSP& a, int frame) const
   {
     return std::find_if(a->keyframes.begin(), a->keyframes.end(),
-                        [this, frame] (const Frame& f) {
-                          return f.number == frame;
-                        });
+           [this, frame] (const Frame& f) { return f.number == frame; });
   }
   void scan_convert(std::vector<Point>& vertices, RGB8 color) const;
-  void polygon_scaling(int mx, int my, int frame, objects_size_type selected_object);
-  void polygon_rotation(int mx, int my, int frame, objects_size_type selected_object);
+  void scale(int mx, int my, int frame);
+  void rotate(int mx, int my, int frame);
 };
 
 #endif /* rasterizer_h */

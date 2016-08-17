@@ -411,8 +411,7 @@ void Rasterizer::scan_convert(std::vector<Point>& vertex, RGB8 color) const
  *  This function returns the set of vertices for the passed object in
  *  the current frame
  */
-RGB8 Rasterizer::get_vertices(vertex_id_type id,
-                              float frame,
+RGB8 Rasterizer::get_vertices(objects_size_type id, float frame,
                               std::vector<Point>& vertices) const
 {
   float prev_keyframe = -1.0f, next_keyframe = -1.0f;
@@ -465,7 +464,7 @@ void Rasterizer::delete_selected_object()
   notify();
 }
 
-void Rasterizer::polygon_scaling(int mx, int my, int frame, objects_size_type selected_object)
+void Rasterizer::scale(int mx, int my, int frame)
 {
   if (!is_object_selected) return;
 
@@ -497,7 +496,7 @@ void Rasterizer::polygon_scaling(int mx, int my, int frame, objects_size_type se
   prev_rotationY = my;
 }
 
-void Rasterizer::polygon_rotation(int mx, int my, int frame, objects_size_type selected_object)
+void Rasterizer::rotate(int mx, int my, int frame)
 {
   if (!is_object_selected) return;
 
@@ -538,7 +537,7 @@ void Rasterizer::polygon_rotation(int mx, int my, int frame, objects_size_type s
   prev_rotationY = my;
 }
 
-bool Rasterizer::motion(float mx, float my, int frame, objects_size_type selected_object)
+bool Rasterizer::move(float mx, float my, int frame)
 {
   if (draw_curve)
   {
@@ -581,11 +580,11 @@ bool Rasterizer::motion(float mx, float my, int frame, objects_size_type selecte
   }
 
   if (scale_polygon) {
-    polygon_scaling(mx, my, frame, selected_object);
+    scale(mx, my, frame);
     return true;
   }
   if (rotate_polygon) {
-    polygon_rotation(mx, my, frame, selected_object);
+    rotate(mx, my, frame);
     return true;
   }
 
