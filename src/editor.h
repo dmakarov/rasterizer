@@ -48,9 +48,7 @@ private:
 
   void OnPaint(wxPaintEvent& event);
   void OnMouse(wxMouseEvent& event);
-  void OnKeyDown(wxKeyEvent& event);
-  void OnKeyUp(wxKeyEvent& event);
-
+  void OnChar(wxKeyEvent& event);
 
   wxDECLARE_EVENT_TABLE();
 

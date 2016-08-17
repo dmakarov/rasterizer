@@ -17,8 +17,7 @@ wxEND_EVENT_TABLE()
 wxBEGIN_EVENT_TABLE(EditorCanvas, wxWindow)
   EVT_PAINT(EditorCanvas::OnPaint)
   EVT_MOUSE_EVENTS(EditorCanvas::OnMouse)
-  EVT_KEY_DOWN(EditorCanvas::OnKeyDown)
-  EVT_KEY_UP(EditorCanvas::OnKeyUp)
+  EVT_CHAR(EditorCanvas::OnChar)
 wxEND_EVENT_TABLE()
 
 EditorFrame::EditorFrame(Rasterizer& rasterizer,
@@ -266,21 +265,15 @@ void EditorCanvas::OnMouse(wxMouseEvent& event)
   paint();
 }
 
-void EditorCanvas::OnKeyDown(wxKeyEvent& event)
+void EditorCanvas::OnChar(wxKeyEvent& event)
 {
-  event.Skip();
-  switch(event.GetKeyCode())
+  switch(event.GetUnicodeKey())
   {
     case 8:
     case 127: rasterizer.delete_selected_object(); break;
-    case '.': ++animation_frame; break;
-    case ',': --animation_frame; break;
+    case '.': if (animation_frame < 99) ++animation_frame; break;
+    case ',': if (animation_frame >  1) --animation_frame; break;
     default: break;
   }
   Refresh();
-}
-
-void EditorCanvas::OnKeyUp(wxKeyEvent& event)
-{
-  event.Skip();
 }
