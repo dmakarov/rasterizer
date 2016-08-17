@@ -29,10 +29,10 @@ class Control : public wxPanel, public Observer
          ID_SPIN_FRAME,
          ID_RADIO_FRAME,
          ID_CHECK_AA,
-         ID_CHECK_MB
-  };
+         ID_CHECK_MB };
 
 public:
+
   Control(wxFrame* frame,
           const wxPoint& editor_pos,
           const wxPoint& viewer_pos);
@@ -41,29 +41,16 @@ public:
 
 private:
 
-  static const int SPIN_CTRL_WIDTH = 50;
-  static const int TEXT_CTRL_WIDTH = 180;
-  static const int SBOX_WIDTH = TEXT_CTRL_WIDTH + 30;
+  static constexpr auto SPIN_CTRL_WIDTH = 50;
+  static constexpr auto TEXT_CTRL_WIDTH = 180;
+  static constexpr auto SBOX_WIDTH = TEXT_CTRL_WIDTH + 30;
 
   Rasterizer rasterizer;
   EditorFrame* editor;
   ViewerFrame* viewer;
   wxPoint editor_pos;
   wxPoint viewer_pos;
-  bool multiple_frames = false;
-  std::string render_filename;
-  int current_frame = 1;
-  int first_frame;
-  int final_frame;
-
-  bool anti_aliasing_enabled = false;
-  int num_alias_samples = 1;
-  bool motion_blur_enabled = false;
-  int num_blur_samples = 1;
-  std::string aafilter_function;
-
   wxMenuBar* menu_bar;
-
   wxStaticText* stxt_objectid;
   wxStaticText* stxt_vertices;
   wxStaticText* stxt_keyframe;
@@ -82,7 +69,17 @@ private:
   wxStaticText* stxt_eframe;
   wxTextCtrl* text_eframe;
 
-  std::string get_basename(const std::string& filename);
+  std::string render_filename;
+  std::string aafilter_function;
+  bool anti_aliasing_enabled = false;
+  bool motion_blur_enabled = false;
+  bool multiple_frames = false;
+  int num_alias_samples = 1;
+  int num_blur_samples = 1;
+  int current_frame = 1;
+  int first_frame = 1;
+  int final_frame = 1;
+
   void collectSettings();
 
   void OnPaint(wxPaintEvent& event) {}

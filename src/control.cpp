@@ -7,6 +7,7 @@
 
 #include "control.h"
 #include <wx/filename.h>
+#include <fstream>
 
 wxBEGIN_EVENT_TABLE(Viewer, wxWindow)
   EVT_PAINT(Viewer::OnPaint)
@@ -258,12 +259,11 @@ Control::update(Subject* subject)
 
 void Control::OnSpinFrame(wxSpinEvent& event)
 {
-  event.Skip();
   if (editor != nullptr && editor->IsShown()) {
-    auto frame = spin_frame->GetValue();
-    editor->setAnimationFrame(frame);
+    current_frame = spin_frame->GetValue();
+    editor->setAnimationFrame(current_frame);
     editor->Refresh();
-    if (frame > 1 && rasterizer.any_keyframe(frame)) {
+    if (current_frame > 1 && rasterizer.any_keyframe(current_frame)) {
       button_delete_keyframe->Enable();
     } else {
       button_delete_keyframe->Disable();
@@ -364,11 +364,13 @@ Control::OnRadioFrame(wxCommandEvent& event)
     text_sframe->Enable();
     stxt_eframe->Enable();
     text_eframe->Enable();
+    multiple_frames = true;
   } else {
     stxt_sframe->Disable();
     text_sframe->Disable();
     stxt_eframe->Disable();
     text_eframe->Disable();
+    multiple_frames = false;
   }
 }
 
@@ -377,13 +379,14 @@ Control::OnButtonRender(wxCommandEvent& event)
 {
   collectSettings();
   if (multiple_frames) {
-    auto pathless = get_basename(render_filename);
-    auto buf = render_filename + ".list";
-    FILE* list_file = fopen(buf.c_str(), "w");
-    assert(list_file != NULL);
+    wxFileName filename(render_filename);
+    wxFileName pathless(filename.GetName());
+    wxFileName listfile(wxEmptyString, filename.GetName(), wxString("list"));
+    std::ofstream ofs(listfile.GetFullPath());
+    assert(ofs);
 
-    for (int i = first_frame; i <= final_frame; ++i) {
-      rasterizer.rasterize(i,
+    for (auto frame = first_frame; frame <= final_frame; ++frame) {
+      rasterizer.rasterize(frame,
                            anti_aliasing_enabled,
                            num_alias_samples,
                            motion_blur_enabled,
@@ -391,12 +394,12 @@ Control::OnButtonRender(wxCommandEvent& event)
                            aafilter_function);
       if (!render_filename.empty()) {
         std::ostringstream buf;
-        buf << render_filename << "." << i << ".ppm";
+        buf << pathless.GetFullPath() << "." << frame << ".ppm";
         rasterizer.save_image(buf.str());
-        fprintf(list_file, "%s.%d.ppm\n", pathless.c_str(), i);
+        ofs << buf.str() << '\n';
       }
     }
-    fclose(list_file);
+    ofs.close();
   } else { // single frame
     rasterizer.rasterize(current_frame,
                          anti_aliasing_enabled,
@@ -419,14 +422,6 @@ Control::OnButtonRender(wxCommandEvent& event)
   }
 }
 
-std::string Control::get_basename(const std::string& filename)
-{
-  auto pos = filename.find_last_of("/");
-  if (pos == std::string::npos)
-    return filename;
-  return filename.substr(pos + 1);
-}
-
 void Control::collectSettings()
 {
   if (text_renderto->GetLineLength(0)) {
@@ -434,4 +429,19 @@ void Control::collectSettings()
   }
   num_alias_samples = spin_aa_nos->GetValue();
   num_blur_samples = spin_mb_nos->GetValue();
+  current_frame = spin_frame->GetValue();
+  if (multiple_frames) {
+    if (text_sframe->GetLineLength(0) > 0) {
+      auto s = text_sframe->GetLineText(0);
+      long val;
+      s.ToLong(&val);
+      first_frame = (int) val;
+    }
+    if (text_eframe->GetLineLength(0) > 0) {
+      auto s = text_eframe->GetLineText(0);
+      long val;
+      s.ToLong(&val);
+      final_frame = (int) val;
+    }
+  }
 }
