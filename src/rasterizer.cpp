@@ -438,16 +438,19 @@ RGB8 Rasterizer::get_vertices(objects_size_type id, float frame,
   if (next_frame == objects[id]->keyframes.end())
   { // if there are no more keyframes, just go with the last frame
     vertices.resize(prev_keyframe_vertices.size());
-    std::copy(prev_keyframe_vertices.begin(), prev_keyframe_vertices.end(), vertices.begin());
+    std::copy(prev_keyframe_vertices.begin(), prev_keyframe_vertices.end(),
+              vertices.begin());
   }
   else // here we do the interpolation
   {
     auto& next_keyframe_vertices = next_frame->vertices;
     float percent = (frame - prev_keyframe) / (next_keyframe - prev_keyframe);
-    for (decltype(objects[0]->get_num_vertices()) i = 0; i < objects[id]->get_num_vertices(); ++i)
+    for (vertex_id_type i = 0; i < objects[id]->get_num_vertices(); ++i)
     {
-      auto x = (1 - percent) * prev_keyframe_vertices[i].x + percent * next_keyframe_vertices[i].x;
-      auto y = (1 - percent) * prev_keyframe_vertices[i].y + percent * next_keyframe_vertices[i].y;
+      auto x = (1 - percent) * prev_keyframe_vertices[i].x
+                  + percent  * next_keyframe_vertices[i].x;
+      auto y = (1 - percent) * prev_keyframe_vertices[i].y
+                  + percent  * next_keyframe_vertices[i].y;
       vertices.emplace_back(Point{x, y});
     }
   }
