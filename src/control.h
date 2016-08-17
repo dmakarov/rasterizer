@@ -24,6 +24,7 @@ class Control : public wxPanel, public Observer
 {
   enum { ID_BUTTON_LOAD = wxID_HIGHEST + 1,
          ID_BUTTON_SAVE,
+         ID_BUTTON_DELETE_KEYFRAME,
          ID_BUTTON_RENDER,
          ID_SPIN_FRAME,
          ID_RADIO_FRAME,
@@ -69,7 +70,7 @@ private:
   wxTextCtrl* text_filename;
   wxTextCtrl* text_renderto;
   wxButton* button_delete_keyframe;
-  wxSpinCtrl* spin_delete_keyframe;
+  wxSpinCtrl* spin_frame;
   wxStaticText* stxt_aa_nos;
   wxSpinCtrl* spin_aa_nos;
   wxStaticText* stxt_aa_filter;
@@ -87,6 +88,7 @@ private:
   void OnPaint(wxPaintEvent& event) {}
   void OnButtonLoad(wxCommandEvent& event);
   void OnButtonSave(wxCommandEvent& event);
+  void OnButtonDeleteKeyframe(wxCommandEvent& event);
   void OnButtonRender(wxCommandEvent& event);
   void OnCheckAA(wxCommandEvent& event);
   void OnCheckMB(wxCommandEvent& event);

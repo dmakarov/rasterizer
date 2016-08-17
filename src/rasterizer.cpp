@@ -455,12 +455,14 @@ RGB8 Rasterizer::get_vertices(vertex_id_type id,
   return objects[id]->get_color();
 }
 
-bool Rasterizer::delete_object(int id)
+void Rasterizer::delete_selected_object()
 {
-  if (id == -1)
-    return false;
-  objects.erase(objects.begin() + id);
-  return true;
+  if (!is_object_selected) {
+    return;
+  }
+  objects.erase(objects.begin() + selected_object);
+  is_object_selected = false;
+  notify();
 }
 
 void Rasterizer::polygon_scaling(int mx, int my, int frame, objects_size_type selected_object)
@@ -549,10 +551,9 @@ bool Rasterizer::motion(float mx, float my, int frame, objects_size_type selecte
     return true;
   }
 
-#if 0 // FIXME:
-  if (selected_object == -1)
+  if (!is_object_selected) {
     return false;
-#endif
+  }
   // look for a keyframe at this frame
   // if we don't find it, then create a new one in the right place
   auto keyframe = find_keyframe(objects[selected_object], frame);
@@ -613,8 +614,6 @@ bool Rasterizer::select_object(float mx, float my, int frame,
     get_vertices(i, frame, vertices);
     auto j = 0;
     for (auto& v : vertices) {
-      std::cout << "V" << j << " x(" << v.x << "-" << mx
-                << ") y(" << v.y << "-" << my << ")\n";
       // check for proximity
       if (fabs(v.x - mx) < 5 && fabs(v.y - my) < 5) {
         foundVertex = true;
@@ -640,10 +639,9 @@ void Rasterizer::delete_keyframe(int frame)
   if (frame == 1 || !any_keyframe(frame)) {
     return;
   }
-  decltype(find_keyframe(objects[0], frame)) k;
   for (auto o : objects) {
-    if ((k = find_keyframe(o, frame)) != o->keyframes.end())
-    {
+    auto k = find_keyframe(o, frame);
+    if (k != o->keyframes.end()) {
       for (auto j = k, E = o->keyframes.end() - 1; j != E; ++j) {
         std::copy(j + 1, j + 2, j);
       }

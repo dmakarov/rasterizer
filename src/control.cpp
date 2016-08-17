@@ -20,6 +20,7 @@ wxBEGIN_EVENT_TABLE(Control, wxWindow)
   EVT_PAINT(Control::OnPaint)
   EVT_BUTTON(ID_BUTTON_LOAD, Control::OnButtonLoad)
   EVT_BUTTON(ID_BUTTON_SAVE, Control::OnButtonSave)
+  EVT_BUTTON(ID_BUTTON_DELETE_KEYFRAME, Control::OnButtonDeleteKeyframe)
   EVT_BUTTON(ID_BUTTON_RENDER, Control::OnButtonRender)
   EVT_CHECKBOX(ID_CHECK_AA, Control::OnCheckAA)
   EVT_CHECKBOX(ID_CHECK_MB, Control::OnCheckMB)
@@ -77,17 +78,17 @@ Control::Control(wxFrame* frame,
   sbox = new wxStaticBox(this, wxID_ANY, wxT("Animation"),
                          wxDefaultPosition, wxSize(SBOX_WIDTH, -1));
   ssizer = new wxStaticBoxSizer(sbox, wxHORIZONTAL);
-  button_delete_keyframe = new wxButton(sbox, wxID_ANY,
+  button_delete_keyframe = new wxButton(sbox, ID_BUTTON_DELETE_KEYFRAME,
                                         wxT("Delete keyframe"));
   button_delete_keyframe->Disable();
   ssizer->Add(button_delete_keyframe, 0, wxALIGN_LEFT | wxALL, 5);
-  spin_delete_keyframe = new wxSpinCtrl(sbox, ID_SPIN_FRAME,
-                                        wxEmptyString,
-                                        wxDefaultPosition,
-                                        wxSize(SPIN_CTRL_WIDTH, -1),
-                                        wxSP_ARROW_KEYS, 1, 99, 1);
-  spin_delete_keyframe->Disable();
-  ssizer->Add(spin_delete_keyframe, 0, wxALIGN_RIGHT | wxALL, 5);
+  spin_frame = new wxSpinCtrl(sbox, ID_SPIN_FRAME,
+                              wxEmptyString,
+                              wxDefaultPosition,
+                              wxSize(SPIN_CTRL_WIDTH, -1),
+                              wxSP_ARROW_KEYS, 1, 99, 1);
+  spin_frame->Disable();
+  ssizer->Add(spin_frame, 0, wxALIGN_RIGHT | wxALL, 5);
   vsizer->Add(ssizer, 0, wxALIGN_LEFT | wxALL, 5);
 
   sbox = new wxStaticBox(this, wxID_ANY, wxT("Objects"),
@@ -259,8 +260,14 @@ void Control::OnSpinFrame(wxSpinEvent& event)
 {
   event.Skip();
   if (editor != nullptr && editor->IsShown()) {
-    editor->setAnimationFrame(spin_delete_keyframe->GetValue());
+    auto frame = spin_frame->GetValue();
+    editor->setAnimationFrame(frame);
     editor->Refresh();
+    if (frame > 1 && rasterizer.any_keyframe(frame)) {
+      button_delete_keyframe->Enable();
+    } else {
+      button_delete_keyframe->Disable();
+    }
   }
 }
 
@@ -278,7 +285,8 @@ Control::OnButtonLoad(wxCommandEvent& event)
   }
   auto name = text_filename->GetLineText(0) + ".obs";
   if (rasterizer.load_objects(name.ToStdString())) {
-    spin_delete_keyframe->Enable();
+    spin_frame->Enable();
+    spin_frame->SetValue(1);
     if (editor != nullptr && editor->IsShown()) {
       update(&rasterizer);
       editor->setAnimationFrame(1);
@@ -304,6 +312,16 @@ Control::OnButtonSave(wxCommandEvent& event)
   }
   auto name = text_filename->GetLineText(0) + ".obs";
   rasterizer.save_objects(name.ToStdString());
+}
+
+void
+Control::OnButtonDeleteKeyframe(wxCommandEvent& event)
+{
+  rasterizer.delete_keyframe(spin_frame->GetValue());
+  button_delete_keyframe->Disable();
+  if (editor != nullptr && editor->IsShown()) {
+    editor->Refresh();
+  }
 }
 
 void
@@ -417,60 +435,3 @@ void Control::collectSettings()
   num_alias_samples = spin_aa_nos->GetValue();
   num_blur_samples = spin_mb_nos->GetValue();
 }
-
-#if 0
-  void check_delete_keyframe_status()
-  {
-    if (current_frame != 1 && canvas->any_keyframe(current_frame))
-      delete_keyframe_button->enable();
-    else
-      delete_keyframe_button->disable();
-  }
-
-  void myKeyboardFunc(unsigned char key, int, int)
-  {
-    bool post_redisplay = false;
-    switch(key)
-    {
-      case 8:
-      case 127: post_redisplay = canvas->delete_object(selected_object);
-        selected_object = -1; break;
-      case '.': frame_spinner->set_int_val(current_frame + 1); break;
-      case ',': frame_spinner->set_int_val(current_frame - 1); break;
-      default: break;
-    }
-    if (post_redisplay)
-    {
-      glutPostRedisplay();
-    }
-  }
-
-  void myMotionFunc(int mx, int my)
-  {
-    if (canvas->motion(mx, my, current_frame, selected_object))
-    {
-      check_delete_keyframe_status();
-      glutPostRedisplay();
-    }
-  }
-
-  void myMouseFunc(int button, int state, int mx, int my)
-  {
-    if (canvas->mouse(button, state, mx, my, current_frame, selected_object))
-    {
-      update_info(selected_object);
-      glutPostRedisplay();
-    }
-  }
-
-  void FrameChangedCall(int)
-  {
-    check_delete_keyframe_status();
-  }
-
-  void DeleteKeyframeCall(int id)
-  {
-    canvas->delete_keyframe(id, current_frame);
-    check_delete_keyframe_status();
-  }
-#endif

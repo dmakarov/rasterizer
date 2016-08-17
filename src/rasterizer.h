@@ -254,7 +254,7 @@ public:
   void save_objects(const std::string& filename) const;
   void save_image(const std::string& filename) const;
   void delete_keyframe(int frame);
-  bool delete_object(int id);
+  void delete_selected_object();
   bool motion(float mx, float my, int frame, objects_size_type selected_object);
   bool select_object(float mx, float my, int frame, bool is_right_click);
   int get_width() const { return width; }

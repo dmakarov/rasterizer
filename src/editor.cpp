@@ -17,6 +17,8 @@ wxEND_EVENT_TABLE()
 wxBEGIN_EVENT_TABLE(EditorCanvas, wxWindow)
   EVT_PAINT(EditorCanvas::OnPaint)
   EVT_MOUSE_EVENTS(EditorCanvas::OnMouse)
+  EVT_KEY_DOWN(EditorCanvas::OnKeyDown)
+  EVT_KEY_UP(EditorCanvas::OnKeyUp)
 wxEND_EVENT_TABLE()
 
 EditorFrame::EditorFrame(Rasterizer& rasterizer,
@@ -32,8 +34,7 @@ EditorFrame::EditorFrame(Rasterizer& rasterizer,
                             wxDefaultPosition, size);
 }
 
-void
-EditorFrame::OnClose(wxCloseEvent& event)
+void EditorFrame::OnClose(wxCloseEvent& event)
 {
   notify();
   Destroy();
@@ -58,8 +59,7 @@ EditorCanvas::EditorCanvas(Rasterizer&      rasterizer,
   context = new wxGLContext(this);
 }
 
-void
-EditorCanvas::paint()
+void EditorCanvas::paint()
 {
 #if 0
   {
@@ -182,15 +182,13 @@ EditorCanvas::paint()
   assert(status);
 }
 
-void
-EditorCanvas::OnPaint(wxPaintEvent& event)
+void EditorCanvas::OnPaint(wxPaintEvent& event)
 {
   paint();
   event.Skip();
 }
 
-void
-EditorCanvas::OnMouse(wxMouseEvent& event)
+void EditorCanvas::OnMouse(wxMouseEvent& event)
 {
   if (event.ButtonDown(wxMOUSE_BTN_LEFT) || !(event.Dragging() || event.ButtonUp())) {
     event.Skip();
@@ -262,9 +260,27 @@ EditorCanvas::OnMouse(wxMouseEvent& event)
         active_object = nullptr;
       }
       // if there's a vertex in the area, select it
-      std::cout << "Left click may select an object\n";
       rasterizer.select_object(x, y, animation_frame, false);
       rotation_centerX = -1;
   }
   paint();
+}
+
+void EditorCanvas::OnKeyDown(wxKeyEvent& event)
+{
+  event.Skip();
+  switch(event.GetKeyCode())
+  {
+    case 8:
+    case 127: rasterizer.delete_selected_object(); break;
+    case '.': ++animation_frame; break;
+    case ',': --animation_frame; break;
+    default: break;
+  }
+  Refresh();
+}
+
+void EditorCanvas::OnKeyUp(wxKeyEvent& event)
+{
+  event.Skip();
 }
