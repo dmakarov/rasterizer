@@ -6,9 +6,6 @@
  */
 
 #include "editor.h"
-#if 0
-#include <execinfo.h>
-#endif
 
 wxBEGIN_EVENT_TABLE(EditorFrame, wxWindow)
   EVT_CLOSE(EditorFrame::OnClose)
@@ -60,25 +57,6 @@ EditorCanvas::EditorCanvas(Rasterizer&      rasterizer,
 
 void EditorCanvas::paint()
 {
-#if 0
-  {
-    void *buffer[100];
-    char **strings;
-    int nptrs;
-
-    nptrs = backtrace(buffer, 100);
-    printf("backtrace() returned %d addresses\n", nptrs);
-    strings = backtrace_symbols(buffer, nptrs);
-    if (strings == NULL) {
-      perror("backtrace_symbols");
-      exit(EXIT_FAILURE);
-    }
-    for (int j = 0; j < nptrs; ++j) {
-      printf("%s\n", strings[j]);
-    }
-    free(strings);
-  }
-#endif
   auto status = SetCurrent(*context);
   assert(status);
   int w, h;
@@ -187,10 +165,155 @@ void EditorCanvas::OnPaint(wxPaintEvent& event)
   event.Skip();
 }
 
+#if 0
+
+void Rasterizer::scale(int mx, int my, int frame)
+{
+  if (!is_object_selected) return;
+
+  mx -= rotation_centerX;
+  my -= rotation_centerY;
+
+  if (std::abs(prev_rotationX - mx) < 10 && std::abs(prev_rotationY - my) < 10)
+    return;
+
+  float dm = sqrt(mx*mx + my*my);
+  float dp = sqrt(prev_rotationX*prev_rotationX + prev_rotationY*prev_rotationY);
+
+  auto& vert = find_keyframe(objects[selected_object], frame)->vertices;
+  auto vertno = objects[selected_object]->get_num_vertices();
+
+  float sx = (dm > dp) ? 1.2 : 0.8;
+  float sy = (dm > dp) ? 1.2 : 0.8;
+
+  for (decltype(vertno) ii = 0; ii < vertno; ++ii)
+  {
+    vert[ii].x -= rotation_centerX;
+    vert[ii].y -= rotation_centerY;
+    vert[ii].x = sx * vert[ii].x;
+    vert[ii].y = sy * vert[ii].y;
+    vert[ii].x += rotation_centerX;
+    vert[ii].y += rotation_centerY;
+  }
+  prev_rotationX = mx;
+  prev_rotationY = my;
+}
+
+void Rasterizer::rotate(int mx, int my, int frame)
+{
+  if (!is_object_selected) return;
+
+  mx -= rotation_centerX;
+  my -= rotation_centerY;
+
+  if (std::abs(prev_rotationX - mx) < 10 && std::abs(prev_rotationY - my) < 10)
+    return;
+  if ((mx < 0 && prev_rotationX > 0) || (mx > 0 && prev_rotationX < 0))
+  {
+    prev_rotationX = mx;
+    prev_rotationY = my;
+    return;
+  }
+
+  float ro = sqrtf(mx*mx + my*my);
+  float al = asinf(my / ro);
+  ro = sqrtf(prev_rotationX*prev_rotationX + prev_rotationY*prev_rotationY);
+  float be = asinf(prev_rotationY / ro);
+  float sign = ((al > be && mx > 0) || (al < be && mx < 0)) ? 1.0 : -1.0;
+  float te = sign * 3.14159 / 18;
+  float sn = sinf(te);
+  float cs = cosf(te);
+
+  auto& vert = find_keyframe(objects[selected_object], frame)->vertices;
+  auto vertno = objects[selected_object]->get_num_vertices();
+
+  for (decltype(vertno) ii = 0; ii < vertno; ++ii)
+  {
+    vert[ii].x -= rotation_centerX;
+    vert[ii].y -= rotation_centerY;
+    float xx = cs * vert[ii].x - sn * vert[ii].y;
+    float yy = sn * vert[ii].x + cs * vert[ii].y;
+    vert[ii].x = xx + rotation_centerX;
+    vert[ii].y = yy + rotation_centerY;
+  }
+  prev_rotationX = mx;
+  prev_rotationY = my;
+}
+
+bool Rasterizer::move(float mx, float my, int frame)
+{
+  if (draw_curve)
+  {
+    auto px = active_object->keyframes[0].vertices.back().x;
+    auto py = active_object->keyframes[0].vertices.back().y;
+    if (std::abs(px - mx) > 7 || std::abs(py - my) > 7)
+    { // sqrt((px-mx)*(px-mx) + (py-my)*(py-my)) > 5)
+      active_object->keyframes[0].vertices.push_back(Point{mx, my});
+    }
+    return true;
+  }
+
+  if (!is_object_selected) {
+    return false;
+  }
+  // look for a keyframe at this frame
+  // if we don't find it, then create a new one in the right place
+  auto keyframe = find_keyframe(objects[selected_object], frame);
+  if (keyframe == objects[selected_object]->keyframes.end()) {
+    std::vector<Point> vertices;
+    get_vertices(selected_object, frame, vertices);
+
+    decltype(get_num_keyframes(selected_object)) insertLoc;
+    for (insertLoc = 0; insertLoc < get_num_keyframes(selected_object); ++insertLoc)
+      if (frame < objects[selected_object]->keyframes[insertLoc].number)
+        break;
+
+    objects[selected_object]->keyframes.push_back(objects[selected_object]->keyframes.back());
+    for (auto i = get_num_keyframes(selected_object) - 2; i >= insertLoc; --i)
+      std::copy(objects[selected_object]->keyframes.begin() + i,
+                objects[selected_object]->keyframes.begin() + i + 1,
+                objects[selected_object]->keyframes.begin() + i + 1);
+
+    std::copy(vertices.begin(), vertices.end(),
+              objects[selected_object]->keyframes[insertLoc].vertices.begin());
+
+    objects[selected_object]->keyframes[insertLoc].number = frame;
+    keyframe = find_keyframe(objects[selected_object], frame);
+    assert(keyframe != objects[selected_object]->keyframes.end());
+  }
+
+  if (scale_polygon) {
+    scale(mx, my, frame);
+    return true;
+  }
+  if (rotate_polygon) {
+    rotate(mx, my, frame);
+    return true;
+  }
+
+  rotation_centerX = -1;
+
+  if (!is_object_selected) {
+    keyframe->vertices[selected_vertex].x = mx;
+    keyframe->vertices[selected_vertex].y = my;
+  }
+  else {
+    for (auto& v : keyframe->vertices) {
+      v.x += (mx - original.x);
+      v.y += (my - original.y);
+    }
+    original = Point{mx, my};
+  }
+  return true;
+}
+#endif
+
 void EditorCanvas::OnMouse(wxMouseEvent& event)
 {
+  static auto event_count = 0;
   if (event.ButtonDown(wxMOUSE_BTN_LEFT) || !(event.Dragging() || event.ButtonUp())) {
     event.Skip();
+    std::cout << "Mouse event skipped " << ++event_count << '\n';
     return;
   }
 
@@ -202,65 +325,57 @@ void EditorCanvas::OnMouse(wxMouseEvent& event)
   scale_polygon = false;
   draw_curve = false;
 
-  switch (event.GetModifiers())
-  {
-    case wxMOD_SHIFT:
-      // create a new object if one isn't being drawn
-      if (active_object == nullptr)
-      {
-        active_object = std::make_shared<Animation>();
-        active_object->keyframes.push_back(Frame());
-        active_object->keyframes[0].number = 1;
-        //assign_random_color(active_object);
-      }
-      active_object->keyframes[0].vertices.push_back(Point{x, y});
-      draw_curve = true;
-      rotation_centerX = -1;
-      break;
-    case wxMOD_CONTROL:
-      if (rasterizer.select_object(x, y, animation_frame, false)
-          && rotation_centerX != -1)
-      {
-        scale_polygon = false;
-        rotate_polygon = true;
-        prev_rotationX = mx - rotation_centerX;
-        prev_rotationY = my - rotation_centerY;
-      }
-      else
-      {
-        rotation_centerX = mx;
-        rotation_centerY = my;
-      }
-      break;
-    case wxMOD_CONTROL | wxMOD_SHIFT:
-      if (rasterizer.select_object(x, y, animation_frame, false)
-          && rotation_centerX != -1)
-      {
-        scale_polygon = true;
-        rotate_polygon = false;
-        prev_rotationX = mx - rotation_centerX;
-        prev_rotationY = my - rotation_centerY;
-      }
-      break;
-    default:
-      // if we're in the middle of drawing something, then end it
-      if (active_object)
-      {
-        //if we don't have a polygon
-
-        if (active_object->get_num_vertices() < 3)
-        {
-          active_object = nullptr;
-        }
-        else
-        {
-          rasterizer.add_object(active_object);
-        }
+  switch (event.GetModifiers()) {
+  case wxMOD_SHIFT:
+    std::cout << "new object creation\n";
+    // create a new object if one isn't being drawn
+    if (active_object == nullptr) {
+      active_object = std::make_shared<Animation>();
+      active_object->keyframes.push_back(Frame());
+      active_object->keyframes[0].number = 1;
+      //assign_random_color(active_object);
+    }
+    active_object->keyframes[0].vertices.push_back(Point{x, y});
+    draw_curve = true;
+    rotation_centerX = -1;
+    break;
+  case wxMOD_CONTROL:
+    std::cout << "object rotation\n";
+    if (rasterizer.select_object(x, y, animation_frame, false)
+        && rotation_centerX != -1) {
+      scale_polygon = false;
+      rotate_polygon = true;
+      prev_rotationX = mx - rotation_centerX;
+      prev_rotationY = my - rotation_centerY;
+    } else {
+      rotation_centerX = mx;
+      rotation_centerY = my;
+    }
+    break;
+  case wxMOD_CONTROL | wxMOD_SHIFT:
+    std::cout << "object scaling\n";
+    if (rasterizer.select_object(x, y, animation_frame, false)
+        && rotation_centerX != -1) {
+      scale_polygon = true;
+      rotate_polygon = false;
+      prev_rotationX = mx - rotation_centerX;
+      prev_rotationY = my - rotation_centerY;
+    }
+    break;
+  default:
+    // if we're in the middle of drawing something, then end it
+    if (active_object) {
+      //if we don't have a polygon
+      if (active_object->get_num_vertices() < 3) {
         active_object = nullptr;
+      } else {
+        rasterizer.add_object(active_object);
       }
-      // if there's a vertex in the area, select it
-      rasterizer.select_object(x, y, animation_frame, false);
-      rotation_centerX = -1;
+      active_object = nullptr;
+    }
+    // if there's a vertex in the area, select it
+    rasterizer.select_object(x, y, animation_frame, false);
+    rotation_centerX = -1;
   }
   paint();
 }
@@ -269,11 +384,11 @@ void EditorCanvas::OnChar(wxKeyEvent& event)
 {
   switch(event.GetUnicodeKey())
   {
-    case 8:
-    case 127: rasterizer.delete_selected_object(); break;
-    case '.': if (animation_frame < 99) ++animation_frame; break;
-    case ',': if (animation_frame >  1) --animation_frame; break;
-    default: break;
+  case 8:   // FIXME what key is this?
+  case 127: rasterizer.delete_selected_object(); break;
+  case '.': if (animation_frame < 99) ++animation_frame; break;
+  case ',': if (animation_frame >  1) --animation_frame; break;
+  default: break;
   }
   Refresh();
 }

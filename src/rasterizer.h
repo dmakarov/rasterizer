@@ -209,66 +209,39 @@ struct Abuffer {
   \class Rasterizer
 */
 class Rasterizer : public Subject {
+
   using ObjSP = std::shared_ptr<Animation>;
   using vertex_id_type = std::vector<ObjSP>::size_type;
   using objects_size_type = std::vector<ObjSP>::size_type;
+
   static const auto MAX_ALIAS_SAMPLES = 64;
   static const auto MAX_BLUR_SAMPLES = 64;
+
+  std::vector<ObjSP> objects;
+  std::unique_ptr<RGB8[]> pixels;
   int width;
   int height;
   Point original;
-  int prev_rotationX;
-  int prev_rotationY;
-  int rotation_centerX = -1;
-  int rotation_centerY;
-  vertex_id_type selected_vertex;
   objects_size_type selected_object;
+  vertex_id_type selected_vertex;
   bool is_object_selected = false;
-  bool rotate_polygon = false;
-  bool scale_polygon = false;
-  bool draw_curve = false;
-  std::unique_ptr<RGB8[]> pixels;
-  std::vector<ObjSP> objects;
-  ObjSP active_object;
 
 public:
-  Rasterizer(int w = 0, int h = 0)
-  : width(w), height(h), pixels(new RGB8[w * h]) {
+
+  Rasterizer(int w = 0, int h = 0) : pixels(new RGB8[w * h]), width(w), height(h)
+  {
     clear();
   }
 
-  void clear() const {
-    std::fill(pixels.get(), pixels.get() + width * height, 0);
+  int get_width() const
+  {
+    return width;
   }
-  /**
-    This function takes a frame number, and a bunch of arguments
-    showing how the frame should be rasterized.  By the time
-    rasterize() completes, the canvas should be filled.
-  */
-  void rasterize(int frame, bool aa_enabled, int num_aa_samples,
-                 bool mb_enabled, int num_mb_samples,
-                 const std::string& aa_filter) const;
-  void render_to_file(const std::vector<std::string>& args);
-  bool load_objects(const std::string& filename);
-  void save_objects(const std::string& filename) const;
-  void save_image(const std::string& filename) const;
-  void delete_keyframe(int frame);
-  void delete_selected_object();
-  bool move(float mx, float my, int frame);
-  bool select_object(float mx, float my, int frame, bool is_right_click);
-  int get_width() const { return width; }
-  int get_height() const { return height; }
-  unsigned char* getPixelsAsRGB() const;
-  /**
-   \brief get_vertices
-   This function takes in an object <id>, a frame number and an
-   array of Points and fills in that array with the vertices of
-   that object at that point in time.  If the passed frame is
-   between keyframes, get_vertices will automatically interpolate
-   linearly and give you the correct values.
-  */
-  RGB8 get_vertices(objects_size_type id, float frame,
-                    std::vector<Point>& vertices) const;
+
+  int get_height() const
+  {
+    return height;
+  }
 
   std::vector<ObjSP>& get_objects()
   {
@@ -304,22 +277,54 @@ public:
     return objects[ix]->keyframes.size();
   }
 
-  auto get_selected_object() -> decltype(selected_object)
+  auto get_selected_object() const -> decltype(selected_object)
   {
     return is_object_selected ? selected_object : objects.size();
   }
 
-  auto get_selected_vertex() -> decltype(selected_vertex)
+  auto get_selected_vertex() const -> decltype(selected_vertex)
   {
     return selected_vertex;
   }
 
-  bool is_selected()
+  bool is_selected() const
   {
     return is_object_selected;
   }
 
+  /**
+    This function takes a frame number, and a bunch of arguments
+    showing how the frame should be rasterized.  By the time
+    rasterize() completes, the canvas should be filled.
+  */
+  void rasterize(int frame, bool aa_enabled, int num_aa_samples,
+                 bool mb_enabled, int num_mb_samples,
+                 const std::string& aa_filter) const;
+  void render_to_file(const std::vector<std::string>& args);
+  bool load_objects(const std::string& filename);
+  void save_objects(const std::string& filename) const;
+  void save_image(const std::string& filename) const;
+  void delete_keyframe(int frame);
+  void delete_selected_object();
+  bool select_object(float mx, float my, int frame, bool is_right_click);
+  unsigned char* getPixelsAsRGB() const;
+  /**
+   \brief get_vertices
+   This function takes in an object <id>, a frame number and an
+   array of Points and fills in that array with the vertices of
+   that object at that point in time.  If the passed frame is
+   between keyframes, get_vertices will automatically interpolate
+   linearly and give you the correct values.
+  */
+  RGB8 get_vertices(objects_size_type id, float frame,
+                    std::vector<Point>& vertices) const;
+
 private:
+
+  void clear() const {
+    std::fill(pixels.get(), pixels.get() + width * height, 0);
+  }
+
   /**
    \brief find_keyframe
    This function will tell you if object <a> has a keyframe at
@@ -339,9 +344,8 @@ private:
     return std::find_if(a->keyframes.begin(), a->keyframes.end(),
            [this, frame] (const Frame& f) { return f.number == frame; });
   }
+
   void scan_convert(std::vector<Point>& vertices, RGB8 color) const;
-  void scale(int mx, int my, int frame);
-  void rotate(int mx, int my, int frame);
 };
 
 #endif /* rasterizer_h */

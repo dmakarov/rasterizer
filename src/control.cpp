@@ -219,8 +219,7 @@ Control::~Control() {
   }
 }
 
-void
-Control::update(Subject* subject)
+void Control::update(Subject* subject)
 {
   if (subject == editor) {
     editor = nullptr;
@@ -230,8 +229,7 @@ Control::update(Subject* subject)
     viewer = nullptr;
     return;
   }
-  if (rasterizer.is_selected())
-  {
+  if (rasterizer.is_selected()) {
     auto selected_object = rasterizer.get_selected_object();
     std::ostringstream oss;
     oss << "Object ID: " << selected_object;
@@ -245,9 +243,7 @@ Control::update(Subject* subject)
     oss << "Keyframes: " << rasterizer.get_num_keyframes(selected_object);
     stxt_keyframe->SetLabel(oss.str());
     stxt_keyframe->Enable();
-  }
-  else
-  {
+  } else {
     stxt_objectid->SetLabel(wxT("Object ID:"));
     stxt_objectid->Disable();
     stxt_vertices->SetLabel(wxT("Vertices:"));
@@ -271,8 +267,7 @@ void Control::OnSpinFrame(wxSpinEvent& event)
   }
 }
 
-void
-Control::OnButtonLoad(wxCommandEvent& event)
+void Control::OnButtonLoad(wxCommandEvent& event)
 {
   if (text_filename->GetLineLength(0) == 0) {
     auto selected = wxLoadFileSelector("objects", "obs");
@@ -304,8 +299,7 @@ Control::OnButtonLoad(wxCommandEvent& event)
   }
 }
 
-void
-Control::OnButtonSave(wxCommandEvent& event)
+void Control::OnButtonSave(wxCommandEvent& event)
 {
   if (text_filename->GetLineLength(0) == 0) {
     return;
@@ -314,8 +308,7 @@ Control::OnButtonSave(wxCommandEvent& event)
   rasterizer.save_objects(name.ToStdString());
 }
 
-void
-Control::OnButtonDeleteKeyframe(wxCommandEvent& event)
+void Control::OnButtonDeleteKeyframe(wxCommandEvent& event)
 {
   rasterizer.delete_keyframe(spin_frame->GetValue());
   button_delete_keyframe->Disable();
@@ -324,8 +317,7 @@ Control::OnButtonDeleteKeyframe(wxCommandEvent& event)
   }
 }
 
-void
-Control::OnCheckAA(wxCommandEvent& event)
+void Control::OnCheckAA(wxCommandEvent& event)
 {
   if (event.IsChecked()) {
     stxt_aa_nos->Enable();
@@ -342,8 +334,7 @@ Control::OnCheckAA(wxCommandEvent& event)
   }
 }
 
-void
-Control::OnCheckMB(wxCommandEvent& event)
+void Control::OnCheckMB(wxCommandEvent& event)
 {
   if (event.IsChecked()) {
     stxt_mb_nos->Enable();
@@ -356,8 +347,7 @@ Control::OnCheckMB(wxCommandEvent& event)
   }
 }
 
-void
-Control::OnRadioFrame(wxCommandEvent& event)
+void Control::OnRadioFrame(wxCommandEvent& event)
 {
   if (event.GetInt() == 1) {
     stxt_sframe->Enable();
@@ -374,8 +364,7 @@ Control::OnRadioFrame(wxCommandEvent& event)
   }
 }
 
-void
-Control::OnButtonRender(wxCommandEvent& event)
+void Control::OnButtonRender(wxCommandEvent& event)
 {
   collectSettings();
   if (multiple_frames) {
