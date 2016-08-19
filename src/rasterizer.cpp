@@ -147,46 +147,33 @@ void Rasterizer::rasterize(int frame_num,
                            const std::string& aa_filter) const
 {
   // set up the accumulation buffer and a scratch pad canvas;
-
   Abuffer abuf(width, height);
   Rasterizer pad(width, height);
-
   // precomputed shift distances for vertices in AA.
   Point aajitter[8][8];
-
-  if (!aa_filter.empty())
-  {
-    parse_aafilter_func(aa_filter);
-  }
-
   int tiles = 1;
   float frame_shift = 0.0;
   float frame_offset = 0.0;
 
-  if (!aa_enabled)
-  {
+  if (!aa_enabled) {
     num_aa_samples = 1;
   }
-  if (! mb_enabled)
-  {
+  if (num_aa_samples > 1) {
+    // don't do more than MAX_SAMPLES:
+    tiles = ceil(sqrt(num_aa_samples < MAX_SAMPLES ?
+                      num_aa_samples : MAX_SAMPLES));
+  }
+  if (!aa_filter.empty()) {
+    parse_aafilter_func(aa_filter);
+  }
+  if (!mb_enabled) {
     num_mb_samples = 1;
   }
-  if (num_aa_samples > 1)
-  {
-    // don't do more than MAX_ALIAS_SAMPLES:
-    float froot = (num_aa_samples < MAX_ALIAS_SAMPLES)
-                ? sqrt(num_aa_samples) : sqrt(MAX_ALIAS_SAMPLES);
-    int iroot = froot;
-    tiles = (froot - (float)iroot > 0.0) ? iroot + 1 : iroot;
-  }
-  precompute_shifts(aajitter, tiles);
-  if (num_mb_samples > 1)
-  {
+  if (num_mb_samples > 1) {
     frame_offset = 1.0 / (2.0 * (float)num_mb_samples) - 0.5;
     frame_shift = 1.0 / (float)num_mb_samples;
   }
-  // frame
-  //printf("FRAME #%2d: %dx%d AA + %d MS\n", frame_num, tiles, tiles, num_mb_samples);
+  precompute_shifts(aajitter, tiles);
 
   int samples = 0;
   int yyfilt = 1;

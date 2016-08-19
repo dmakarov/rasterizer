@@ -49,9 +49,6 @@ EditorCanvas::EditorCanvas(Rasterizer&      rasterizer,
   , rasterizer(rasterizer)
 {
   animation_frame = 1;
-  rotation_centerX = -1;
-  rotation_centerY = -1;
-
   context = new wxGLContext(this);
 }
 
@@ -115,14 +112,16 @@ void EditorCanvas::paint()
     }
   }
 
-  if (rotation_centerX > -1) {
+  if (scale_polygon || rotate_polygon) {
     glBegin(GL_LINES);
     {
       glColor3d(0.5, 0.5, 0.5);
-      glVertex2d(rotation_centerX + 5, -rotation_centerY);
-      glVertex2d(rotation_centerX - 5, -rotation_centerY);
-      glVertex2d(rotation_centerX, -rotation_centerY + 5);
-      glVertex2d(rotation_centerX, -rotation_centerY - 5);
+      auto x = static_cast<int>(rotation_center.x);
+      auto y = static_cast<int>(rotation_center.y);
+      glVertex2d(x + 5, -y);
+      glVertex2d(x - 5, -y);
+      glVertex2d(x, -y + 5);
+      glVertex2d(x, -y - 5);
     }
     glEnd();
   }
@@ -310,20 +309,30 @@ bool Rasterizer::move(float mx, float my, int frame)
 
 void EditorCanvas::OnMouse(wxMouseEvent& event)
 {
-  static auto event_count = 0;
-  if (event.ButtonDown(wxMOUSE_BTN_LEFT) || !(event.Dragging() || event.ButtonUp())) {
-    event.Skip();
-    std::cout << "Mouse event skipped " << ++event_count << '\n';
-    return;
-  }
-
   long mx, my;
   event.GetPosition(&mx, &my);
   float x = mx, y = my;
 
-  rotate_polygon = false;
-  scale_polygon = false;
-  draw_curve = false;
+  if (event.ButtonDown(wxMOUSE_BTN_LEFT) && !event.Dragging()) {
+    switch (event.GetModifiers()) {
+    case wxMOD_SHIFT:                 // draw
+      break;
+    case wxMOD_CONTROL:               // rotate
+      break;
+    case wxMOD_CONTROL | wxMOD_SHIFT: // scale
+      break;
+    default:;                         // select
+      // if there is a vertex nearby it will be selected when button is up, or
+      // when dragging starts. don't do anything on this event?
+    }
+    event.Skip();
+    return;
+  }
+
+  if (!event.Dragging() && !event.ButtonUp()) {
+    event.Skip();
+    return;
+  }
 
   switch (event.GetModifiers()) {
   case wxMOD_SHIFT:
@@ -336,30 +345,17 @@ void EditorCanvas::OnMouse(wxMouseEvent& event)
       //assign_random_color(active_object);
     }
     active_object->keyframes[0].vertices.push_back(Point{x, y});
-    draw_curve = true;
-    rotation_centerX = -1;
     break;
   case wxMOD_CONTROL:
     std::cout << "object rotation\n";
-    if (rasterizer.select_object(x, y, animation_frame, false)
-        && rotation_centerX != -1) {
-      scale_polygon = false;
-      rotate_polygon = true;
-      prev_rotationX = mx - rotation_centerX;
-      prev_rotationY = my - rotation_centerY;
-    } else {
-      rotation_centerX = mx;
-      rotation_centerY = my;
+    if (rasterizer.select_object(x, y, animation_frame, false)) {
+      prev_rotation_center = Point{x - rotation_center.x, y - rotation_center.y};
     }
     break;
   case wxMOD_CONTROL | wxMOD_SHIFT:
     std::cout << "object scaling\n";
-    if (rasterizer.select_object(x, y, animation_frame, false)
-        && rotation_centerX != -1) {
-      scale_polygon = true;
-      rotate_polygon = false;
-      prev_rotationX = mx - rotation_centerX;
-      prev_rotationY = my - rotation_centerY;
+    if (rasterizer.select_object(x, y, animation_frame, false)) {
+      prev_rotation_center = Point{x - rotation_center.x, y - rotation_center.y};
     }
     break;
   default:
@@ -375,7 +371,6 @@ void EditorCanvas::OnMouse(wxMouseEvent& event)
     }
     // if there's a vertex in the area, select it
     rasterizer.select_object(x, y, animation_frame, false);
-    rotation_centerX = -1;
   }
   paint();
 }

@@ -206,16 +206,14 @@ struct Abuffer {
 };
 
 /**
-  \class Rasterizer
+  \class Rasterizer manages the objects to be rendered and implements the
+  rasterization algorithm on canvas with the objects.
 */
 class Rasterizer : public Subject {
 
   using ObjSP = std::shared_ptr<Animation>;
   using vertex_id_type = std::vector<ObjSP>::size_type;
   using objects_size_type = std::vector<ObjSP>::size_type;
-
-  static const auto MAX_ALIAS_SAMPLES = 64;
-  static const auto MAX_BLUR_SAMPLES = 64;
 
   std::vector<ObjSP> objects;
   std::unique_ptr<RGB8[]> pixels;
@@ -227,6 +225,8 @@ class Rasterizer : public Subject {
   bool is_object_selected = false;
 
 public:
+
+  static const auto MAX_SAMPLES = 64;
 
   Rasterizer(int w = 0, int h = 0) : pixels(new RGB8[w * h]), width(w), height(h)
   {
@@ -254,15 +254,14 @@ public:
   }
 
   /**
-    \returns false if no objects have a keyframe
-    at <frame> and true otherwise.
+     \returns false if no object has keyframe at <frame> and true otherwise.
   */
   bool any_keyframe(int frame) const
   {
     auto E = objects.end();
     return E !=
       std::find_if(objects.begin(), E, [this, frame] (const ObjSP& a) {
-                   return find_keyframe(a, frame) != a->keyframes.end(); });
+          return find_keyframe(a, frame) != a->keyframes.end(); });
   }
 
   decltype(objects[0]->get_num_vertices())
@@ -297,7 +296,8 @@ public:
     showing how the frame should be rasterized.  By the time
     rasterize() completes, the canvas should be filled.
   */
-  void rasterize(int frame, bool aa_enabled, int num_aa_samples,
+  void rasterize(int frame,
+                 bool aa_enabled, int num_aa_samples,
                  bool mb_enabled, int num_mb_samples,
                  const std::string& aa_filter) const;
   void render_to_file(const std::vector<std::string>& args);

@@ -128,7 +128,8 @@ Control::Control(wxFrame* frame,
   stxt_aa_nos = new wxStaticText(this, wxID_ANY, wxT("Number of samples"));
   stxt_aa_nos->Disable();
   spin_aa_nos = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition,
-                               wxDefaultSize, wxSP_ARROW_KEYS, 1, 10, 1);
+                               wxDefaultSize, wxSP_ARROW_KEYS, 1,
+                               Rasterizer::MAX_SAMPLES, 1);
   spin_aa_nos->Disable();
   hsizer->Add(stxt_aa_nos, 0, wxALIGN_LEFT | wxALL, 0);
   hsizer->Add(spin_aa_nos, 0, wxALIGN_RIGHT | wxALL, 0);
@@ -151,7 +152,8 @@ Control::Control(wxFrame* frame,
   stxt_mb_nos = new wxStaticText(this, wxID_ANY, wxT("Number of samples"));
   stxt_mb_nos->Disable();
   spin_mb_nos = new wxSpinCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition,
-                               wxDefaultSize, wxSP_ARROW_KEYS, 1, 10, 1);
+                               wxDefaultSize, wxSP_ARROW_KEYS, 1,
+                               Rasterizer::MAX_SAMPLES, 1);
   spin_mb_nos->Disable();
   hsizer->Add(stxt_mb_nos, 0, wxALIGN_LEFT | wxALL, 0);
   hsizer->Add(spin_mb_nos, 0, wxALIGN_RIGHT | wxALL, 0);
