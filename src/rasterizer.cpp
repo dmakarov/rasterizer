@@ -398,42 +398,40 @@ void Rasterizer::scan_convert(std::vector<Point>& vertex, RGB8 color) const
  *  This function returns the set of vertices for the passed object in
  *  the current frame
  */
-RGB8 Rasterizer::get_vertices(objects_size_type id, float frame,
+RGB8 Rasterizer::get_vertices(const ObjSz id, const float frame,
                               std::vector<Point>& vertices) const
 {
-  float prev_keyframe = -1.0f, next_keyframe = -1.0f;
-  auto prev_frame = objects[id]->keyframes.end();
-  auto next_frame = objects[id]->keyframes.end();
+  auto prev_keyframe = -1.0f, next_keyframe = -1.0f;
+  auto E = objects[id]->keyframes.end();
+  auto prev_frame = E, next_frame = E;
 
-  for (int i = (int)frame; i >= 0; --i)
-    if ((prev_frame = find_keyframe(objects[id], i)) != objects[id]->keyframes.end())
-    {
+  for (auto i = static_cast<int>(frame); i >= 0; --i) {
+    if ((prev_frame = find_keyframe(objects[id], i)) != E) {
       prev_keyframe = i;
       break;
     }
+  }
   // there should always be a keyframe at frame 1
-  if (prev_frame == objects[id]->keyframes.end())
+  if (prev_frame == E) {
     prev_frame = objects[id]->keyframes.begin() + 1;
-
-  for (int i = ((int)frame + 1); i <= (objects[id]->keyframes.end() - 1)->number; ++i)
-    if ((next_frame = find_keyframe(objects[id], i)) != objects[id]->keyframes.end())
-    {
+  }
+  for (auto i = static_cast<int>(frame + 1); i <= (E - 1)->number; ++i) {
+    if ((next_frame = find_keyframe(objects[id], i)) != E) {
       next_keyframe = i;
       break;
     }
+  }
   auto& prev_keyframe_vertices = prev_frame->vertices;
-  if (next_frame == objects[id]->keyframes.end())
-  { // if there are no more keyframes, just go with the last frame
+  // if there are no more keyframes, just go with the last frame
+  if (next_frame == objects[id]->keyframes.end()) {
     vertices.resize(prev_keyframe_vertices.size());
     std::copy(prev_keyframe_vertices.begin(), prev_keyframe_vertices.end(),
               vertices.begin());
-  }
-  else // here we do the interpolation
-  {
+  } else { // here we do the interpolation
     auto& next_keyframe_vertices = next_frame->vertices;
-    float percent = (frame - prev_keyframe) / (next_keyframe - prev_keyframe);
-    for (vertex_id_type i = 0; i < objects[id]->get_num_vertices(); ++i)
-    {
+    auto percent = (frame - prev_keyframe) / (next_keyframe - prev_keyframe);
+    for (std::vector<Point>::size_type i = 0;
+         i < objects[id]->get_num_vertices(); ++i) {
       auto x = (1 - percent) * prev_keyframe_vertices[i].x
                   + percent  * next_keyframe_vertices[i].x;
       auto y = (1 - percent) * prev_keyframe_vertices[i].y
@@ -444,21 +442,10 @@ RGB8 Rasterizer::get_vertices(objects_size_type id, float frame,
   return objects[id]->get_color();
 }
 
-void Rasterizer::delete_selected_object()
-{
-  if (!is_object_selected) {
-    return;
-  }
-  objects.erase(objects.begin() + selected_object);
-  is_object_selected = false;
-  notify();
-}
-
-bool Rasterizer::select_object(float mx, float my, int frame,
-                               bool is_right_click)
+bool Rasterizer::select_object(int frame, float mx, float my)
 {
   bool foundVertex = false;
-  for (objects_size_type i = 0; !foundVertex && i < objects.size(); ++i) {
+  for (ObjSz i = 0; !foundVertex && i < objects.size(); ++i) {
     std::vector<Point> vertices;
     get_vertices(i, frame, vertices);
     auto j = 0;
@@ -468,11 +455,6 @@ bool Rasterizer::select_object(float mx, float my, int frame,
         foundVertex = true;
         selected_object = i;
         selected_vertex = j;
-        //implement right-click drag
-        if (is_right_click) {
-          selected_vertex = vertices.size();
-          original = Point{mx, my};
-        }
         break;
       }
       ++j;
@@ -481,22 +463,6 @@ bool Rasterizer::select_object(float mx, float my, int frame,
   is_object_selected = foundVertex;
   notify();
   return foundVertex;
-}
-
-void Rasterizer::delete_keyframe(int frame)
-{
-  if (frame == 1 || !any_keyframe(frame)) {
-    return;
-  }
-  for (auto o : objects) {
-    auto k = find_keyframe(o, frame);
-    if (k != o->keyframes.end()) {
-      for (auto j = k, E = o->keyframes.end() - 1; j != E; ++j) {
-        std::copy(j + 1, j + 2, j);
-      }
-      o->keyframes.pop_back();
-    }
-  }
 }
 
 bool Rasterizer::load_objects(const std::string& filename)

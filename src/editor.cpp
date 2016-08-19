@@ -52,6 +52,67 @@ EditorCanvas::EditorCanvas(Rasterizer&      rasterizer,
   context = new wxGLContext(this);
 }
 
+void EditorCanvas::startDrawing(long x, long y)
+{
+  std::cout << "start drawing at " << x << ", " << y << '\n';
+  active_object = std::make_shared<Animation>();
+  active_object->keyframes.push_back(Frame());
+  active_object->keyframes[0].number = 1;
+  // assign_random_color(active_object);
+  active_object->keyframes[0].vertices.push_back(Point{static_cast<float>(x), static_cast<float>(y)});
+}
+
+void EditorCanvas::startRotating(long x, long y)
+{
+  std::cout << "start rotating at " << x << ", " << y << '\n';
+}
+
+void EditorCanvas::startScaling(long x, long y)
+{
+  std::cout << "start scaling at " << x << ", " << y << '\n';
+}
+
+void EditorCanvas::continueDrawing(long x, long y)
+{
+  std::cout << "continue drawing at " << x << ", " << y << '\n';
+  active_object->keyframes[0].vertices.push_back(Point{static_cast<float>(x), static_cast<float>(y)});
+}
+
+void EditorCanvas::continueRotating(long x, long y)
+{
+  std::cout << "continue rotating at " << x << ", " << y << '\n';
+}
+
+void EditorCanvas::continueScaling(long x, long y)
+{
+  std::cout << "continue scaling at " << x << ", " << y << '\n';
+}
+
+void EditorCanvas::finishDrawing(long x, long y)
+{
+  std::cout << "finish drawing at " << x << ", " << y << '\n';
+  // if we're in the middle of drawing something, then end it
+  if (active_object) {
+    // if we don't have a polygon
+    if (active_object->get_num_vertices() < 3) {
+      active_object = nullptr;
+    } else {
+      rasterizer.add_object(active_object);
+    }
+    active_object = nullptr;
+  }
+}
+
+void EditorCanvas::finishRotating(long x, long y)
+{
+  std::cout << "finish rotating at " << x << ", " << y << '\n';
+}
+
+void EditorCanvas::finishScaling(long x, long y)
+{
+  std::cout << "finish scaling at " << x << ", " << y << '\n';
+}
+
 void EditorCanvas::paint()
 {
   auto status = SetCurrent(*context);
@@ -313,64 +374,63 @@ void EditorCanvas::OnMouse(wxMouseEvent& event)
   event.GetPosition(&mx, &my);
   float x = mx, y = my;
 
-  if (event.ButtonDown(wxMOUSE_BTN_LEFT) && !event.Dragging()) {
+   if (event.ButtonDown(wxMOUSE_BTN_LEFT) && !event.Dragging()) {
     switch (event.GetModifiers()) {
     case wxMOD_SHIFT:                 // draw
+      startDrawing(mx, my);
       break;
     case wxMOD_CONTROL:               // rotate
+      if (rasterizer.is_selected()) {
+        startRotating(mx, my);
+      }
       break;
     case wxMOD_CONTROL | wxMOD_SHIFT: // scale
+      if (rasterizer.is_selected()) {
+        startScaling(mx, my);
+      }
       break;
-    default:;                         // select
-      // if there is a vertex nearby it will be selected when button is up, or
-      // when dragging starts. don't do anything on this event?
+    default:                          // select
+      event.Skip();
     }
-    event.Skip();
-    return;
-  }
-
-  if (!event.Dragging() && !event.ButtonUp()) {
+  } else if (event.ButtonUp(wxMOUSE_BTN_LEFT)) {
+    switch (event.GetModifiers()) {
+    case wxMOD_SHIFT:                 // draw
+      finishDrawing(mx, my);
+      break;
+    case wxMOD_CONTROL:               // rotate
+      if (rasterizer.is_selected()) {
+        finishRotating(mx, my);
+      }
+      break;
+    case wxMOD_CONTROL | wxMOD_SHIFT: // scale
+      if (rasterizer.is_selected()) {
+        finishScaling(mx, my);
+      }
+      break;
+    default:                          // select
+      // if there's a vertex in the area, select it
+      rasterizer.select_object(animation_frame, x, y);
+    }
+  } else if (!event.Dragging() && !event.ButtonUp()) {
     event.Skip();
     return;
   }
 
   switch (event.GetModifiers()) {
   case wxMOD_SHIFT:
-    std::cout << "new object creation\n";
-    // create a new object if one isn't being drawn
-    if (active_object == nullptr) {
-      active_object = std::make_shared<Animation>();
-      active_object->keyframes.push_back(Frame());
-      active_object->keyframes[0].number = 1;
-      //assign_random_color(active_object);
-    }
-    active_object->keyframes[0].vertices.push_back(Point{x, y});
+    continueDrawing(mx, my);
     break;
   case wxMOD_CONTROL:
-    std::cout << "object rotation\n";
-    if (rasterizer.select_object(x, y, animation_frame, false)) {
-      prev_rotation_center = Point{x - rotation_center.x, y - rotation_center.y};
+    if (rasterizer.is_selected()) {
+      continueRotating(mx, my);
     }
     break;
   case wxMOD_CONTROL | wxMOD_SHIFT:
-    std::cout << "object scaling\n";
-    if (rasterizer.select_object(x, y, animation_frame, false)) {
-      prev_rotation_center = Point{x - rotation_center.x, y - rotation_center.y};
+    if (rasterizer.is_selected()) {
+      continueScaling(mx, my);
     }
     break;
-  default:
-    // if we're in the middle of drawing something, then end it
-    if (active_object) {
-      //if we don't have a polygon
-      if (active_object->get_num_vertices() < 3) {
-        active_object = nullptr;
-      } else {
-        rasterizer.add_object(active_object);
-      }
-      active_object = nullptr;
-    }
-    // if there's a vertex in the area, select it
-    rasterizer.select_object(x, y, animation_frame, false);
+  default:;
   }
   paint();
 }

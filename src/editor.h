@@ -42,6 +42,15 @@ private:
   bool scale_polygon = false;
   bool rotate_polygon = false;
 
+  void startDrawing(long x, long y);
+  void startRotating(long x, long y);
+  void startScaling(long x, long y);
+  void continueDrawing(long x, long y);
+  void continueRotating(long x, long y);
+  void continueScaling(long x, long y);
+  void finishDrawing(long x, long y);
+  void finishRotating(long x, long y);
+  void finishScaling(long x, long y);
   void paint();
 
   void OnPaint(wxPaintEvent& event);

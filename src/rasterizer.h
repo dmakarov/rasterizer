@@ -143,7 +143,7 @@ struct Animation {
     r = R; g = G; b = B;
   }
 
-  auto get_num_vertices() const -> decltype(keyframes[0].vertices.size())
+  std::vector<Point>::size_type get_num_vertices() const
   {
     return keyframes[0].vertices.size();
   }
@@ -212,16 +212,15 @@ struct Abuffer {
 class Rasterizer : public Subject {
 
   using ObjSP = std::shared_ptr<Animation>;
-  using vertex_id_type = std::vector<ObjSP>::size_type;
-  using objects_size_type = std::vector<ObjSP>::size_type;
+  using ObjSz = std::vector<ObjSP>::size_type;
 
   std::vector<ObjSP> objects;
   std::unique_ptr<RGB8[]> pixels;
   int width;
   int height;
   Point original;
-  objects_size_type selected_object;
-  vertex_id_type selected_vertex;
+  ObjSz selected_object;
+  ObjSz selected_vertex;
   bool is_object_selected = false;
 
 public:
@@ -264,19 +263,17 @@ public:
           return find_keyframe(a, frame) != a->keyframes.end(); });
   }
 
-  decltype(objects[0]->get_num_vertices())
-  get_num_vertices(objects_size_type ix) const
+  std::vector<Point>::size_type get_num_vertices(ObjSz ix) const
   {
     return objects[ix]->get_num_vertices();
   }
 
-  decltype(objects[0]->keyframes.size())
-  get_num_keyframes(objects_size_type ix) const
+  std::vector<Frame>::size_type get_num_keyframes(ObjSz ix) const
   {
     return objects[ix]->keyframes.size();
   }
 
-  auto get_selected_object() const -> decltype(selected_object)
+  ObjSz get_selected_object() const
   {
     return is_object_selected ? selected_object : objects.size();
   }
@@ -289,6 +286,33 @@ public:
   bool is_selected() const
   {
     return is_object_selected;
+  }
+
+  void delete_selected_object()
+  {
+    if (!is_object_selected) {
+      return;
+    }
+    objects.erase(objects.begin() + selected_object);
+    is_object_selected = false;
+    notify();
+  }
+
+  void delete_keyframe(int frame)
+  {
+    if (frame == 1 || !any_keyframe(frame)) {
+      return;
+    }
+    for (auto o : objects) {
+      auto k = find_keyframe(o, frame);
+      auto E = o->keyframes.end();
+      if (k != E) {
+        for (auto j = k; j != E - 1; ++j) {
+          std::copy(j + 1, j + 2, j);
+        }
+        o->keyframes.pop_back();
+      }
+    }
   }
 
   /**
@@ -304,9 +328,7 @@ public:
   bool load_objects(const std::string& filename);
   void save_objects(const std::string& filename) const;
   void save_image(const std::string& filename) const;
-  void delete_keyframe(int frame);
-  void delete_selected_object();
-  bool select_object(float mx, float my, int frame, bool is_right_click);
+  bool select_object(const int frame, const float mx, const float my);
   unsigned char* getPixelsAsRGB() const;
   /**
    \brief get_vertices
@@ -316,7 +338,7 @@ public:
    between keyframes, get_vertices will automatically interpolate
    linearly and give you the correct values.
   */
-  RGB8 get_vertices(objects_size_type id, float frame,
+  RGB8 get_vertices(const ObjSz id, const float frame,
                     std::vector<Point>& vertices) const;
 
 private:
