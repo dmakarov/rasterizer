@@ -30,7 +30,9 @@ public:
   std::shared_ptr<Polygon> selected_object;
   ObjSz selected_object_id;
   ObjSz selected_vertex;
-  bool is_object_selected = false;
+  std::shared_ptr<Polygon> active_object;
+  Point prev_rotation_center;
+  Point rotation_center;
 
   Scene(int w = 500, int h = 500)
   : rasterizer{w, h}, width(w), height(h) {}
@@ -66,7 +68,7 @@ public:
     }
   }
 
-  const std::vector<ObjSP>& get_objects() const
+  const std::vector<ObjSP>& getPolygons() const
   {
     return polygons;
   }
@@ -79,20 +81,29 @@ public:
   /**
    \returns false if no object has keyframe at <frame> and true otherwise.
    */
-  bool any_keyframe(int frame) const
+  bool anyKeyframe(int frame) const
   {
     auto E = polygons.end();
-    return E !=
-    std::find_if(polygons.begin(), E, [this, frame] (const ObjSP& a) {
-      return a->find_keyframe(frame) != a->keyframes.end(); });
+    return E != std::find_if(polygons.begin(), E, [frame](const ObjSP& a)
+                { return a->find_keyframe(frame) != a->keyframes.end(); });
   }
 
-  std::shared_ptr<Polygon> get_selected_object() const
+  ObjSP getSelectedPolygon() const
   {
     return selected_object;
   }
 
-  ObjSz get_selected_object_id() const
+  ObjSP getActivePolygon() const
+  {
+    return active_object;
+  }
+
+  Point getRotationCenter() const
+  {
+    return rotation_center;
+  }
+
+  ObjSz getSelectedPolygonId() const
   {
     return selected_object_id;
   }
@@ -102,24 +113,24 @@ public:
     return selected_vertex;
   }
 
-  bool is_selected() const
+  bool is_selected()
   {
-    return is_object_selected;
+    return selected_object != nullptr;
   }
 
   void delete_selected_object()
   {
-    if (!is_object_selected) {
+    if (selected_object == nullptr) {
       return;
     }
     polygons.erase(polygons.begin() + selected_object_id);
-    is_object_selected = false;
+    selected_object = nullptr;
     notify();
   }
 
   void delete_keyframe(int frame)
   {
-    if (frame == 1 || !any_keyframe(frame)) {
+    if (frame == 1 || !anyKeyframe(frame)) {
       return;
     }
     for (auto p : polygons) {
@@ -138,6 +149,16 @@ public:
   void save(const std::string& filename) const;
   bool select_object(const int frame, const float mx, const float my);
   void render_to_file(const std::vector<std::string>& args);
+
+  void startDrawing(long x, long y);
+  void startRotating(long x, long y);
+  void startScaling(long x, long y);
+  void continueDrawing(long x, long y);
+  void continueRotating(long x, long y);
+  void continueScaling(long x, long y);
+  void finishDrawing(long x, long y);
+  void finishRotating(long x, long y);
+  void finishScaling(long x, long y);
 
 };
 

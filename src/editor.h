@@ -23,37 +23,34 @@ public:
                const wxPoint& pos,
                const wxSize& size,
                const long style = 0,
-               const wxString& name = "Objects",
-               const wxPalette& palette = wxNullPalette);
-  virtual ~EditorCanvas() {}
-  void setAnimationFrame(int frame) {
-    animation_frame = frame;
+               const wxString& name = "Editor Canvas",
+               const wxPalette& palette = wxNullPalette)
+    : wxGLCanvas(parent, id, attributes, pos, size, style, name, palette)
+    , context(new wxGLContext(this))
+    , scene(scene)
+    , state(NONE)
+    , frame(1)
+  {}
+
+  virtual ~EditorCanvas()
+  {}
+
+  void setFrame(int frame) {
+    this->frame = frame;
   }
 
 private:
 
-  enum State {NORMAL, DRAW, ROTATE, SCALE, MOVE, DRAG} state = NORMAL;
-  wxGLContext* context;
+  std::unique_ptr<wxGLContext> context;
   Scene& scene;
-  std::shared_ptr<Polygon> active_object;
-  Point prev_rotation_center;
-  Point rotation_center;
-  int animation_frame;
+  enum State {NONE, DRAW, ROTATE, SCALE, MOVE, DRAG} state;
+  int frame;
 
-  void startDrawing(long x, long y);
-  void startRotating(long x, long y);
-  void startScaling(long x, long y);
-  void continueDrawing(long x, long y);
-  void continueRotating(long x, long y);
-  void continueScaling(long x, long y);
-  void finishDrawing(long x, long y);
-  void finishRotating(long x, long y);
-  void finishScaling(long x, long y);
   void paint();
 
-  void OnPaint(wxPaintEvent& event);
-  void OnMouse(wxMouseEvent& event);
   void OnChar(wxKeyEvent& event);
+  void OnMouse(wxMouseEvent& event);
+  void OnPaint(wxPaintEvent& event);
 
   wxDECLARE_EVENT_TABLE();
 
@@ -67,7 +64,7 @@ class EditorFrame : public wxFrame, public Subject {
 public:
 
   EditorFrame(Scene& scene, wxWindowID id, const wxPoint& pos)
-    : wxFrame(nullptr, id, wxT("Objects"), pos,
+    : wxFrame(nullptr, id, wxT("Scene Editor"), pos,
               wxSize(scene.getWidth(), scene.getHeight()),
               wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE)
     , canvas(new EditorCanvas(scene, this, wxID_ANY, nullptr,
@@ -77,8 +74,8 @@ public:
 
   virtual ~EditorFrame() {}
 
-  void setAnimationFrame(int frame) {
-    canvas->setAnimationFrame(frame);
+  void setFrame(int frame) {
+    canvas->setFrame(frame);
   }
 
 private:

@@ -17,89 +17,6 @@ wxBEGIN_EVENT_TABLE(EditorCanvas, wxWindow)
   EVT_CHAR(EditorCanvas::OnChar)
 wxEND_EVENT_TABLE()
 
-EditorCanvas::EditorCanvas(Scene&           scene,
-                           wxWindow*        parent,
-                           wxWindowID       id,
-                           const int*       attributes,
-                           const wxPoint&   pos,
-                           const wxSize&    size,
-                           const long       style,
-                           const wxString&  name,
-                           const wxPalette& palette)
-  : wxGLCanvas(parent, id, attributes, pos, size, style, name, palette)
-  , scene(scene)
-{
-  animation_frame = 1;
-  context = new wxGLContext(this);
-}
-
-void EditorCanvas::startDrawing(long x, long y)
-{
-  std::cout << "start drawing at " << x << ", " << y << '\n';
-  active_object = std::make_shared<Polygon>();
-  active_object->keyframes.push_back(Frame());
-  active_object->keyframes[0].number = 1;
-  active_object->set_color(255, 255, 255);
-  active_object->keyframes[0].vertices.push_back(Point{static_cast<float>(x), static_cast<float>(y)});
-  state = DRAW;
-}
-
-void EditorCanvas::startRotating(long x, long y)
-{
-  std::cout << "start rotating at " << x << ", " << y << '\n';
-  state = ROTATE;
-}
-
-void EditorCanvas::startScaling(long x, long y)
-{
-  std::cout << "start scaling at " << x << ", " << y << '\n';
-  state = SCALE;
-}
-
-void EditorCanvas::continueDrawing(long x, long y)
-{
-  std::cout << "continue drawing at " << x << ", " << y << '\n';
-  active_object->keyframes[0].vertices.push_back(Point{static_cast<float>(x), static_cast<float>(y)});
-}
-
-void EditorCanvas::continueRotating(long x, long y)
-{
-  std::cout << "continue rotating at " << x << ", " << y << '\n';
-}
-
-void EditorCanvas::continueScaling(long x, long y)
-{
-  std::cout << "continue scaling at " << x << ", " << y << '\n';
-}
-
-void EditorCanvas::finishDrawing(long x, long y)
-{
-  std::cout << "finish drawing at " << x << ", " << y << '\n';
-  // if we're in the middle of drawing something, then end it
-  if (active_object) {
-    // if we don't have a polygon
-    if (active_object->get_num_vertices() < 3) {
-      active_object = nullptr;
-    } else {
-      scene.add_object(active_object);
-    }
-    active_object = nullptr;
-  }
-  state = NORMAL;
-}
-
-void EditorCanvas::finishRotating(long x, long y)
-{
-  std::cout << "finish rotating at " << x << ", " << y << '\n';
-  state = NORMAL;
-}
-
-void EditorCanvas::finishScaling(long x, long y)
-{
-  std::cout << "finish scaling at " << x << ", " << y << '\n';
-  state = NORMAL;
-}
-
 void EditorCanvas::paint()
 {
   auto status = SetCurrent(*context);
@@ -112,7 +29,7 @@ void EditorCanvas::paint()
   glClearColor(0.f, 0.f, 0.f, 0.f);
   glClear(GL_COLOR_BUFFER_BIT);
   // add a red border if it is a keyframe
-  if (scene.any_keyframe(animation_frame)) {
+  if (scene.anyKeyframe(frame)) {
     glLineWidth(8);
     glColor3d(1, 0, 0);
     glBegin(GL_LINE_STRIP);
@@ -126,24 +43,24 @@ void EditorCanvas::paint()
     glEnd();
   }
   glLineWidth(1);
-  auto objects = scene.get_objects();
-  auto selected_object = scene.get_selected_object_id();
-  for (decltype(objects.size()) obj = 0; obj < objects.size(); ++obj) {
+  auto polygons = scene.getPolygons();
+  auto selected = scene.getSelectedPolygon();
+  for (auto& p : polygons) {
     std::vector<Point> vertices;
-    auto color = objects[obj]->get_vertices(animation_frame, vertices);
+    auto color = p->get_vertices(frame, vertices);
     glColor3d(color.get_red(), color.get_green(), color.get_blue());
-    glLineWidth(selected_object == obj ? 3 : 1);
+    glLineWidth(selected == p ? 3 : 1);
     // draw the edges
     glBegin(GL_LINE_STRIP);
     {
-      for (auto& p : vertices) {
-        glVertex2d(p.x, -p.y);
+      for (auto& v : vertices) {
+        glVertex2d(v.x, -v.y);
       };
       glVertex2d(vertices[0].x, -vertices[0].y);
     }
     glEnd();
     // now draw the vertices on top of the lines
-    if (selected_object == obj) {
+    if (selected == p) {
       auto v = scene.get_selected_vertex();
       glBegin(GL_LINES);
       {
@@ -164,26 +81,26 @@ void EditorCanvas::paint()
     glBegin(GL_LINES);
     {
       glColor3d(0.5, 0.5, 0.5);
-      auto x = static_cast<int>(rotation_center.x);
-      auto y = static_cast<int>(rotation_center.y);
+      auto rc = scene.getRotationCenter();
+      auto x = static_cast<int>(rc.x);
+      auto y = static_cast<int>(rc.y);
       glVertex2d(x + 5, -y);
       glVertex2d(x - 5, -y);
       glVertex2d(x, -y + 5);
       glVertex2d(x, -y - 5);
     }
     glEnd();
-  }
-  // draw the object currently being created
-  if (active_object) {
+  } else if (state == DRAW) {  // draw the object currently being created
     glLineWidth(3);
     // first draw the edges
-    const auto& c = active_object->get_color();
+    auto p = scene.getActivePolygon();
+    const auto& c = p->get_color();
     glColor3d(c.get_red(), c.get_green(), c.get_blue());
-    auto& v = active_object->keyframes[0].vertices;
+    auto& vertices = p->keyframes[0].vertices;
     glBegin(GL_LINE_STRIP);
     {
-      for (auto& p : v) {
-        glVertex2d(p.x, -p.y);
+      for (auto& v : vertices) {
+        glVertex2d(v.x, -v.y);
       };
     }
     glEnd();
@@ -191,11 +108,11 @@ void EditorCanvas::paint()
     glColor3d(0, 1, 1);
     glBegin(GL_LINES);
     {
-      for (auto& p : v) {
-          glVertex2d(p.x + 5, -p.y);
-          glVertex2d(p.x - 5, -p.y);
-          glVertex2d(p.x, -p.y + 5);
-          glVertex2d(p.x, -p.y - 5);
+      for (auto& v : vertices) {
+          glVertex2d(v.x + 5, -v.y);
+          glVertex2d(v.x - 5, -v.y);
+          glVertex2d(v.x, -v.y + 5);
+          glVertex2d(v.x, -v.y - 5);
       };
     }
     glEnd();
@@ -212,149 +129,6 @@ void EditorCanvas::OnPaint(wxPaintEvent& event)
   event.Skip();
 }
 
-#if 0
-
-void Rasterizer::scale(int mx, int my, int frame)
-{
-  if (!is_object_selected) return;
-
-  mx -= rotation_centerX;
-  my -= rotation_centerY;
-
-  if (std::abs(prev_rotationX - mx) < 10 && std::abs(prev_rotationY - my) < 10)
-    return;
-
-  float dm = sqrt(mx*mx + my*my);
-  float dp = sqrt(prev_rotationX*prev_rotationX + prev_rotationY*prev_rotationY);
-
-  auto& vert = find_keyframe(objects[selected_object], frame)->vertices;
-  auto vertno = objects[selected_object]->get_num_vertices();
-
-  float sx = (dm > dp) ? 1.2 : 0.8;
-  float sy = (dm > dp) ? 1.2 : 0.8;
-
-  for (decltype(vertno) ii = 0; ii < vertno; ++ii)
-  {
-    vert[ii].x -= rotation_centerX;
-    vert[ii].y -= rotation_centerY;
-    vert[ii].x = sx * vert[ii].x;
-    vert[ii].y = sy * vert[ii].y;
-    vert[ii].x += rotation_centerX;
-    vert[ii].y += rotation_centerY;
-  }
-  prev_rotationX = mx;
-  prev_rotationY = my;
-}
-
-void Rasterizer::rotate(int mx, int my, int frame)
-{
-  if (!is_object_selected) return;
-
-  mx -= rotation_centerX;
-  my -= rotation_centerY;
-
-  if (std::abs(prev_rotationX - mx) < 10 && std::abs(prev_rotationY - my) < 10)
-    return;
-  if ((mx < 0 && prev_rotationX > 0) || (mx > 0 && prev_rotationX < 0))
-  {
-    prev_rotationX = mx;
-    prev_rotationY = my;
-    return;
-  }
-
-  float ro = sqrtf(mx*mx + my*my);
-  float al = asinf(my / ro);
-  ro = sqrtf(prev_rotationX*prev_rotationX + prev_rotationY*prev_rotationY);
-  float be = asinf(prev_rotationY / ro);
-  float sign = ((al > be && mx > 0) || (al < be && mx < 0)) ? 1.0 : -1.0;
-  float te = sign * 3.14159 / 18;
-  float sn = sinf(te);
-  float cs = cosf(te);
-
-  auto& vert = find_keyframe(objects[selected_object], frame)->vertices;
-  auto vertno = objects[selected_object]->get_num_vertices();
-
-  for (decltype(vertno) ii = 0; ii < vertno; ++ii)
-  {
-    vert[ii].x -= rotation_centerX;
-    vert[ii].y -= rotation_centerY;
-    float xx = cs * vert[ii].x - sn * vert[ii].y;
-    float yy = sn * vert[ii].x + cs * vert[ii].y;
-    vert[ii].x = xx + rotation_centerX;
-    vert[ii].y = yy + rotation_centerY;
-  }
-  prev_rotationX = mx;
-  prev_rotationY = my;
-}
-
-bool Rasterizer::move(float mx, float my, int frame)
-{
-  if (draw_curve)
-  {
-    auto px = active_object->keyframes[0].vertices.back().x;
-    auto py = active_object->keyframes[0].vertices.back().y;
-    if (std::abs(px - mx) > 7 || std::abs(py - my) > 7)
-    { // sqrt((px-mx)*(px-mx) + (py-my)*(py-my)) > 5)
-      active_object->keyframes[0].vertices.push_back(Point{mx, my});
-    }
-    return true;
-  }
-
-  if (!is_object_selected) {
-    return false;
-  }
-  // look for a keyframe at this frame
-  // if we don't find it, then create a new one in the right place
-  auto keyframe = find_keyframe(objects[selected_object], frame);
-  if (keyframe == objects[selected_object]->keyframes.end()) {
-    std::vector<Point> vertices;
-    get_vertices(selected_object, frame, vertices);
-
-    decltype(get_num_keyframes(selected_object)) insertLoc;
-    for (insertLoc = 0; insertLoc < get_num_keyframes(selected_object); ++insertLoc)
-      if (frame < objects[selected_object]->keyframes[insertLoc].number)
-        break;
-
-    objects[selected_object]->keyframes.push_back(objects[selected_object]->keyframes.back());
-    for (auto i = get_num_keyframes(selected_object) - 2; i >= insertLoc; --i)
-      std::copy(objects[selected_object]->keyframes.begin() + i,
-                objects[selected_object]->keyframes.begin() + i + 1,
-                objects[selected_object]->keyframes.begin() + i + 1);
-
-    std::copy(vertices.begin(), vertices.end(),
-              objects[selected_object]->keyframes[insertLoc].vertices.begin());
-
-    objects[selected_object]->keyframes[insertLoc].number = frame;
-    keyframe = find_keyframe(objects[selected_object], frame);
-    assert(keyframe != objects[selected_object]->keyframes.end());
-  }
-
-  if (scale_polygon) {
-    scale(mx, my, frame);
-    return true;
-  }
-  if (rotate_polygon) {
-    rotate(mx, my, frame);
-    return true;
-  }
-
-  rotation_centerX = -1;
-
-  if (!is_object_selected) {
-    keyframe->vertices[selected_vertex].x = mx;
-    keyframe->vertices[selected_vertex].y = my;
-  }
-  else {
-    for (auto& v : keyframe->vertices) {
-      v.x += (mx - original.x);
-      v.y += (my - original.y);
-    }
-    original = Point{mx, my};
-  }
-  return true;
-}
-#endif
-
 void EditorCanvas::OnMouse(wxMouseEvent& event)
 {
   long mx, my;
@@ -364,52 +138,46 @@ void EditorCanvas::OnMouse(wxMouseEvent& event)
   if (event.ButtonUp(wxMOUSE_BTN_LEFT)) {
     switch (state) {
       case DRAW:
-        finishDrawing(mx, my);
+        scene.finishDrawing(mx, my);
         break;
       case ROTATE:
-        if (scene.is_selected()) {
-          finishRotating(mx, my);
-        }
+        scene.finishRotating(mx, my);
         break;
       case SCALE:
-        if (scene.is_selected()) {
-          finishScaling(mx, my);
-        }
+        scene.finishScaling(mx, my);
         break;
       default:
         // if there's a vertex in the area, select it
-        scene.select_object(animation_frame, x, y);
+        scene.select_object(frame, x, y);
     }
+    state = NONE;
   } else if (event.ButtonUp(wxMOUSE_BTN_RIGHT)) {
     switch (state) {
       case ROTATE:
-        if (scene.is_selected()) {
-          finishRotating(mx, my);
-        }
+        scene.finishRotating(mx, my);
         break;
       case SCALE:
-        if (scene.is_selected()) {
-          finishScaling(mx, my);
-        }
+        scene.finishScaling(mx, my);
         break;
       default:
         // if there's a vertex in the area, select it
-        scene.select_object(animation_frame, x, y);
+        scene.select_object(frame, x, y);
     }
+    state = NONE;
   } else if (!event.Dragging()) {
     if (event.ButtonDown(wxMOUSE_BTN_LEFT)) {
       switch (event.GetModifiers()) {
         case wxMOD_SHIFT:
-          startDrawing(mx, my);
+          scene.startDrawing(mx, my);
           break;
         case wxMOD_CONTROL:
           if (scene.is_selected()) {
-            startRotating(mx, my);
+            scene.startRotating(mx, my);
           }
           break;
         case wxMOD_CONTROL | wxMOD_SHIFT:
           if (scene.is_selected()) {
-            startScaling(mx, my);
+            scene.startScaling(mx, my);
           }
           break;
         default:
@@ -420,12 +188,12 @@ void EditorCanvas::OnMouse(wxMouseEvent& event)
       switch (event.GetModifiers()) {
         case wxMOD_RAW_CONTROL:
           if (scene.is_selected()) {
-            startRotating(mx, my);
+            scene.startRotating(mx, my);
           }
           break;
         case wxMOD_RAW_CONTROL | wxMOD_SHIFT:
           if (scene.is_selected()) {
-            startScaling(mx, my);
+            scene.startScaling(mx, my);
           }
           break;
         default:
@@ -439,31 +207,23 @@ void EditorCanvas::OnMouse(wxMouseEvent& event)
   } else if (event.LeftIsDown()) {
     switch (state) {
     case DRAW:
-      continueDrawing(mx, my);
+      scene.continueDrawing(mx, my);
       break;
     case ROTATE:
-      if (scene.is_selected()) {
-        continueRotating(mx, my);
-      }
+      scene.continueRotating(mx, my);
       break;
     case SCALE:
-      if (scene.is_selected()) {
-        continueScaling(mx, my);
-      }
+      scene.continueScaling(mx, my);
       break;
     default:;
     }
   } else if (event.RightIsDown()) {
     switch (state) {
       case ROTATE:
-        if (scene.is_selected()) {
-          continueRotating(mx, my);
-        }
+        scene.continueRotating(mx, my);
         break;
       case SCALE:
-        if (scene.is_selected()) {
-          continueScaling(mx, my);
-        }
+        scene.continueScaling(mx, my);
         break;
       default:;
     }
@@ -477,8 +237,8 @@ void EditorCanvas::OnChar(wxKeyEvent& event)
   {
   case 8:   // FIXME what key is this?
   case 127: scene.delete_selected_object(); break;
-  case '.': if (animation_frame < 99) ++animation_frame; break;
-  case ',': if (animation_frame >  1) --animation_frame; break;
+  case '.': if (frame < 99) ++frame; break;
+  case ',': if (frame >  1) --frame; break;
   default: break;
   }
   Refresh();

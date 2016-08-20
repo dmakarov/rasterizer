@@ -231,9 +231,9 @@ void Control::update(Subject* subject)
     return;
   }
   if (scene.is_selected()) {
-    auto selected_object = scene.get_selected_object();
+    auto selected_object = scene.getSelectedPolygon();
     std::ostringstream oss;
-    oss << "Object ID: " << scene.get_selected_object_id();
+    oss << "Object ID: " << scene.getSelectedPolygonId();
     stxt_objectid->SetLabel(oss.str());
     stxt_objectid->Enable();
     oss.str("");
@@ -258,9 +258,9 @@ void Control::OnSpinFrame(wxSpinEvent& event)
 {
   if (editor != nullptr && editor->IsShown()) {
     current_frame = spin_frame->GetValue();
-    editor->setAnimationFrame(current_frame);
+    editor->setFrame(current_frame);
     editor->Refresh();
-    if (current_frame > 1 && scene.any_keyframe(current_frame)) {
+    if (current_frame > 1 && scene.anyKeyframe(current_frame)) {
       button_delete_keyframe->Enable();
     } else {
       button_delete_keyframe->Disable();
@@ -285,7 +285,7 @@ void Control::OnButtonLoad(wxCommandEvent& event)
     spin_frame->SetValue(1);
     if (editor != nullptr && editor->IsShown()) {
       update(&scene);
-      editor->setAnimationFrame(1);
+      editor->setFrame(1);
       editor->Refresh();
     } else {
       if (editor == nullptr) {
