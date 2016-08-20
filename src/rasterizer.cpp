@@ -37,7 +37,7 @@ bool validate_aet(std::list<edge_type>& el)
 #endif
 
 // Bartlett filter implementation:
-inline int bartlett(int sample, int total)
+inline int filter(int sample, int total)
 {
   if (BOX == weight_mode || (sample == total / 2 && 0 == total % 2))
     return 0;
@@ -105,19 +105,6 @@ static void add_edge(std::unique_ptr<std::list<Edge>[]>& et,
   et[bucket].emplace_back(Edge(hi->y, xmin, slope));
 } // add_edge
 
-void Rasterizer::save(const std::string& filename) const
-{
-  std::ofstream output(filename, std::ios::binary);
-  assert(output);
-  // print header
-  output << "P6\n# Comment Line\n" << width << " " << height << "\n255\n";
-  // output every pixel as 3 bytes
-  auto* buffer = pixels.get();
-  for (auto i = 0; i < width * height; ++i, ++buffer) {
-    output.write(reinterpret_cast<char*>(buffer), 3);
-  }
-}
-
 /**
    \brief drive the rasterization of a frame
  */
@@ -172,7 +159,7 @@ void Rasterizer::run(const std::vector<std::shared_ptr<Polygon>>& polygons,
         float frame = (float)frame_num + frame_offset + frame_shift * mov;
         if (frame < 1.0)
         {
-          mbfilt += bartlett(mov + 1, num_mb_samples);
+          mbfilt += filter(mov + 1, num_mb_samples);
           continue;
         }
         pad.clear();
@@ -189,36 +176,28 @@ void Rasterizer::run(const std::vector<std::shared_ptr<Polygon>>& polygons,
           for (auto& v : vertices) {
             v += aajitter[ii][jj];
           }
-
-          //printf("OBJECT #%2d [%d,%d] sample: %2d vertices\n", (int) obj, ii, jj, vertno);
-
           pad.scanConvert(vertices, color);
           ++scans;
         }
         // accumulate:
-        for (int x = 0; x < height * width; ++x)
-        {
+        for (int x = 0; x < height * width; ++x) {
           abuf.add(x, pad.pixels[x], mbfilt * aafilt);
         }
         // done with another sample:
         samples += mbfilt * aafilt;
-        mbfilt += bartlett(mov + 1, num_mb_samples);
+        mbfilt += filter(mov + 1, num_mb_samples);
       }
-      xxfilt += bartlett(ii + 1, tiles);
+      xxfilt += filter(ii + 1, tiles);
     }
-    yyfilt += bartlett(jj + 1, tiles);
+    yyfilt += filter(jj + 1, tiles);
   }
 
   assert(samples != 0);
 
   clear();
-  // convert accumulation buffer to RGB8 and copy to the render
-  // canvas.
-  for (int x = 0; x < height * width; ++x)
-  {
-    auto v = abuf.get(x, samples);
-    //if (v) std::cout << std::dec << "P(" << x / width << ":" << x % width << ") " << v << std::endl;
-    pixels[x] = v;
+  // convert accumulation buffer to RGB8 and copy to the render canvas.
+  for (int x = 0; x < height * width; ++x) {
+    pixels[x] = abuf.get(x, samples);
   }
 } // Rasterize
 
@@ -238,8 +217,7 @@ void Rasterizer::scanConvert(std::vector<Point>& vertex, RGB8 color) const
   }
 #endif
 
-  if (0 >= vertno)
-  {
+  if (vertex.empty()) {
     //std::cout << "NO VERTICES TO SCAN %d" << vertno << std::endl;
     return;
   }
@@ -370,6 +348,19 @@ void Rasterizer::scanConvert(std::vector<Point>& vertex, RGB8 color) const
     }
   }
 } // scan_convert
+
+void Rasterizer::save(const std::string& filename) const
+{
+  std::ofstream output(filename, std::ios::binary);
+  assert(output);
+  // print header
+  output << "P6\n# Comment Line\n" << width << " " << height << "\n255\n";
+  // output every pixel as 3 bytes
+  auto* buffer = pixels.get();
+  for (auto i = 0; i < width * height; ++i, ++buffer) {
+    output.write(reinterpret_cast<char*>(buffer), 3);
+  }
+}
 
 /**
    \brief Copy the pixel data to an unsigned char array dynamically allocated.
