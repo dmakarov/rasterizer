@@ -394,14 +394,12 @@ void Control::OnButtonRender(wxCommandEvent& event)
     ofs.close();
   } else { // single frame
     scene.render(current_frame,
-                         anti_aliasing_enabled,
-                         num_alias_samples,
-                         motion_blur_enabled,
-                         num_blur_samples,
-                         aafilter_function,
-                 (!render_filename.empty()) ?
-                 (render_filename + ".ppm") : "");
-
+                 anti_aliasing_enabled,
+                 num_alias_samples,
+                 motion_blur_enabled,
+                 num_blur_samples,
+                 aafilter_function,
+                 (!render_filename.empty()) ? (render_filename + ".ppm") : "");
   }
   if (viewer != nullptr && viewer->IsShown()) {
     viewer->Refresh();

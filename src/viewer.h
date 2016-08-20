@@ -17,14 +17,14 @@ class Viewer : public wxWindow
 {
 public:
 
-  Viewer(Rasterizer& rasterizer,
+  Viewer(Rasterizer& r,
          wxWindow* parent,
          wxWindowID id,
          const int* attributes,
          const wxPoint& pos,
          const wxSize& size)
     : wxWindow(parent, id, pos, size, 0, "Image Viewer")
-    , rasterizer(rasterizer)
+    , rasterizer(r)
   {}
 
   virtual ~Viewer()
@@ -39,8 +39,8 @@ private:
     wxPaintDC dc(this);
     auto* gc = wxGraphicsContext::Create(dc);
     if (gc) {
-      auto w = rasterizer.get_width();
-      auto h = rasterizer.get_height();
+      auto w = rasterizer.getWidth();
+      auto h = rasterizer.getHeight();
       wxBitmap bmp(wxImage(w, h, rasterizer.getPixelsAsRGB()));
       gc->DrawBitmap(bmp, 0, 0, w, h);
       delete gc;
@@ -55,17 +55,16 @@ class ViewerFrame : public wxFrame, public Subject {
 
 public:
 
-  ViewerFrame(Rasterizer& rasterizer, wxWindowID id, const wxPoint& pos)
+  ViewerFrame(Rasterizer& r, wxWindowID id, const wxPoint& pos)
     : wxFrame(nullptr, id, wxT("Rendered Image"), pos,
-              wxSize(rasterizer.get_width(), rasterizer.get_height()),
+              wxSize(r.getWidth(), r.getHeight()),
               wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE)
-  {
-    auto size = GetClientSize();
-    viewer = new Viewer(rasterizer, this, wxID_ANY, nullptr,
-                        wxDefaultPosition, size);
-  }
+    , viewer(new Viewer(r, this, wxID_ANY, nullptr,
+                        wxDefaultPosition, GetClientSize()))
+  {}
 
-  virtual ~ViewerFrame() {}
+  virtual ~ViewerFrame()
+  {}
 
   void OnClose(wxCloseEvent& event)
   {
@@ -75,7 +74,7 @@ public:
 
 private:
 
-  Viewer* viewer;
+  std::unique_ptr<Viewer> viewer;
 
   wxDECLARE_EVENT_TABLE();
 

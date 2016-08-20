@@ -25,17 +25,32 @@ public:
   using ObjSP = std::shared_ptr<Polygon>;
 
   Rasterizer rasterizer;
+  int width, height;
   std::vector<std::shared_ptr<Polygon>> polygons;
   std::shared_ptr<Polygon> selected_object;
   ObjSz selected_object_id;
   ObjSz selected_vertex;
   bool is_object_selected = false;
 
-  Scene() : rasterizer{500, 500} {
+  Scene(int w = 500, int h = 500)
+  : rasterizer{w, h}, width(w), height(h) {}
+
+  void resize(int w, int h) {
+    rasterizer.resize(w, h);
+    width = w;
+    height = h;
   }
 
   Rasterizer& getRasterizer() {
     return rasterizer;
+  }
+
+  int getWidth() const {
+    return width;
+  }
+
+  int getHeight() const {
+    return height;
   }
 
   void render(int frame,

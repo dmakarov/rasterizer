@@ -63,20 +63,32 @@ private:
    \brief The editor window.
  */
 class EditorFrame : public wxFrame, public Subject {
+
 public:
 
-  EditorFrame(Scene& scene, wxWindowID id, const wxPoint& pos);
+  EditorFrame(Scene& scene, wxWindowID id, const wxPoint& pos)
+    : wxFrame(nullptr, id, wxT("Objects"), pos,
+              wxSize(scene.getWidth(), scene.getHeight()),
+              wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE)
+    , canvas(new EditorCanvas(scene, this, wxID_ANY, nullptr,
+                              wxDefaultPosition, GetClientSize())) {
+    canvas->SetFocus();
+  }
+
   virtual ~EditorFrame() {}
+
   void setAnimationFrame(int frame) {
     canvas->setAnimationFrame(frame);
   }
 
 private:
 
-  wxPanel* panel;
-  EditorCanvas* canvas;
+  std::unique_ptr<EditorCanvas> canvas;
 
-  void OnClose(wxCloseEvent& event);
+  void OnClose(wxCloseEvent& event) {
+    notify();
+    Destroy();
+  }
 
   wxDECLARE_EVENT_TABLE();
 

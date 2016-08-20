@@ -17,27 +17,6 @@ wxBEGIN_EVENT_TABLE(EditorCanvas, wxWindow)
   EVT_CHAR(EditorCanvas::OnChar)
 wxEND_EVENT_TABLE()
 
-EditorFrame::EditorFrame(Scene& scene,
-                         wxWindowID id,
-                         const wxPoint& pos)
-  : wxFrame(nullptr, id, wxT("Objects"), pos,
-            wxSize(scene.getRasterizer().get_width(),
-                   scene.getRasterizer().get_height()),
-            wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE)
-{
-  auto size = GetClientSize();
-  panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, size);
-  canvas = new EditorCanvas(scene, panel, wxID_ANY, nullptr,
-                            wxDefaultPosition, size);
-  canvas->SetFocus();
-}
-
-void EditorFrame::OnClose(wxCloseEvent& event)
-{
-  notify();
-  Destroy();
-}
-
 EditorCanvas::EditorCanvas(Scene&           scene,
                            wxWindow*        parent,
                            wxWindowID       id,

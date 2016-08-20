@@ -192,7 +192,7 @@ void Rasterizer::run(const std::vector<std::shared_ptr<Polygon>>& polygons,
 
           //printf("OBJECT #%2d [%d,%d] sample: %2d vertices\n", (int) obj, ii, jj, vertno);
 
-          pad.scan_convert(vertices, color);
+          pad.scanConvert(vertices, color);
           ++scans;
         }
         // accumulate:
@@ -222,7 +222,7 @@ void Rasterizer::run(const std::vector<std::shared_ptr<Polygon>>& polygons,
   }
 } // Rasterize
 
-void Rasterizer::scan_convert(std::vector<Point>& vertex, RGB8 color) const
+void Rasterizer::scanConvert(std::vector<Point>& vertex, RGB8 color) const
 {
   auto vertno = vertex.size();
 

@@ -88,27 +88,30 @@ public:
   static const auto MAX_SAMPLES = 64;
 
   Rasterizer(int w = 500, int h = 500)
-  : pixels(new RGB8[w * h]), width(w), height(h)
-  {
+  : pixels(new RGB8[w * h]), width(w), height(h) {
     clear();
   }
 
-  int get_width() const
-  {
+  int getWidth() const {
     return width;
   }
 
-  int get_height() const
-  {
+  int getHeight() const {
     return height;
   }
 
+  void resize(int w, int h) {
+    width = w;
+    height = h;
+    pixels.reset(new RGB8[w * h]);
+  }
+
   /**
-    This function takes a frame number, and a bunch of arguments
-    showing how the frame should be rasterized.  By the time
-    rasterize() completes, the canvas should be filled.
+    \brief takes a frame number, and a bunch of arguments showing how the frame
+    should be rasterized.
   */
-  void run(const std::vector<std::shared_ptr<Polygon>>& polygons, int frame,
+  void run(const std::vector<std::shared_ptr<Polygon>>& polygons,
+           int frame,
            bool aa_enabled, int num_aa_samples,
            bool mb_enabled, int num_mb_samples,
            const std::string& aa_filter) const;
@@ -122,7 +125,7 @@ private:
     std::fill(p, p + width * height, 0);
   }
 
-  void scan_convert(std::vector<Point>& vertices, RGB8 color) const;
+  void scanConvert(std::vector<Point>& vertices, RGB8 color) const;
 };
 
 #endif /* rasterizer_h */
