@@ -36,26 +36,6 @@ bool validate_aet(std::list<edge_type>& el)
 } // validate_aet
 #endif
 
-std::ostream& operator<<(std::ostream& os, const RGB8& obj)
-{
-  os << std::hex << obj.pixel;
-  return os;
-}
-
-std::ostream& operator<<(std::ostream& os, const RGB32& obj)
-{
-  os << '(' << obj.r << ',' << obj.g << ',' << obj.b << ')';
-  return os;
-}
-
-std::ostream& operator<<(std::ostream& os, const Animation& obj)
-{
-  os << "vertices " << obj.get_num_vertices()
-     << ", frames " << obj.keyframes.size()
-     << ", color " << obj.get_color();
-  return os;
-}
-
 // Bartlett filter implementation:
 inline int bartlett(int sample, int total)
 {
@@ -125,7 +105,7 @@ static void add_edge(std::unique_ptr<std::list<Edge>[]>& et,
   et[bucket].emplace_back(Edge(hi->y, xmin, slope));
 } // add_edge
 
-void Rasterizer::save_image(const std::string& filename) const
+void Rasterizer::save(const std::string& filename) const
 {
   std::ofstream output(filename, std::ios::binary);
   assert(output);
@@ -141,10 +121,11 @@ void Rasterizer::save_image(const std::string& filename) const
 /**
    \brief drive the rasterization of a frame
  */
-void Rasterizer::rasterize(int frame_num,
-                           bool aa_enabled, int num_aa_samples,
-                           bool mb_enabled, int num_mb_samples,
-                           const std::string& aa_filter) const
+void Rasterizer::run(const std::vector<std::shared_ptr<Polygon>>& polygons,
+                     int frame_num,
+                     bool aa_enabled, int num_aa_samples,
+                     bool mb_enabled, int num_mb_samples,
+                     const std::string& aa_filter) const
 {
   // set up the accumulation buffer and a scratch pad canvas;
   Abuffer abuf(width, height);
@@ -195,22 +176,18 @@ void Rasterizer::rasterize(int frame_num,
           continue;
         }
         pad.clear();
-        for (std::vector<std::shared_ptr<Animation>>::size_type obj = 0;
-             obj < objects.size(); ++obj)
+        for (auto& p : polygons)
         {
           // make sure it hasn't gone beyond the last frame
-          float max_frame = (objects[obj]->keyframes.end() - 1)->number;
+          float max_frame = (p->keyframes.end() - 1)->number;
           float adj_frame = (frame > max_frame) ? max_frame : frame;
           // Here we grab the vertices for this object at this snapshot in time
           std::vector<Point> vertices;
-          RGB8 color = get_vertices(obj, adj_frame, vertices);
-          auto vertno = objects[obj]->get_num_vertices();
+          RGB8 color = p->get_vertices(adj_frame, vertices);
 
           // shift vertices
-          for (decltype(vertno) vv = 0; vv < vertno; ++vv)
-          {
-            vertices[vv].x += aajitter[ii][jj].x;
-            vertices[vv].y += aajitter[ii][jj].y;
+          for (auto& v : vertices) {
+            v += aajitter[ii][jj];
           }
 
           //printf("OBJECT #%2d [%d,%d] sample: %2d vertices\n", (int) obj, ii, jj, vertno);
@@ -393,262 +370,6 @@ void Rasterizer::scan_convert(std::vector<Point>& vertex, RGB8 color) const
     }
   }
 } // scan_convert
-
-/**
- *  This function returns the set of vertices for the passed object in
- *  the current frame
- */
-RGB8 Rasterizer::get_vertices(const ObjSz id, const float frame,
-                              std::vector<Point>& vertices) const
-{
-  auto prev_keyframe = -1.0f, next_keyframe = -1.0f;
-  auto E = objects[id]->keyframes.end();
-  auto prev_frame = E, next_frame = E;
-
-  for (auto i = static_cast<int>(frame); i >= 0; --i) {
-    if ((prev_frame = find_keyframe(objects[id], i)) != E) {
-      prev_keyframe = i;
-      break;
-    }
-  }
-  // there should always be a keyframe at frame 1
-  if (prev_frame == E) {
-    prev_frame = objects[id]->keyframes.begin() + 1;
-  }
-  for (auto i = static_cast<int>(frame + 1); i <= (E - 1)->number; ++i) {
-    if ((next_frame = find_keyframe(objects[id], i)) != E) {
-      next_keyframe = i;
-      break;
-    }
-  }
-  auto& prev_keyframe_vertices = prev_frame->vertices;
-  // if there are no more keyframes, just go with the last frame
-  if (next_frame == objects[id]->keyframes.end()) {
-    vertices.resize(prev_keyframe_vertices.size());
-    std::copy(prev_keyframe_vertices.begin(), prev_keyframe_vertices.end(),
-              vertices.begin());
-  } else { // here we do the interpolation
-    auto& next_keyframe_vertices = next_frame->vertices;
-    auto percent = (frame - prev_keyframe) / (next_keyframe - prev_keyframe);
-    for (std::vector<Point>::size_type i = 0;
-         i < objects[id]->get_num_vertices(); ++i) {
-      auto x = (1 - percent) * prev_keyframe_vertices[i].x
-                  + percent  * next_keyframe_vertices[i].x;
-      auto y = (1 - percent) * prev_keyframe_vertices[i].y
-                  + percent  * next_keyframe_vertices[i].y;
-      vertices.emplace_back(Point{x, y});
-    }
-  }
-  return objects[id]->get_color();
-}
-
-bool Rasterizer::select_object(int frame, float mx, float my)
-{
-  bool foundVertex = false;
-  for (ObjSz i = 0; !foundVertex && i < objects.size(); ++i) {
-    std::vector<Point> vertices;
-    get_vertices(i, frame, vertices);
-    auto j = 0;
-    for (auto& v : vertices) {
-      // check for proximity
-      if (fabs(v.x - mx) < 5 && fabs(v.y - my) < 5) {
-        foundVertex = true;
-        selected_object = i;
-        selected_vertex = j;
-        break;
-      }
-      ++j;
-    }
-  }
-  is_object_selected = foundVertex;
-  notify();
-  return foundVertex;
-}
-
-bool Rasterizer::load_objects(const std::string& filename)
-{
-  // check if there's something in the filename field
-  std::ifstream infile(filename);
-  if (!infile)
-  {
-    std::cerr << "Can't load file " << filename << "\n";
-    return false;
-  }
-  objects.clear();
-
-  int num_of_objects;
-  std::string line;
-  std::getline(infile, line);
-  std::istringstream iss(line.substr(line.find_last_of(":") + 1));
-  iss >> num_of_objects;
-
-  for (int i = 0; i < num_of_objects; ++i)
-  {
-    int num_vertices;
-    unsigned int r, g, b;
-    auto obj = std::make_shared<Animation>();
-    // "%[^\n]\n"
-    std::getline(infile, line);
-    // "Color: r: %d, g: %d, b: %d\n"
-    std::getline(infile, line);
-    line = line.substr(line.find_first_of(":") + 1);
-    line = line.substr(line.find_first_of(":") + 1);
-    iss.clear();
-    iss.str(line);
-    iss >> r;
-    line = line.substr(line.find_first_of(":") + 1);
-    iss.clear();
-    iss.str(line);
-    iss >> g;
-    line = line.substr(line.find_first_of(":") + 1);
-    iss.clear();
-    iss.str(line);
-    iss >> b;
-    obj->set_color(r, g, b);
-    // "Number of Vertices: %d\n"
-    std::getline(infile, line);
-    iss.clear();
-    iss.str(line.substr(line.find_first_of(":") + 1));
-    iss >> num_vertices;
-    // "Number of Keyframes: %d\n"
-    std::getline(infile, line);
-    iss.clear();
-    iss.str(line.substr(line.find_first_of(":") + 1));
-    int num_keyframes;
-    iss >> num_keyframes;
-    obj->keyframes.resize(num_keyframes);
-    for (int j = 0; j < num_keyframes; ++j)
-    {
-      // "Keyframe for Frame %d\n"
-      std::getline(infile, line);
-      iss.clear();
-      iss.str(line.substr(line.find_last_of(" ") + 1));
-      iss >> obj->keyframes[j].number;
-      for (int k = 0; k < num_vertices; ++k)
-      {
-        // "Vertex %d, x: %g, y: %g\n"
-        std::getline(infile, line);
-        int t;
-        line = line.substr(line.find_first_of(":") + 1);
-        iss.clear();
-        iss.str(line);
-        iss >> t;
-        float x = t;
-        line = line.substr(line.find_first_of(":") + 1);
-        iss.clear();
-        iss.str(line);
-        iss >> t;
-        float y = t;
-        obj->keyframes[j].vertices.emplace_back(Point{x, y});
-      }
-    }
-    objects.emplace_back(obj);
-  }
-  return true;
-}
-
-void Rasterizer::save_objects(const std::string& filename) const
-{
-  // check if there's something in the filename field
-  std::ofstream ofs(filename);
-  if (!ofs) return;
-  // write out the number of objects
-  ofs << "Number of Objects: " << objects.size() << "\n";
-  // write out each object
-  auto i = 0;
-  for (auto& o : objects) {
-    ofs << "Object Number: " << i++ << "\n";
-    ofs << "Color: r: " << o->r << ", g: " << o->g << ", b: " << o->b << "\n";
-    ofs << "Number of Vertices: " << o->get_num_vertices() << "\n";
-    ofs << "Number of Keyframes: " << get_num_keyframes(i) << "\n";
-    for (auto& f : o->keyframes) {
-      ofs << "Keyframe for Frame " << f.number << "\n";
-      auto k = 0;
-      for (auto& v : f.vertices) {
-        ofs << "Vertex " << k++ << ", x: " << v.x << ", y: " << v.y << "\n";
-      }
-    }
-  }
-}
-
-void Rasterizer::render_to_file(const std::vector<std::string>& args)
-{
-  std::string infile;
-  std::string outfile;
-  std::string basename{"basename"};
-  unsigned int first_frame;
-  unsigned int final_frame;
-  unsigned int num_aa_samples = 0;
-  unsigned int num_mb_samples = 0;
-  bool aa_enabled = false;
-  bool mb_enabled = false;
-  std::istringstream iss;
-
-  if (args.size() < 4 || args[0] == "-help")
-  {
-    std::cout << "Usage: rasterizer [-a<#samples>] [-m<#samples>]"
-              << " <first frame> <last frame> <infile> <outfile>\n";
-    return;
-  }
-
-  auto arg = args.crbegin();
-  outfile = *arg++;
-  infile = *arg++;
-  iss.str(*arg++);
-  iss >> final_frame;
-  iss.clear();
-  iss.str(*arg++);
-  iss >> first_frame;
-  if (first_frame == 0 || final_frame == 0)
-  {
-    std::cerr << "Incorrect arguments. Type 'rasterizer -help' for more info\n";
-    return;
-  }
-  /*
-  if (oss.str().substr(0, 2) == "-a")
-  {
-    aa_enabled = true;
-    std::istringstream iss(oss.str().substr(2));
-    iss >> num_aa_samples;
-    if (num_aa_samples == 0)
-    {
-      std::cerr << "Incorrect arguments. Type 'rasterizer -help' for more info\n";
-    }
-    ++i;
-  }
-
-  if (strncmp(argv[i], "-m", 2) == 0)
-  {
-    mb_enabled = true;
-    if (sscanf(argv[i], "-m%d", &num_mb_samples) == 0)
-    {
-      std::cerr << "Incorrect arguments. Type 'rasterizer -help' for more info\n";
-    }
-    ++i;
-  }
-
-  //there should be four more arguments after the optional switches
-  if (i != argc - 4)
-  {
-    std::cerr << "Incorrect number of arguments."
-              << " Type 'rasterizer -help' for more info\n";
-    return;
-  }
-  */
-  load_objects(infile);
-  //ParseFilename(outputFile, pathless);
-  std::ofstream listfile(outfile + ".list");
-  assert(listfile);
-
-  for (auto frame = first_frame; frame <= final_frame; ++frame)
-  {
-    rasterize(frame, aa_enabled, num_aa_samples, mb_enabled, num_mb_samples, "");
-    std::ostringstream oss;
-    oss << outfile << "." << frame << ".ppm";
-    save_image(oss.str());
-    listfile << basename << "." << frame << ".ppm" << "\n";
-  }
-}
 
 /**
    \brief Copy the pixel data to an unsigned char array dynamically allocated.

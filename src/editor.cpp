@@ -17,17 +17,19 @@ wxBEGIN_EVENT_TABLE(EditorCanvas, wxWindow)
   EVT_CHAR(EditorCanvas::OnChar)
 wxEND_EVENT_TABLE()
 
-EditorFrame::EditorFrame(Rasterizer& rasterizer,
+EditorFrame::EditorFrame(Scene& scene,
                          wxWindowID id,
                          const wxPoint& pos)
   : wxFrame(nullptr, id, wxT("Objects"), pos,
-            wxSize(rasterizer.get_width(), rasterizer.get_height()),
+            wxSize(scene.getRasterizer().get_width(),
+                   scene.getRasterizer().get_height()),
             wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE)
 {
   auto size = GetClientSize();
   panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, size);
-  canvas = new EditorCanvas(rasterizer, panel, wxID_ANY, nullptr,
+  canvas = new EditorCanvas(scene, panel, wxID_ANY, nullptr,
                             wxDefaultPosition, size);
+  canvas->SetFocus();
 }
 
 void EditorFrame::OnClose(wxCloseEvent& event)
@@ -36,7 +38,7 @@ void EditorFrame::OnClose(wxCloseEvent& event)
   Destroy();
 }
 
-EditorCanvas::EditorCanvas(Rasterizer&      rasterizer,
+EditorCanvas::EditorCanvas(Scene&           scene,
                            wxWindow*        parent,
                            wxWindowID       id,
                            const int*       attributes,
@@ -46,7 +48,7 @@ EditorCanvas::EditorCanvas(Rasterizer&      rasterizer,
                            const wxString&  name,
                            const wxPalette& palette)
   : wxGLCanvas(parent, id, attributes, pos, size, style, name, palette)
-  , rasterizer(rasterizer)
+  , scene(scene)
 {
   animation_frame = 1;
   context = new wxGLContext(this);
@@ -55,21 +57,24 @@ EditorCanvas::EditorCanvas(Rasterizer&      rasterizer,
 void EditorCanvas::startDrawing(long x, long y)
 {
   std::cout << "start drawing at " << x << ", " << y << '\n';
-  active_object = std::make_shared<Animation>();
+  active_object = std::make_shared<Polygon>();
   active_object->keyframes.push_back(Frame());
   active_object->keyframes[0].number = 1;
-  // assign_random_color(active_object);
+  active_object->set_color(255, 255, 255);
   active_object->keyframes[0].vertices.push_back(Point{static_cast<float>(x), static_cast<float>(y)});
+  state = DRAW;
 }
 
 void EditorCanvas::startRotating(long x, long y)
 {
   std::cout << "start rotating at " << x << ", " << y << '\n';
+  state = ROTATE;
 }
 
 void EditorCanvas::startScaling(long x, long y)
 {
   std::cout << "start scaling at " << x << ", " << y << '\n';
+  state = SCALE;
 }
 
 void EditorCanvas::continueDrawing(long x, long y)
@@ -97,20 +102,23 @@ void EditorCanvas::finishDrawing(long x, long y)
     if (active_object->get_num_vertices() < 3) {
       active_object = nullptr;
     } else {
-      rasterizer.add_object(active_object);
+      scene.add_object(active_object);
     }
     active_object = nullptr;
   }
+  state = NORMAL;
 }
 
 void EditorCanvas::finishRotating(long x, long y)
 {
   std::cout << "finish rotating at " << x << ", " << y << '\n';
+  state = NORMAL;
 }
 
 void EditorCanvas::finishScaling(long x, long y)
 {
   std::cout << "finish scaling at " << x << ", " << y << '\n';
+  state = NORMAL;
 }
 
 void EditorCanvas::paint()
@@ -125,7 +133,7 @@ void EditorCanvas::paint()
   glClearColor(0.f, 0.f, 0.f, 0.f);
   glClear(GL_COLOR_BUFFER_BIT);
   // add a red border if it is a keyframe
-  if (rasterizer.any_keyframe(animation_frame)) {
+  if (scene.any_keyframe(animation_frame)) {
     glLineWidth(8);
     glColor3d(1, 0, 0);
     glBegin(GL_LINE_STRIP);
@@ -139,11 +147,11 @@ void EditorCanvas::paint()
     glEnd();
   }
   glLineWidth(1);
-  auto objects = rasterizer.get_objects();
-  auto selected_object = rasterizer.get_selected_object();
+  auto objects = scene.get_objects();
+  auto selected_object = scene.get_selected_object_id();
   for (decltype(objects.size()) obj = 0; obj < objects.size(); ++obj) {
     std::vector<Point> vertices;
-    auto color = rasterizer.get_vertices(obj, animation_frame, vertices);
+    auto color = objects[obj]->get_vertices(animation_frame, vertices);
     glColor3d(color.get_red(), color.get_green(), color.get_blue());
     glLineWidth(selected_object == obj ? 3 : 1);
     // draw the edges
@@ -157,7 +165,7 @@ void EditorCanvas::paint()
     glEnd();
     // now draw the vertices on top of the lines
     if (selected_object == obj) {
-      auto v = rasterizer.get_selected_vertex();
+      auto v = scene.get_selected_vertex();
       glBegin(GL_LINES);
       {
         decltype(vertices.size()) j = 0;
@@ -173,7 +181,7 @@ void EditorCanvas::paint()
     }
   }
 
-  if (scale_polygon || rotate_polygon) {
+  if (state == ROTATE || state == SCALE) {
     glBegin(GL_LINES);
     {
       glColor3d(0.5, 0.5, 0.5);
@@ -374,63 +382,112 @@ void EditorCanvas::OnMouse(wxMouseEvent& event)
   event.GetPosition(&mx, &my);
   float x = mx, y = my;
 
-   if (event.ButtonDown(wxMOUSE_BTN_LEFT) && !event.Dragging()) {
-    switch (event.GetModifiers()) {
-    case wxMOD_SHIFT:                 // draw
-      startDrawing(mx, my);
-      break;
-    case wxMOD_CONTROL:               // rotate
-      if (rasterizer.is_selected()) {
-        startRotating(mx, my);
+  if (event.ButtonUp(wxMOUSE_BTN_LEFT)) {
+    switch (state) {
+      case DRAW:
+        finishDrawing(mx, my);
+        break;
+      case ROTATE:
+        if (scene.is_selected()) {
+          finishRotating(mx, my);
+        }
+        break;
+      case SCALE:
+        if (scene.is_selected()) {
+          finishScaling(mx, my);
+        }
+        break;
+      default:
+        // if there's a vertex in the area, select it
+        scene.select_object(animation_frame, x, y);
+    }
+  } else if (event.ButtonUp(wxMOUSE_BTN_RIGHT)) {
+    switch (state) {
+      case ROTATE:
+        if (scene.is_selected()) {
+          finishRotating(mx, my);
+        }
+        break;
+      case SCALE:
+        if (scene.is_selected()) {
+          finishScaling(mx, my);
+        }
+        break;
+      default:
+        // if there's a vertex in the area, select it
+        scene.select_object(animation_frame, x, y);
+    }
+  } else if (!event.Dragging()) {
+    if (event.ButtonDown(wxMOUSE_BTN_LEFT)) {
+      switch (event.GetModifiers()) {
+        case wxMOD_SHIFT:
+          startDrawing(mx, my);
+          break;
+        case wxMOD_CONTROL:
+          if (scene.is_selected()) {
+            startRotating(mx, my);
+          }
+          break;
+        case wxMOD_CONTROL | wxMOD_SHIFT:
+          if (scene.is_selected()) {
+            startScaling(mx, my);
+          }
+          break;
+        default:
+          event.Skip();
+          return;
       }
-      break;
-    case wxMOD_CONTROL | wxMOD_SHIFT: // scale
-      if (rasterizer.is_selected()) {
-        startScaling(mx, my);
+    } else if (event.ButtonDown(wxMOUSE_BTN_RIGHT)) {
+      switch (event.GetModifiers()) {
+        case wxMOD_RAW_CONTROL:
+          if (scene.is_selected()) {
+            startRotating(mx, my);
+          }
+          break;
+        case wxMOD_RAW_CONTROL | wxMOD_SHIFT:
+          if (scene.is_selected()) {
+            startScaling(mx, my);
+          }
+          break;
+        default:
+          event.Skip();
+          return;
       }
-      break;
-    default:                          // select
+    } else {
       event.Skip();
+      return;
     }
-  } else if (event.ButtonUp(wxMOUSE_BTN_LEFT)) {
-    switch (event.GetModifiers()) {
-    case wxMOD_SHIFT:                 // draw
-      finishDrawing(mx, my);
+  } else if (event.LeftIsDown()) {
+    switch (state) {
+    case DRAW:
+      continueDrawing(mx, my);
       break;
-    case wxMOD_CONTROL:               // rotate
-      if (rasterizer.is_selected()) {
-        finishRotating(mx, my);
+    case ROTATE:
+      if (scene.is_selected()) {
+        continueRotating(mx, my);
       }
       break;
-    case wxMOD_CONTROL | wxMOD_SHIFT: // scale
-      if (rasterizer.is_selected()) {
-        finishScaling(mx, my);
+    case SCALE:
+      if (scene.is_selected()) {
+        continueScaling(mx, my);
       }
       break;
-    default:                          // select
-      // if there's a vertex in the area, select it
-      rasterizer.select_object(animation_frame, x, y);
+    default:;
     }
-  } else if (!event.Dragging() && !event.ButtonUp()) {
-    event.Skip();
-    return;
-  }
-
-  switch (event.GetModifiers()) {
-  case wxMOD_SHIFT:
-    continueDrawing(mx, my);
-    break;
-  case wxMOD_CONTROL:
-    if (rasterizer.is_selected()) {
-      continueRotating(mx, my);
+  } else if (event.RightIsDown()) {
+    switch (state) {
+      case ROTATE:
+        if (scene.is_selected()) {
+          continueRotating(mx, my);
+        }
+        break;
+      case SCALE:
+        if (scene.is_selected()) {
+          continueScaling(mx, my);
+        }
+        break;
+      default:;
     }
-    break;
-  case wxMOD_CONTROL | wxMOD_SHIFT:
-    if (rasterizer.is_selected()) {
-      continueScaling(mx, my);
-    }
-    break;
-  default:;
   }
   paint();
 }
@@ -440,7 +497,7 @@ void EditorCanvas::OnChar(wxKeyEvent& event)
   switch(event.GetUnicodeKey())
   {
   case 8:   // FIXME what key is this?
-  case 127: rasterizer.delete_selected_object(); break;
+  case 127: scene.delete_selected_object(); break;
   case '.': if (animation_frame < 99) ++animation_frame; break;
   case ',': if (animation_frame >  1) --animation_frame; break;
   default: break;

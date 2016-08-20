@@ -5,7 +5,7 @@
    Copyright © 2016 Dmitri Makarov. All rights reserved.
 */
 
-#include "rasterizer.h"
+#include "scene.h"
 #include "gtest/gtest.h"
 
 TEST(RGB8, DefaultConstructor) {
@@ -23,14 +23,15 @@ TEST(RGB8, ConstructFromValue) {
 }
 
 TEST(Rasterizer, RenderToFile) {
-  Rasterizer r{400, 400};
+  Scene s;
   std::vector<std::string> args{"1", "1", "../examples/sample1.obs", "image"};
-  r.render_to_file(args);
+  s.render_to_file(args);
 }
 
 TEST(Rasterizer, Rasterize) {
+  std::vector<std::shared_ptr<Polygon>> polygons;
   Rasterizer r{500, 500};
-  r.rasterize(1, false, 1, false, 1, "");
+  r.run(polygons, 1, false, 1, false, 1, "");
   (void) r.getPixelsAsRGB();
 }
 

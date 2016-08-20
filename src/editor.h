@@ -9,14 +9,14 @@
 #define editor_h
 
 #include "observer.h"
-#include "rasterizer.h"
+#include "scene.h"
 #include <wx/wx.h>
 #include <wx/glcanvas.h>
 
 class EditorCanvas : public wxGLCanvas {
 public:
 
-  EditorCanvas(Rasterizer& rasterizer,
+  EditorCanvas(Scene& scene,
                wxWindow* parent,
                wxWindowID id,
                const int* attributes,
@@ -32,15 +32,13 @@ public:
 
 private:
 
+  enum State {NORMAL, DRAW, ROTATE, SCALE, MOVE, DRAG} state = NORMAL;
   wxGLContext* context;
-  Rasterizer& rasterizer;
-  std::shared_ptr<Animation> active_object;
+  Scene& scene;
+  std::shared_ptr<Polygon> active_object;
   Point prev_rotation_center;
   Point rotation_center;
   int animation_frame;
-  bool draw_curve = false;
-  bool scale_polygon = false;
-  bool rotate_polygon = false;
 
   void startDrawing(long x, long y);
   void startRotating(long x, long y);
@@ -67,9 +65,7 @@ private:
 class EditorFrame : public wxFrame, public Subject {
 public:
 
-  EditorFrame(Rasterizer& rasterizer,
-              wxWindowID id,
-              const wxPoint& pos);
+  EditorFrame(Scene& scene, wxWindowID id, const wxPoint& pos);
   virtual ~EditorFrame() {}
   void setAnimationFrame(int frame) {
     canvas->setAnimationFrame(frame);

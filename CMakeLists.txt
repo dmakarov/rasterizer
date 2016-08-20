@@ -6,15 +6,19 @@ project(rasterizer)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -g")
 
 set(SOURCE_FILES
-  src/observer.h
-  src/viewer.h
   src/control.cpp
   src/control.h
   src/editor.cpp
   src/editor.h
+  src/main.cpp
+  src/observer.h
+  src/polygon.h
+  src/polygon.cpp
   src/rasterizer.cpp
   src/rasterizer.h
-  src/main.cpp)
+  src/scene.h
+  src/scene.cpp
+  src/viewer.h)
 
 include_directories(/usr/local/include)
 
@@ -44,7 +48,7 @@ if (build_tests)
   enable_testing()
 
   link_directories(build/gtest)
-  add_executable(rasterizer_unittest tests/rasterizer_unittest.cpp src/rasterizer.cpp)
+  add_executable(rasterizer_unittest tests/rasterizer_unittest.cpp src/polygon.cpp src/rasterizer.cpp src/scene.cpp)
   target_include_directories(rasterizer_unittest PUBLIC src ../googletest/googletest/include googletest/googletest/include)
   target_link_libraries(rasterizer_unittest gtest)
   add_test(rasterizer_unittest rasterizer_unittest)

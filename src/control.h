@@ -10,7 +10,7 @@
 
 #include "editor.h"
 #include "observer.h"
-#include "rasterizer.h"
+#include "scene.h"
 #include "viewer.h"
 
 #include <wx/wx.h>
@@ -45,7 +45,7 @@ private:
   static constexpr auto TEXT_CTRL_WIDTH = 180;
   static constexpr auto SBOX_WIDTH = TEXT_CTRL_WIDTH + 30;
 
-  Rasterizer rasterizer;
+  Scene scene;
   EditorFrame* editor;
   ViewerFrame* viewer;
   wxPoint editor_pos;

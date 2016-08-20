@@ -33,13 +33,12 @@ Control::Control(wxFrame* frame,
                  const wxPoint& editor_pos,
                  const wxPoint& viewer_pos)
   : wxPanel(frame, wxID_ANY)
-  , rasterizer{500, 500}
-  , editor(new EditorFrame(rasterizer, wxID_ANY, editor_pos))
-  , viewer(new ViewerFrame(rasterizer, wxID_ANY, viewer_pos))
+  , editor(new EditorFrame(scene, wxID_ANY, editor_pos))
+  , viewer(new ViewerFrame(scene.getRasterizer(), wxID_ANY, viewer_pos))
   , editor_pos(editor_pos)
   , viewer_pos(viewer_pos)
 {
-  rasterizer.attach(this);
+  scene.attach(this);
   editor->attach(this);
   viewer->attach(this);
   wxMenu* file_menu = new wxMenu;
@@ -212,7 +211,7 @@ Control::Control(wxFrame* frame,
 }
 
 Control::~Control() {
-  rasterizer.detach(this);
+  scene.detach(this);
   if (editor != nullptr) {
     delete editor;
   }
@@ -231,18 +230,18 @@ void Control::update(Subject* subject)
     viewer = nullptr;
     return;
   }
-  if (rasterizer.is_selected()) {
-    auto selected_object = rasterizer.get_selected_object();
+  if (scene.is_selected()) {
+    auto selected_object = scene.get_selected_object();
     std::ostringstream oss;
-    oss << "Object ID: " << selected_object;
+    oss << "Object ID: " << scene.get_selected_object_id();
     stxt_objectid->SetLabel(oss.str());
     stxt_objectid->Enable();
     oss.str("");
-    oss << "Vertices: " << rasterizer.get_num_vertices(selected_object);
+    oss << "Vertices: " << selected_object->get_num_vertices();
     stxt_vertices->SetLabel(oss.str());
     stxt_vertices->Enable();
     oss.str("");
-    oss << "Keyframes: " << rasterizer.get_num_keyframes(selected_object);
+    oss << "Keyframes: " << selected_object->get_num_keyframes();
     stxt_keyframe->SetLabel(oss.str());
     stxt_keyframe->Enable();
   } else {
@@ -261,7 +260,7 @@ void Control::OnSpinFrame(wxSpinEvent& event)
     current_frame = spin_frame->GetValue();
     editor->setAnimationFrame(current_frame);
     editor->Refresh();
-    if (current_frame > 1 && rasterizer.any_keyframe(current_frame)) {
+    if (current_frame > 1 && scene.any_keyframe(current_frame)) {
       button_delete_keyframe->Enable();
     } else {
       button_delete_keyframe->Disable();
@@ -281,16 +280,16 @@ void Control::OnButtonLoad(wxCommandEvent& event)
     (*text_filename) << pathname.GetFullPath();
   }
   auto name = text_filename->GetLineText(0) + ".obs";
-  if (rasterizer.load_objects(name.ToStdString())) {
+  if (scene.load(name.ToStdString())) {
     spin_frame->Enable();
     spin_frame->SetValue(1);
     if (editor != nullptr && editor->IsShown()) {
-      update(&rasterizer);
+      update(&scene);
       editor->setAnimationFrame(1);
       editor->Refresh();
     } else {
       if (editor == nullptr) {
-        editor = new EditorFrame(rasterizer, wxID_ANY, editor_pos);
+        editor = new EditorFrame(scene, wxID_ANY, editor_pos);
         editor->attach(this);
       }
       editor->Show();
@@ -307,12 +306,12 @@ void Control::OnButtonSave(wxCommandEvent& event)
     return;
   }
   auto name = text_filename->GetLineText(0) + ".obs";
-  rasterizer.save_objects(name.ToStdString());
+  scene.save(name.ToStdString());
 }
 
 void Control::OnButtonDeleteKeyframe(wxCommandEvent& event)
 {
-  rasterizer.delete_keyframe(spin_frame->GetValue());
+  scene.delete_keyframe(spin_frame->GetValue());
   button_delete_keyframe->Disable();
   if (editor != nullptr && editor->IsShown()) {
     editor->Refresh();
@@ -377,36 +376,38 @@ void Control::OnButtonRender(wxCommandEvent& event)
     assert(ofs);
 
     for (auto frame = first_frame; frame <= final_frame; ++frame) {
-      rasterizer.rasterize(frame,
-                           anti_aliasing_enabled,
-                           num_alias_samples,
-                           motion_blur_enabled,
-                           num_blur_samples,
-                           aafilter_function);
+      std::string filename = "";
       if (!render_filename.empty()) {
         std::ostringstream buf;
         buf << pathless.GetFullPath() << "." << frame << ".ppm";
-        rasterizer.save_image(buf.str());
-        ofs << buf.str() << '\n';
+        filename = buf.str();
+        ofs << filename << '\n';
       }
+      scene.render(frame,
+                   anti_aliasing_enabled,
+                   num_alias_samples,
+                   motion_blur_enabled,
+                   num_blur_samples,
+                   aafilter_function,
+                   filename);
     }
     ofs.close();
   } else { // single frame
-    rasterizer.rasterize(current_frame,
+    scene.render(current_frame,
                          anti_aliasing_enabled,
                          num_alias_samples,
                          motion_blur_enabled,
                          num_blur_samples,
-                         aafilter_function);
-    if (!render_filename.empty()) {
-      rasterizer.save_image(render_filename + ".ppm");
-    }
+                         aafilter_function,
+                 (!render_filename.empty()) ?
+                 (render_filename + ".ppm") : "");
+
   }
   if (viewer != nullptr && viewer->IsShown()) {
     viewer->Refresh();
   } else {
     if (viewer == nullptr) {
-      viewer = new ViewerFrame(rasterizer, wxID_ANY, viewer_pos);
+      viewer = new ViewerFrame(scene.getRasterizer(), wxID_ANY, viewer_pos);
       viewer->attach(this);
     }
     viewer->Show();
