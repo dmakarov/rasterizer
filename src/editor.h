@@ -50,7 +50,11 @@ private:
 
   void OnChar(wxKeyEvent& event);
   void OnMouse(wxMouseEvent& event);
-  void OnPaint(wxPaintEvent& event);
+
+  void OnPaint(wxPaintEvent& event) {
+    paint();
+    event.Skip();
+  }
 
   wxDECLARE_EVENT_TABLE();
 

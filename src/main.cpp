@@ -53,8 +53,8 @@ public:
     // command-line arguments are set for batch mode, don't show the GUI
     if (argc > 1) {
       Scene s;
-      s.render_to_file(std::vector<std::string>(static_cast<char**>(argv) + 1,
-                                                static_cast<char**>(argv) + argc));
+      s.renderToFile(std::vector<std::string>(static_cast<char**>(argv) + 1,
+                                              static_cast<char**>(argv) + argc));
       return true;
     }
     compute_window_positions();

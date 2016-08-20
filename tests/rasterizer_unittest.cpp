@@ -25,7 +25,7 @@ TEST(RGB8, ConstructFromValue) {
 TEST(Rasterizer, RenderToFile) {
   Scene s;
   std::vector<std::string> args{"1", "1", "../examples/sample1.obs", "image"};
-  s.render_to_file(args);
+  s.renderToFile(args);
 }
 
 TEST(Rasterizer, Rasterize) {

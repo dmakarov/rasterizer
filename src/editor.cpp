@@ -61,10 +61,10 @@ void EditorCanvas::paint()
     glEnd();
     // now draw the vertices on top of the lines
     if (selected == p) {
-      auto v = scene.get_selected_vertex();
+      auto v = scene.getSelectedVertex();
       glBegin(GL_LINES);
       {
-        decltype(vertices.size()) j = 0;
+        decltype(v) j = 0;
         for (auto& p : vertices) {
             glColor3d(0, 1, j++ == v ? 0 : 1);
             glVertex2d(p.x + 5, -p.y);
@@ -81,7 +81,7 @@ void EditorCanvas::paint()
     glBegin(GL_LINES);
     {
       glColor3d(0.5, 0.5, 0.5);
-      auto rc = scene.getRotationCenter();
+      auto rc = scene.getCenter();
       auto x = static_cast<int>(rc.x);
       auto y = static_cast<int>(rc.y);
       glVertex2d(x + 5, -y);
@@ -123,77 +123,89 @@ void EditorCanvas::paint()
   assert(status);
 }
 
-void EditorCanvas::OnPaint(wxPaintEvent& event)
+void EditorCanvas::OnChar(wxKeyEvent& event)
 {
-  paint();
-  event.Skip();
+  switch(event.GetUnicodeKey())
+  {
+    case 8:   // FIXME what key is this?
+    case 127: scene.deleteSelected(); break;
+    case '.': if (frame < 99) ++frame; break;
+    case ',': if (frame >  1) --frame; break;
+    default: break;
+  }
+  Refresh();
 }
 
 void EditorCanvas::OnMouse(wxMouseEvent& event)
 {
-  long mx, my;
-  event.GetPosition(&mx, &my);
-  float x = mx, y = my;
+  long x, y;
+  event.GetPosition(&x, &y);
 
   if (event.ButtonUp(wxMOUSE_BTN_LEFT)) {
     switch (state) {
       case DRAW:
-        scene.finishDrawing(mx, my);
+        scene.finishDrawing(x, y);
         break;
       case ROTATE:
-        scene.finishRotating(mx, my);
+        scene.finishRotating(x, y);
         break;
       case SCALE:
-        scene.finishScaling(mx, my);
+        scene.finishScaling(x, y);
         break;
       default:
         // if there's a vertex in the area, select it
-        scene.select_object(frame, x, y);
+        scene.select(frame, x, y);
     }
     state = NONE;
   } else if (event.ButtonUp(wxMOUSE_BTN_RIGHT)) {
     switch (state) {
       case ROTATE:
-        scene.finishRotating(mx, my);
+        scene.finishRotating(x, y);
         break;
       case SCALE:
-        scene.finishScaling(mx, my);
+        scene.finishScaling(x, y);
         break;
       default:
         // if there's a vertex in the area, select it
-        scene.select_object(frame, x, y);
+        scene.select(frame, x, y);
     }
     state = NONE;
   } else if (!event.Dragging()) {
     if (event.ButtonDown(wxMOUSE_BTN_LEFT)) {
       switch (event.GetModifiers()) {
         case wxMOD_SHIFT:
-          scene.startDrawing(mx, my);
+          scene.startDrawing(x, y);
+          state = DRAW;
           break;
         case wxMOD_CONTROL:
-          if (scene.is_selected()) {
-            scene.startRotating(mx, my);
+          if (scene.isSelected()) {
+            scene.startRotating(x, y);
+            state = ROTATE;
           }
           break;
         case wxMOD_CONTROL | wxMOD_SHIFT:
-          if (scene.is_selected()) {
-            scene.startScaling(mx, my);
+          if (scene.isSelected()) {
+            scene.startScaling(x, y);
+            state = SCALE;
           }
           break;
         default:
+          state = DRAG;
           event.Skip();
           return;
       }
     } else if (event.ButtonDown(wxMOUSE_BTN_RIGHT)) {
       switch (event.GetModifiers()) {
         case wxMOD_RAW_CONTROL:
-          if (scene.is_selected()) {
-            scene.startRotating(mx, my);
+          if (scene.isSelected()) {
+            scene.startRotating(x, y);
+            state = ROTATE;
           }
           break;
         case wxMOD_RAW_CONTROL | wxMOD_SHIFT:
-          if (scene.is_selected()) {
-            scene.startScaling(mx, my);
+          if (scene.isSelected()) {
+            scene.startScaling(x, y);
+            state = SCALE;
           }
           break;
         default:
@@ -207,39 +219,26 @@ void EditorCanvas::OnMouse(wxMouseEvent& event)
   } else if (event.LeftIsDown()) {
     switch (state) {
     case DRAW:
-      scene.continueDrawing(mx, my);
+      scene.continueDrawing(x, y);
       break;
     case ROTATE:
-      scene.continueRotating(mx, my);
+      scene.continueRotating(frame, x, y);
       break;
     case SCALE:
-      scene.continueScaling(mx, my);
+      scene.continueScaling(frame, x, y);
       break;
     default:;
     }
   } else if (event.RightIsDown()) {
     switch (state) {
       case ROTATE:
-        scene.continueRotating(mx, my);
+        scene.continueRotating(frame, x, y);
         break;
       case SCALE:
-        scene.continueScaling(mx, my);
+        scene.continueScaling(frame, x, y);
         break;
       default:;
     }
   }
   paint();
-}
-
-void EditorCanvas::OnChar(wxKeyEvent& event)
-{
-  switch(event.GetUnicodeKey())
-  {
-  case 8:   // FIXME what key is this?
-  case 127: scene.delete_selected_object(); break;
-  case '.': if (frame < 99) ++frame; break;
-  case ',': if (frame >  1) --frame; break;
-  default: break;
-  }
-  Refresh();
 }

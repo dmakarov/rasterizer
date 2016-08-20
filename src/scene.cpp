@@ -1,10 +1,9 @@
-//
-//  scene.cpp
-//  rasterizer
-//
-//  Created by Dmitri Makarov on 16-08-19.
-//
-//
+/**
+   \file scene.cpp
+
+   Created by Dmitri Makarov on 16-08-19.
+   Copyright © 2016 Dmitri Makarov. All rights reserved.
+*/
 
 #include "scene.h"
 
@@ -15,30 +14,6 @@
 #include <sstream>
 #include <string>
 #include <iostream>
-
-bool Scene::select_object(int frame, float mx, float my)
-{
-  bool foundVertex = false;
-  selected_object = nullptr;
-  for (ObjSz i = 0; !foundVertex && i < polygons.size(); ++i) {
-    std::vector<Point> vertices;
-    polygons[i]->get_vertices(frame, vertices);
-    auto j = 0;
-    for (auto& v : vertices) {
-      // check for proximity
-      if (std::fabs(v.x - mx) < 5 && std::fabs(v.y - my) < 5) {
-        foundVertex = true;
-        selected_object_id = i;
-        selected_object = polygons[i];
-        selected_vertex = j;
-        break;
-      }
-      ++j;
-    }
-  }
-  notify();
-  return foundVertex;
-}
 
 bool Scene::load(const std::string& filename)
 {
@@ -146,7 +121,7 @@ void Scene::save(const std::string& filename) const
   }
 }
 
-void Scene::render_to_file(const std::vector<std::string>& args)
+void Scene::renderToFile(const std::vector<std::string>& args)
 {
   std::string infile;
   std::string outfile;
@@ -229,51 +204,64 @@ void Scene::render_to_file(const std::vector<std::string>& args)
 void Scene::startDrawing(long x, long y)
 {
   std::cout << "start drawing at " << x << ", " << y << '\n';
-  active_object = std::make_shared<Polygon>();
-  active_object->keyframes.push_back(Frame());
-  active_object->keyframes[0].number = 1;
-  active_object->set_color(255, 255, 255);
-  active_object->keyframes[0].vertices.push_back(Point{static_cast<float>(x), static_cast<float>(y)});
+  active = std::make_shared<Polygon>();
+  active->keyframes.push_back(Frame());
+  active->keyframes[0].number = 1;
+  active->set_color(255, 255, 255);
+  active->keyframes[0].vertices.push_back(Point{static_cast<float>(x),
+                                                static_cast<float>(y)});
 }
 
 void Scene::startRotating(long x, long y)
 {
   std::cout << "start rotating at " << x << ", " << y << '\n';
+  center.x = (float) x;
+  center.y = (float) y;
 }
 
 void Scene::startScaling(long x, long y)
 {
   std::cout << "start scaling at " << x << ", " << y << '\n';
+  center.x = (float) x;
+  center.y = (float) y;
 }
 
 void Scene::continueDrawing(long x, long y)
 {
-  std::cout << "continue drawing at " << x << ", " << y << '\n';
-  active_object->keyframes[0].vertices.push_back(Point{static_cast<float>(x), static_cast<float>(y)});
+  auto px = active->keyframes[0].vertices.back().x;
+  auto py = active->keyframes[0].vertices.back().y;
+  // sqrt((px-mx)*(px-mx) + (py-my)*(py-my)) > 5)
+  if (std::abs(px - x) > 7 || std::abs(py - y) > 7) {
+    std::cout << "continue drawing at " << x << ", " << y << '\n';
+    active->keyframes[0].vertices.push_back(Point{static_cast<float>(x),
+                                                  static_cast<float>(y)});
+  }
 }
 
-void Scene::continueRotating(long x, long y)
+void Scene::continueRotating(int frame, long x, long y)
 {
   std::cout << "continue rotating at " << x << ", " << y << '\n';
+  rotate(frame, x, y);
 }
 
-void Scene::continueScaling(long x, long y)
+void Scene::continueScaling(int frame, long x, long y)
 {
   std::cout << "continue scaling at " << x << ", " << y << '\n';
+  scale(frame, x, y);
 }
 
 void Scene::finishDrawing(long x, long y)
 {
   std::cout << "finish drawing at " << x << ", " << y << '\n';
   // if we're in the middle of drawing something, then end it
-  if (active_object) {
+  if (active) {
     // if we don't have a polygon
-    if (active_object->get_num_vertices() < 3) {
-      active_object = nullptr;
+    if (active->get_num_vertices() < 3) {
+      active = nullptr;
     } else {
-      add_object(active_object);
+      polygons.push_back(active);
     }
-    active_object = nullptr;
+    active = nullptr;
   }
 }
 
@@ -287,146 +275,119 @@ void Scene::finishScaling(long x, long y)
   std::cout << "finish scaling at " << x << ", " << y << '\n';
 }
 
-
-#if 0
-
-void Scene::scale(int mx, int my, int frame)
+void Scene::select(const int frame, const long x, const long y)
 {
-  if (!is_object_selected) return;
-
-  mx -= rotation_centerX;
-  my -= rotation_centerY;
-
-  if (std::abs(prev_rotationX - mx) < 10 && std::abs(prev_rotationY - my) < 10)
-    return;
-
-  float dm = sqrt(mx*mx + my*my);
-  float dp = sqrt(prev_rotationX*prev_rotationX + prev_rotationY*prev_rotationY);
-
-  auto& vert = find_keyframe(objects[selected_object], frame)->vertices;
-  auto vertno = objects[selected_object]->get_num_vertices();
-
-  float sx = (dm > dp) ? 1.2 : 0.8;
-  float sy = (dm > dp) ? 1.2 : 0.8;
-
-  for (decltype(vertno) ii = 0; ii < vertno; ++ii)
-  {
-    vert[ii].x -= rotation_centerX;
-    vert[ii].y -= rotation_centerY;
-    vert[ii].x = sx * vert[ii].x;
-    vert[ii].y = sy * vert[ii].y;
-    vert[ii].x += rotation_centerX;
-    vert[ii].y += rotation_centerY;
+  bool found = false;
+  selected = nullptr;
+  for (PolySz i = 0; !found && i < polygons.size(); ++i) {
+    std::vector<Point> vertices;
+    polygons[i]->get_vertices(frame, vertices);
+    selectedVertex = 0;
+    for (auto& v : vertices) {
+      // check for proximity
+      if (std::fabs(v.x - x) < 5 && std::fabs(v.y - y) < 5) {
+        selected = polygons[i];
+        selectedID = i;
+        found = true;
+        break;
+      }
+      ++selectedVertex;
+    }
   }
-  prev_rotationX = mx;
-  prev_rotationY = my;
+  notify();
 }
 
-void Scene::rotate(int mx, int my, int frame)
+void Scene::rotate(const int frame, const long x, const long y)
 {
-  if (!is_object_selected) return;
+  auto mx = static_cast<float>(x) - center.x;
+  auto my = static_cast<float>(y) - center.y;
 
-  mx -= rotation_centerX;
-  my -= rotation_centerY;
-
-  if (std::abs(prev_rotationX - mx) < 10 && std::abs(prev_rotationY - my) < 10)
+  if (std::abs(previous.x - mx) < 10 && std::abs(previous.y - my) < 10)
     return;
-  if ((mx < 0 && prev_rotationX > 0) || (mx > 0 && prev_rotationX < 0))
-  {
-    prev_rotationX = mx;
-    prev_rotationY = my;
+  if ((mx < 0 && previous.x > 0) || (mx > 0 && previous.y < 0)) {
+    previous.x = mx;
+    previous.y = my;
     return;
   }
 
-  float ro = sqrtf(mx*mx + my*my);
-  float al = asinf(my / ro);
-  ro = sqrtf(prev_rotationX*prev_rotationX + prev_rotationY*prev_rotationY);
-  float be = asinf(prev_rotationY / ro);
+  auto ro = sqrtf(mx * mx + my * my);
+  auto al = asinf(my / ro);
+  ro = sqrtf(previous.x * previous.x + previous.y * previous.y);
+  float be = asinf(previous.y / ro);
   float sign = ((al > be && mx > 0) || (al < be && mx < 0)) ? 1.0 : -1.0;
   float te = sign * 3.14159 / 18;
   float sn = sinf(te);
   float cs = cosf(te);
 
-  auto& vert = find_keyframe(objects[selected_object], frame)->vertices;
-  auto vertno = objects[selected_object]->get_num_vertices();
-
-  for (decltype(vertno) ii = 0; ii < vertno; ++ii)
-  {
-    vert[ii].x -= rotation_centerX;
-    vert[ii].y -= rotation_centerY;
-    float xx = cs * vert[ii].x - sn * vert[ii].y;
-    float yy = sn * vert[ii].x + cs * vert[ii].y;
-    vert[ii].x = xx + rotation_centerX;
-    vert[ii].y = yy + rotation_centerY;
+  for (auto& v : selected->find_keyframe(frame)->vertices) {
+    v.x -= center.x;
+    v.y -= center.y;
+    v.x = cs * v.x - sn * v.y + center.x;
+    v.y = sn * v.x + cs * v.y + center.y;
   }
-  prev_rotationX = mx;
-  prev_rotationY = my;
+  previous.x = mx;
+  previous.y = my;
 }
 
-bool Scene::move(float mx, float my, int frame)
+void Scene::scale(const int frame, const long x, const long y)
 {
-  if (draw_curve)
-  {
-    auto px = active_object->keyframes[0].vertices.back().x;
-    auto py = active_object->keyframes[0].vertices.back().y;
-    if (std::abs(px - mx) > 7 || std::abs(py - my) > 7)
-    { // sqrt((px-mx)*(px-mx) + (py-my)*(py-my)) > 5)
-      active_object->keyframes[0].vertices.push_back(Point{mx, my});
-    }
-    return true;
-  }
+  assert(selected);
 
-  if (!is_object_selected) {
-    return false;
+  auto mx = static_cast<float>(x) - center.x;
+  auto my = static_cast<float>(y) - center.y;
+
+  if (std::abs(previous.x - mx) < 10 && std::abs(previous.y - my) < 10)
+    return;
+
+  auto dm = sqrt(mx * mx + my * my);
+  auto dp = sqrt(previous.x * previous.x + previous.y * previous.y);
+
+  auto sx = (dm > dp) ? 1.2 : 0.8;
+  auto sy = (dm > dp) ? 1.2 : 0.8;
+
+  for (auto& v : selected->find_keyframe(frame)->vertices) {
+    v.x -= center.x;
+    v.y -= center.y;
+    v.x = sx * v.x + center.x;
+    v.y = sy * v.y + center.y;
   }
+  previous.x = mx;
+  previous.y = my;
+}
+
+void Scene::move(const int frame, const long x, const long y)
+{
+  assert(selected);
+
   // look for a keyframe at this frame
   // if we don't find it, then create a new one in the right place
-  auto keyframe = find_keyframe(objects[selected_object], frame);
-  if (keyframe == objects[selected_object]->keyframes.end()) {
+  auto keyframe = selected->find_keyframe(frame);
+  if (keyframe == selected->keyframes.end()) {
     std::vector<Point> vertices;
-    get_vertices(selected_object, frame, vertices);
+    selected->get_vertices(frame, vertices);
 
-    decltype(get_num_keyframes(selected_object)) insertLoc;
-    for (insertLoc = 0; insertLoc < get_num_keyframes(selected_object); ++insertLoc)
-      if (frame < objects[selected_object]->keyframes[insertLoc].number)
+    decltype(selected->get_num_keyframes()) insertLoc;
+    for (insertLoc = 0; insertLoc < selected->get_num_keyframes(); ++insertLoc)
+      if (frame < selected->keyframes[insertLoc].number)
         break;
 
-    objects[selected_object]->keyframes.push_back(objects[selected_object]->keyframes.back());
-    for (auto i = get_num_keyframes(selected_object) - 2; i >= insertLoc; --i)
-      std::copy(objects[selected_object]->keyframes.begin() + i,
-                objects[selected_object]->keyframes.begin() + i + 1,
-                objects[selected_object]->keyframes.begin() + i + 1);
+    selected->keyframes.push_back(selected->keyframes.back());
+    for (auto i = selected->get_num_keyframes() - 2; i >= insertLoc; --i)
+      std::copy(selected->keyframes.begin() + i,
+                selected->keyframes.begin() + i + 1,
+                selected->keyframes.begin() + i + 1);
 
     std::copy(vertices.begin(), vertices.end(),
-              objects[selected_object]->keyframes[insertLoc].vertices.begin());
+              selected->keyframes[insertLoc].vertices.begin());
 
-    objects[selected_object]->keyframes[insertLoc].number = frame;
-    keyframe = find_keyframe(objects[selected_object], frame);
-    assert(keyframe != objects[selected_object]->keyframes.end());
+    selected->keyframes[insertLoc].number = frame;
+    keyframe = selected->find_keyframe(frame);
+    assert(keyframe != selected->keyframes.end());
   }
-
-  if (scale_polygon) {
-    scale(mx, my, frame);
-    return true;
+  for (auto& v : keyframe->vertices) {
+    v.x += (x - previous.x);
+    v.y += (y - previous.y);
   }
-  if (rotate_polygon) {
-    rotate(mx, my, frame);
-    return true;
-  }
-
-  rotation_centerX = -1;
-
-  if (!is_object_selected) {
-    keyframe->vertices[selected_vertex].x = mx;
-    keyframe->vertices[selected_vertex].y = my;
-  }
-  else {
-    for (auto& v : keyframe->vertices) {
-      v.x += (mx - original.x);
-      v.y += (my - original.y);
-    }
-    original = Point{mx, my};
-  }
-  return true;
+  previous.x = x;
+  previous.y = y;
 }
-#endif

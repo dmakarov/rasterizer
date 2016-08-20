@@ -230,7 +230,7 @@ void Control::update(Subject* subject)
     viewer = nullptr;
     return;
   }
-  if (scene.is_selected()) {
+  if (scene.isSelected()) {
     auto selected_object = scene.getSelectedPolygon();
     std::ostringstream oss;
     oss << "Object ID: " << scene.getSelectedPolygonId();
@@ -311,7 +311,7 @@ void Control::OnButtonSave(wxCommandEvent& event)
 
 void Control::OnButtonDeleteKeyframe(wxCommandEvent& event)
 {
-  scene.delete_keyframe(spin_frame->GetValue());
+  scene.deleteKeyframe(spin_frame->GetValue());
   button_delete_keyframe->Disable();
   if (editor != nullptr && editor->IsShown()) {
     editor->Refresh();
