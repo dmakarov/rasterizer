@@ -228,11 +228,11 @@ void Control::update(Subject* subject)
     stxt_objectid->SetLabel(oss.str());
     stxt_objectid->Enable();
     oss.str("");
-    oss << "Vertices: " << selected_object->get_num_vertices();
+    oss << "Vertices: " << selected_object->getNumVertices();
     stxt_vertices->SetLabel(oss.str());
     stxt_vertices->Enable();
     oss.str("");
-    oss << "Keyframes: " << selected_object->get_num_keyframes();
+    oss << "Keyframes: " << selected_object->getNumKeyframes();
     stxt_keyframe->SetLabel(oss.str());
     stxt_keyframe->Enable();
   } else {

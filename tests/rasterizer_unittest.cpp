@@ -22,7 +22,7 @@ TEST(RGB8, ConstructFromValue) {
   EXPECT_EQ(1.f, white.get_blue());
 }
 
-TEST(Rasterizer, RenderToFile) {
+TEST(Scene, RenderToFile) {
   Scene s;
   std::vector<std::string> args{"1", "1", "../examples/sample1.obs", "image"};
   s.renderToFile(args);

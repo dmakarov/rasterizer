@@ -8,6 +8,7 @@
 #ifndef polygon_h
 #define polygon_h
 
+#include <cmath>
 #include <vector>
 
 struct RGB8 {
@@ -98,17 +99,19 @@ struct Point {
   Point() : x(0.0f), y(0.0f)
   {}
 
-  Point(std::initializer_list<float> il)
-  {
+  Point(std::initializer_list<float> il) {
     auto it = il.begin();
     x = *it++;
     y = *it;
   }
 
-  void operator+=(const Point& p)
-  {
+  void operator+=(const Point& p) {
     x += p.x;
     y += p.y;
+  }
+
+  float operator%(const Point& p) {
+    return std::sqrt((x - p.x) * (x - p.x) + (y - p.y) * (y - p.y));
   }
 };
 
@@ -121,62 +124,47 @@ struct Polygon {
   std::vector<Frame> keyframes;
   unsigned int r, g, b;
 
-  RGB8 get_color() const
-  {
+  RGB8 getColor() const {
     return (0xff0000 & ((0xff & b) << 16)) |
            (0x00ff00 & ((0xff & g) <<  8)) |
                         (0xff & r);
   }
 
-  void set_color(unsigned int R, unsigned int G, unsigned int B)
-  {
+  void setColor(unsigned int R, unsigned int G, unsigned int B) {
     r = R; g = G; b = B;
   }
 
-  std::vector<Frame>::size_type get_num_keyframes() const
-  {
+  std::vector<Frame>::size_type getNumKeyframes() const {
     return keyframes.size();
   }
 
-  std::vector<Point>::size_type get_num_vertices() const
-  {
+  std::vector<Point>::size_type getNumVertices() const {
     return keyframes[0].vertices.size();
   }
 
-  std::vector<Point>& get_vertices(int frame)
-  {
-    return keyframes[frame].vertices;
-  }
   /**
-   \brief find_keyframe
-   This function will tell you if object <a> has a keyframe at
-   frame <frame>, and, if it does, its index in the object's
-   keyframe array.
-   For example, if an object has keyframes at frames 1, 5, and 10,
-   calling find_keyframe(a, 1) will return 0, find_keyframe(a, 10)
-   will return 2, and find_keyframe(a, 20) will return -1.
-   \param frame - a frame to check whether it's a keyframe
-   \return -1 if the object does not have a keyframe at frame,
-   otherwise the index of the keyframe in the array of keyframes.
+     \brief Find if polygon has a keyframe at <frame>, and
+            if it does, return the iterator in the polygon's keyframe vector.
+     \param frame - a frame to check whether it's a keyframe
+     \return iterator of the keyframe in the vector of keyframes or
+             end() iterator if there is no such keyframe.
    */
-  std::vector<Frame>::iterator
-  find_keyframe(int frame)
-  {
+  std::vector<Frame>::iterator findKeyframe(int frame) {
     return std::find_if(keyframes.begin(), keyframes.end(),
-                        [this, frame] (Frame& f) { return f.number == frame; });
+           [this, frame](Frame& f) { return f.number == frame; });
   }
   /**
-   \brief get_vertices
-   This function takes in an object <id>, a frame number and an
-   array of Points and fills in that array with the vertices of
-   that object at that point in time.  If the passed frame is
-   between keyframes, get_vertices will automatically interpolate
-   linearly and give you the correct values.
+     \brief Takes in an object <id>, a frame number and an
+            array of Points and fills in that array with the vertices of
+            that object at that point in time.  If the passed frame is
+            between keyframes, get_vertices will automatically interpolate
+            linearly and give you the correct values.
    */
-  RGB8 get_vertices(const float frame, std::vector<Point>& vertices);
+  RGB8 getVertices(const float frame, std::vector<Point>& vertices);
 
 };
 
+std::ostream& operator<<(std::ostream& os, const Point& p);
 std::ostream& operator<<(std::ostream& os, const Polygon& obj);
 
 #endif /* polygon_h */

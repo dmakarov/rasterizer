@@ -148,7 +148,7 @@ void Rasterizer::run(const std::vector<std::shared_ptr<Polygon>>& polygons,
           float adj_frame = (frame > max_frame) ? max_frame : frame;
           // Here we grab the vertices for this object at this snapshot in time
           std::vector<Point> vertices;
-          RGB8 color = p->get_vertices(adj_frame, vertices);
+          RGB8 color = p->getVertices(adj_frame, vertices);
 
           // shift vertices
           for (auto& v : vertices) {

@@ -99,7 +99,7 @@ public:
   bool anyKeyframe(int frame) const {
     auto E = polygons.end();
     return E != std::find_if(polygons.begin(), E, [frame](const PolySP& a)
-                { return a->find_keyframe(frame) != a->keyframes.end(); });
+                { return a->findKeyframe(frame) != a->keyframes.end(); });
   }
 
   void deleteKeyframe(int frame) {
@@ -107,7 +107,7 @@ public:
       return;
     }
     for (auto p : polygons) {
-      auto k = p->find_keyframe(frame);
+      auto k = p->findKeyframe(frame);
       auto E = p->keyframes.end();
       if (k != E) {
         for (auto j = k; j != E - 1; ++j) {

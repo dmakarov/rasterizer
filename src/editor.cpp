@@ -47,7 +47,7 @@ void EditorCanvas::paint()
   auto selected = scene.getSelectedPolygon();
   for (auto& p : polygons) {
     std::vector<Point> vertices;
-    auto color = p->get_vertices(frame, vertices);
+    auto color = p->getVertices(frame, vertices);
     glColor3d(color.get_red(), color.get_green(), color.get_blue());
     glLineWidth(selected == p ? 3 : 1);
     // draw the edges
@@ -94,7 +94,7 @@ void EditorCanvas::paint()
     glLineWidth(3);
     // first draw the edges
     auto p = scene.getActivePolygon();
-    const auto& c = p->get_color();
+    const auto& c = p->getColor();
     glColor3d(c.get_red(), c.get_green(), c.get_blue());
     auto& vertices = p->keyframes[0].vertices;
     glBegin(GL_LINE_STRIP);

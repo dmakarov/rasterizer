@@ -10,68 +10,68 @@
 
 #include <ostream>
 
-std::ostream& operator<<(std::ostream& os, const RGB8& obj)
+std::ostream& operator<<(std::ostream& os, const RGB8& p)
 {
-  os << std::hex << obj.pixel;
+  os << std::hex << p.pixel;
   return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const RGB32& obj)
+std::ostream& operator<<(std::ostream& os, const RGB32& p)
 {
-  os << '(' << obj.r << ',' << obj.g << ',' << obj.b << ')';
+  os << '(' << p.r << ',' << p.g << ',' << p.b << ')';
   return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const Polygon& obj)
+std::ostream& operator<<(std::ostream& os, const Point& p)
 {
-  os << "vertices " << obj.get_num_vertices()
-  << ", frames " << obj.keyframes.size()
-  << ", color " << obj.get_color();
+  os << '(' << p.x << ", " << p.y << ')';
+  return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const Polygon& p)
+{
+  os << "vertices " << p.getNumVertices()
+     << ", frames " << p.keyframes.size()
+     << ", color "  << p.getColor();
   return os;
 }
 
 /**
- *  This function returns the set of vertices for the passed object in
- *  the current frame
+   \returns the set of vertices in the frame, probably interpolated.
  */
-RGB8 Polygon::get_vertices(const float frame, std::vector<Point>& vertices)
+RGB8 Polygon::getVertices(const float frame, std::vector<Point>& vertices)
 {
-  auto prev_keyframe = -1.0f, next_keyframe = -1.0f;
   auto E = keyframes.end();
   auto prev_frame = E, next_frame = E;
-
-  for (auto i = static_cast<int>(frame); i >= 0; --i) {
-    if ((prev_frame = find_keyframe(i)) != E) {
+  auto prev_keyframe = 1.0f, next_keyframe = 1.0f;
+  for (auto i = static_cast<int>(frame); i > 0; --i) {
+    if ((prev_frame = findKeyframe(i)) != E) {
       prev_keyframe = i;
       break;
     }
   }
   // there should always be a keyframe at frame 1
   if (prev_frame == E) {
-    prev_frame = keyframes.begin() + 1;
+    prev_frame = keyframes.begin();
   }
   for (auto i = static_cast<int>(frame + 1); i <= (E - 1)->number; ++i) {
-    if ((next_frame = find_keyframe(i)) != E) {
+    if ((next_frame = findKeyframe(i)) != E) {
       next_keyframe = i;
       break;
     }
   }
-  auto& prev_keyframe_vertices = prev_frame->vertices;
-  // if there are no more keyframes, just go with the last frame
-  if (next_frame == keyframes.end()) {
-    vertices.resize(prev_keyframe_vertices.size());
-    std::copy(prev_keyframe_vertices.begin(), prev_keyframe_vertices.end(),
-              vertices.begin());
+  auto p = prev_frame->vertices.begin();
+  auto pE = prev_frame->vertices.end();
+  // if there are no more keyframes, just go with the last keyframe
+  if (next_frame == E) {
+    vertices.resize(prev_frame->vertices.size());
+    std::copy(p, pE, vertices.begin());
   } else { // here we do the interpolation
-    auto& next_keyframe_vertices = next_frame->vertices;
-    auto percent = (frame - prev_keyframe) / (next_keyframe - prev_keyframe);
-    for (std::vector<Point>::size_type i = 0; i < get_num_vertices(); ++i) {
-      auto x = (1 - percent) * prev_keyframe_vertices[i].x
-                  + percent  * next_keyframe_vertices[i].x;
-      auto y = (1 - percent) * prev_keyframe_vertices[i].y
-                  + percent  * next_keyframe_vertices[i].y;
-      vertices.emplace_back(Point{x, y});
+    auto r = (frame - prev_keyframe) / (next_keyframe - prev_keyframe);
+    auto q = 1.0f - r;
+    for (auto n = next_frame->vertices.begin(); p != pE; ++p, (void)++n) {
+      vertices.emplace_back(Point{q * p->x + r * n->x, q * p->y + r * n->y});
     }
   }
-  return get_color();
+  return getColor();
 }
