@@ -1,9 +1,9 @@
-//
-//  polygon.h
-//
-//  Created by Dmitri Makarov on 16-08-19.
-//
-//
+/**
+   \file polygon.h
+
+   Created by Dmitri Makarov on 16-08-19.
+   Copyright © 2016 Dmitri Makarov. All rights reserved.
+*/
 
 #ifndef polygon_h
 #define polygon_h
@@ -23,38 +23,31 @@ struct RGB8 {
   RGB8(const RGB8& pixel) : pixel(pixel.pixel)
   {}
 
-  float get_red() const
-  {
+  float get_red() const {
     return ((float) (pixel & 0xff)) / 255.0f;
   }
 
-  void set_red(unsigned int c)
-  {
+  void set_red(unsigned int c) {
     pixel = (pixel & 0xffffff00) | (c & 0xff);
   }
 
-  float get_green() const
-  {
+  float get_green() const {
     return ((float) ((pixel >> 8) & 0xff)) / 255.0f;
   }
 
-  void set_green(unsigned int c)
-  {
+  void set_green(unsigned int c) {
     pixel = (pixel & 0xffff00ff) | ((c << 8) & 0xff00);
   }
 
-  float get_blue() const
-  {
+  float get_blue() const {
     return ((float) ((pixel >> 16) & 0xff)) / 255.0f;
   }
 
-  void set_blue(unsigned int c)
-  {
+  void set_blue(unsigned int c) {
     pixel = (pixel & 0xff00ffff) | ((c << 16) & 0xff0000);
   }
 
-  operator bool() const
-  {
+  operator bool() const {
     return pixel != 0;
   }
 
@@ -72,20 +65,17 @@ struct RGB32 {
   , b((c.pixel & 0xff0000) >> 16)
   {}
 
-  RGB8 get(unsigned int k) const
-  {
+  RGB8 get(unsigned int k) const {
     return r / k + ((g / k) << 8) + ((b / k) << 16);
   }
 
-  void operator+=(const RGB32& a)
-  {
+  void operator+=(const RGB32& a) {
     r += a.r;
     g += a.g;
     b += a.b;
   }
 
-  RGB32& operator*(unsigned int w)
-  {
+  RGB32& operator*(unsigned int w) {
     r *= w;
     g *= w;
     b *= w;
@@ -168,3 +158,7 @@ std::ostream& operator<<(std::ostream& os, const Point& p);
 std::ostream& operator<<(std::ostream& os, const Polygon& obj);
 
 #endif /* polygon_h */
+
+// Local Variables:
+// mode: c++
+// End:

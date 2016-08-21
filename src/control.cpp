@@ -211,9 +211,14 @@ Control::~Control() {
   }
 }
 
-void Control::update(Subject* subject)
+void Control::update(Subject* subject, int msg)
 {
   if (subject == editor) {
+    if (msg > 0) {
+      current_frame = msg;
+      spin_frame->SetValue(current_frame);
+      return;
+    }
     editor = nullptr;
     return;
   }

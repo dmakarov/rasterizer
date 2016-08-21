@@ -152,3 +152,7 @@ public:
 };
 
 #endif /* scene_h */
+
+// Local Variables:
+// mode: c++
+// End:

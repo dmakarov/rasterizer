@@ -26,8 +26,7 @@ struct Edge {
   Edge(float y = 0, float x = 0, float k = 0) : yy(y), xx(x), kk(k)
   {}
 
-  bool operator<(const Edge& edge) const
-  {
+  bool operator<(const Edge& edge) const {
     return (xx < edge.xx);
   }
 };
@@ -39,14 +38,13 @@ public:
   explicit edge_ymax_le(float yy) : ymax(yy)
   {}
 
-  bool operator()(const Edge& edge) const
-  {
+  bool operator()(const Edge& edge) const {
     return (edge.yy <= ymax);
   }
 };
 
 /**
-  \brief Abuffer holds canvas pixels with 32 bits per RGB component.
+   \brief Abuffer holds canvas pixels with 32 bits per RGB component.
 */
 struct Abuffer {
   size_t size;
@@ -71,7 +69,7 @@ struct Abuffer {
 };
 
 /**
-  \class implements the rasterization algorithm on canvas with the objects.
+   \class implements the rasterization algorithm on canvas with the objects.
 */
 class Rasterizer {
 
@@ -103,8 +101,8 @@ public:
   }
 
   /**
-    \brief takes a frame number, and a bunch of arguments showing how the frame
-    should be rasterized.
+     \brief takes a frame number, and a bunch of arguments showing how the frame
+            should be rasterized.
   */
   void run(const std::vector<std::shared_ptr<Polygon>>& polygons,
            int frame,

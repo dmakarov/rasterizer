@@ -33,11 +33,9 @@ class Control : public wxPanel, public Observer
 
 public:
 
-  Control(wxFrame* frame,
-          const wxPoint& editor_pos,
-          const wxPoint& viewer_pos);
+  Control(wxFrame* frame, const wxPoint& editor_pos, const wxPoint& viewer_pos);
   virtual ~Control();
-  void update(Subject* subject);
+  void update(Subject* subject, int msg = 0) override;
 
 private:
 

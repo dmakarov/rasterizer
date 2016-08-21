@@ -13,11 +13,13 @@
 #include <wx/wx.h>
 #include <wx/glcanvas.h>
 
+class EditorFrame;
+
 class EditorCanvas : public wxGLCanvas {
 public:
 
   EditorCanvas(Scene& scene,
-               wxWindow* parent,
+               EditorFrame* p,
                wxWindowID id,
                const int* attributes,
                const wxPoint& pos,
@@ -25,8 +27,9 @@ public:
                const long style = 0,
                const wxString& name = "Editor Canvas",
                const wxPalette& palette = wxNullPalette)
-    : wxGLCanvas(parent, id, attributes, pos, size, style, name, palette)
+    : wxGLCanvas((wxWindow*)p, id, attributes, pos, size, style, name, palette)
     , context(new wxGLContext(this))
+    , parent(p)
     , scene(scene)
     , state(State::NONE)
     , frame(1)
@@ -44,6 +47,7 @@ private:
   enum class State {NONE, DRAW, ROTATE, SCALE, MOVE, DRAG};
 
   std::unique_ptr<wxGLContext> context;
+  EditorFrame* parent;
   Scene& scene;
   State state;
   int frame;
@@ -63,18 +67,18 @@ private:
 };
 
 /**
-   \brief The editor window.
+ \brief The editor window.
  */
 class EditorFrame : public wxFrame, public Subject {
 
 public:
 
   EditorFrame(Scene& scene, wxWindowID id, const wxPoint& pos)
-    : wxFrame(nullptr, id, wxT("Scene Editor"), pos,
-              wxSize(scene.getWidth(), scene.getHeight()),
-              wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE)
-    , canvas(new EditorCanvas(scene, this, wxID_ANY, nullptr,
-                              wxDefaultPosition, GetClientSize())) {
+  : wxFrame(nullptr, id, wxT("Scene Editor"), pos,
+            wxSize(scene.getWidth(), scene.getHeight()),
+            wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE)
+  , canvas(new EditorCanvas(scene, this, wxID_ANY, nullptr,
+                            wxDefaultPosition, GetClientSize())) {
     canvas->SetFocus();
   }
 
@@ -94,7 +98,7 @@ private:
   }
 
   wxDECLARE_EVENT_TABLE();
-
+  
 };
 
 #endif /* editor_h */

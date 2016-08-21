@@ -128,8 +128,8 @@ void EditorCanvas::OnChar(wxKeyEvent& event)
   switch(event.GetUnicodeKey()) {
   case 8:   // FIXME what key is this?
   case 127: scene.deleteSelected(); break;
-  case '.': if (frame < 99) ++frame; break;
-  case ',': if (frame >  1) --frame; break;
+  case '.': if (frame < 99) parent->notify(++frame); break;
+  case ',': if (frame >  1) parent->notify(--frame); break;
   default: break;
   }
   Refresh();

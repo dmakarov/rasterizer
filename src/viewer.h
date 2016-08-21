@@ -12,7 +12,6 @@
 #include <wx/graphics.h>
 #include <wx/wx.h>
 
-// Define a new canvas which can receive some events
 class Viewer : public wxWindow
 {
 public:
@@ -34,8 +33,7 @@ private:
 
   Rasterizer& rasterizer;
 
-  void OnPaint(wxPaintEvent& event)
-  {
+  void OnPaint(wxPaintEvent& event) {
     wxPaintDC dc(this);
     auto* gc = wxGraphicsContext::Create(dc);
     if (gc) {
@@ -66,8 +64,7 @@ public:
   virtual ~ViewerFrame()
   {}
 
-  void OnClose(wxCloseEvent& event)
-  {
+  void OnClose(wxCloseEvent& event) {
     notify();
     Destroy();
   }

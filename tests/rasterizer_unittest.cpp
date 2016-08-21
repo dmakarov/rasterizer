@@ -22,6 +22,37 @@ TEST(RGB8, ConstructFromValue) {
   EXPECT_EQ(1.f, white.get_blue());
 }
 
+TEST(Polygon, GetVertices) {
+  Frame f;
+  f.vertices.emplace_back(Point{1,2});
+  f.vertices.emplace_back(Point{3,4});
+  f.vertices.emplace_back(Point{5,6});
+  f.number = 1;
+  Polygon p;
+  p.keyframes.emplace_back(f);
+  f.vertices[0] = Point{7,8};
+  f.vertices[1] = Point{9,10};
+  f.vertices[2] = Point{11,12};
+  f.number = 3;
+  p.keyframes.emplace_back(f);
+  std::vector<Point> v;
+  p.getVertices(4.5f, v);
+  EXPECT_EQ(v[0].x, 7);
+  EXPECT_EQ(v[0].y, 8);
+  EXPECT_EQ(v[1].x, 9);
+  EXPECT_EQ(v[1].y, 10);
+  EXPECT_EQ(v[2].x, 11);
+  EXPECT_EQ(v[2].y, 12);
+  v.clear();
+  p.getVertices(2.0f, v);
+  EXPECT_EQ(v[0].x, 4);
+  EXPECT_EQ(v[0].y, 5);
+  EXPECT_EQ(v[1].x, 6);
+  EXPECT_EQ(v[1].y, 7);
+  EXPECT_EQ(v[2].x, 8);
+  EXPECT_EQ(v[2].y, 9);
+}
+
 TEST(Scene, RenderToFile) {
   Scene s;
   std::vector<std::string> args{"1", "1", "../examples/sample1.obs", "image"};

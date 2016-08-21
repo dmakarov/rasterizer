@@ -1,13 +1,13 @@
-//
-//  polygon.cpp
-//  rasterizer
-//
-//  Created by Dmitri Makarov on 16-08-19.
-//
-//
+/**
+   \file polygon.cpp
+
+   Created by Dmitri Makarov on 16-08-19.
+   Copyright © 2016 Dmitri Makarov. All rights reserved.
+ */
 
 #include "polygon.h"
 
+#include <cassert>
 #include <ostream>
 
 std::ostream& operator<<(std::ostream& os, const RGB8& p)
@@ -41,35 +41,35 @@ std::ostream& operator<<(std::ostream& os, const Polygon& p)
  */
 RGB8 Polygon::getVertices(const float frame, std::vector<Point>& vertices)
 {
-  auto E = keyframes.end();
-  auto prev_frame = E, next_frame = E;
-  auto prev_keyframe = 1.0f, next_keyframe = 1.0f;
-  for (auto i = static_cast<int>(frame); i > 0; --i) {
-    if ((prev_frame = findKeyframe(i)) != E) {
-      prev_keyframe = i;
-      break;
-    }
-  }
+  assert(frame >= 1.0f);
+  auto kE = keyframes.end();
+  auto prevIt = kE, nextIt = kE;
+  auto prevNum = 1.0f, nextNum = 1.0f;
   // there should always be a keyframe at frame 1
-  if (prev_frame == E) {
-    prev_frame = keyframes.begin();
-  }
-  for (auto i = static_cast<int>(frame + 1); i <= (E - 1)->number; ++i) {
-    if ((next_frame = findKeyframe(i)) != E) {
-      next_keyframe = i;
+  for (auto i = static_cast<int>(frame); i > 0; --i) {
+    if ((prevIt = findKeyframe(i)) != kE) {
+      prevNum = i;
       break;
     }
   }
-  auto p = prev_frame->vertices.begin();
-  auto pE = prev_frame->vertices.end();
-  // if there are no more keyframes, just go with the last keyframe
-  if (next_frame == E) {
-    vertices.resize(prev_frame->vertices.size());
-    std::copy(p, pE, vertices.begin());
-  } else { // here we do the interpolation
-    auto r = (frame - prev_keyframe) / (next_keyframe - prev_keyframe);
+  for (auto i = static_cast<int>(frame + 1); i <= (kE - 1)->number; ++i) {
+    if ((nextIt = findKeyframe(i)) != kE) {
+      nextNum = i;
+      break;
+    }
+  }
+  auto p = prevIt->vertices.begin();
+  auto E = prevIt->vertices.end();
+  auto s = prevIt->vertices.size();
+  // if frame is a keyframe or there are no more keyframes, go with the last one
+  if (frame == prevNum || nextIt == kE) {
+    vertices.resize(s);
+    std::copy(p, E, vertices.begin());
+  } else { // do the interpolation
+    auto r = (frame - prevNum) / (nextNum - prevNum);
     auto q = 1.0f - r;
-    for (auto n = next_frame->vertices.begin(); p != pE; ++p, (void)++n) {
+    vertices.reserve(s);
+    for (auto n = nextIt->vertices.begin(); p != E; ++p, (void)++n) {
       vertices.emplace_back(Point{q * p->x + r * n->x, q * p->y + r * n->y});
     }
   }
