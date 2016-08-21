@@ -28,7 +28,7 @@ public:
     : wxGLCanvas(parent, id, attributes, pos, size, style, name, palette)
     , context(new wxGLContext(this))
     , scene(scene)
-    , state(NONE)
+    , state(State::NONE)
     , frame(1)
   {}
 
@@ -41,9 +41,11 @@ public:
 
 private:
 
+  enum class State {NONE, DRAW, ROTATE, SCALE, MOVE, DRAG};
+
   std::unique_ptr<wxGLContext> context;
   Scene& scene;
-  enum State {NONE, DRAW, ROTATE, SCALE, MOVE, DRAG} state;
+  State state;
   int frame;
 
   void paint();

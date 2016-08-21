@@ -35,8 +35,8 @@ class Scene : public Subject {
 
 public:
 
-  Scene(int w = 500, int h = 500)
-  : rasterizer{w, h}, width(w), height(h) {}
+  Scene(int w = 500, int h = 500) : rasterizer{w, h}, width(w), height(h)
+  {}
 
   const std::vector<PolySP>& getPolygons() const {
     return polygons;

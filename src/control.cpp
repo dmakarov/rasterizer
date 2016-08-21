@@ -64,7 +64,7 @@ Control::Control(wxFrame* frame,
   auto* sbox = new wxStaticBox(this, wxID_ANY, wxT("Info"),
                                wxDefaultPosition, wxSize(SBOX_WIDTH, -1));
   auto* ssizer = new wxStaticBoxSizer(sbox, wxVERTICAL);
-  stxt_objectid = new wxStaticText(sbox, wxID_ANY, wxT("Object ID:"));
+  stxt_objectid = new wxStaticText(sbox, wxID_ANY, wxT("Polygon:"));
   stxt_objectid->Disable();
   ssizer->Add(stxt_objectid, 0, wxALIGN_LEFT | wxALL, 5);
   stxt_vertices = new wxStaticText(sbox, wxID_ANY, wxT("Vertices:"));
@@ -75,7 +75,7 @@ Control::Control(wxFrame* frame,
   ssizer->Add(stxt_keyframe, 0, wxALIGN_LEFT | wxALL, 5);
   vsizer->Add(ssizer, 0, wxALIGN_CENTER | wxALL, 5);
 
-  sbox = new wxStaticBox(this, wxID_ANY, wxT("Animation"),
+  sbox = new wxStaticBox(this, wxID_ANY, wxT("Frame"),
                          wxDefaultPosition, wxSize(SBOX_WIDTH, -1));
   ssizer = new wxStaticBoxSizer(sbox, wxHORIZONTAL);
   button_delete_keyframe = new wxButton(sbox, ID_BUTTON_DELETE_KEYFRAME,
@@ -91,7 +91,7 @@ Control::Control(wxFrame* frame,
   ssizer->Add(spin_frame, 0, wxALIGN_RIGHT | wxALL, 5);
   vsizer->Add(ssizer, 0, wxALIGN_LEFT | wxALL, 5);
 
-  sbox = new wxStaticBox(this, wxID_ANY, wxT("Objects"),
+  sbox = new wxStaticBox(this, wxID_ANY, wxT("Scene"),
                          wxDefaultPosition, wxSize(SBOX_WIDTH, -1));
   ssizer = new wxStaticBoxSizer(sbox, wxVERTICAL);
   text_filename = new wxTextCtrl(this, wxID_ANY, wxEmptyString,
@@ -168,15 +168,6 @@ Control::Control(wxFrame* frame,
                                    radio_buttons_labels,
                                    2, wxRA_SPECIFY_ROWS);
   ssizer->Add(radio_box, 0, wxALIGN_LEFT | wxALL);
-  /*
-    "Start Frame:", GLUI_EDITTEXT_INT, &first_frame);
-    start_frame_editor->set_int_val(1);
-    start_frame_editor->set_int_limits(1, 100);
-
-    "End Frame:", GLUI_EDITTEXT_INT, &final_frame);
-    end_frame_editor->set_int_val(100);
-    end_frame_editor->set_int_limits(1, 100);
-  */
   hsizer = new wxBoxSizer(wxHORIZONTAL);
   stxt_sframe = new wxStaticText(this, wxID_ANY, wxT("First frame"));
   stxt_sframe->Disable();
@@ -233,7 +224,7 @@ void Control::update(Subject* subject)
   if (scene.isSelected()) {
     auto selected_object = scene.getSelectedPolygon();
     std::ostringstream oss;
-    oss << "Object ID: " << scene.getSelectedPolygonId();
+    oss << "Polygon: " << scene.getSelectedPolygonId();
     stxt_objectid->SetLabel(oss.str());
     stxt_objectid->Enable();
     oss.str("");
@@ -245,7 +236,7 @@ void Control::update(Subject* subject)
     stxt_keyframe->SetLabel(oss.str());
     stxt_keyframe->Enable();
   } else {
-    stxt_objectid->SetLabel(wxT("Object ID:"));
+    stxt_objectid->SetLabel(wxT("Polygon:"));
     stxt_objectid->Disable();
     stxt_vertices->SetLabel(wxT("Vertices:"));
     stxt_vertices->Disable();

@@ -17,14 +17,8 @@
 #include <memory>
 #include <vector>
 
-enum SHIFT_MODE_TYPE {
-  GRID = 0,
-  RANDOM
-};
-
-enum WEIGHT_FUNC_TYPE {
-  BOX = 0,
-  BARTLETT };
+enum class SHIFT_MODE { GRID, RANDOM };
+enum class WEIGHT_FUN { BOX, BARTLETT };
 
 struct Edge {
   float yy, xx, kk;
@@ -61,16 +55,18 @@ struct Abuffer {
   Abuffer(size_t w = 0, size_t h = 0) : size(w * h), pixels(new RGB32[size])
   {}
 
-  void add(size_t x, RGB8 color, unsigned int weight = 1)
-  {
-    assert(x < size);
-    pixels[x] += RGB32(color) * weight;
+  void add(const RGB8* colors, size_t size, unsigned int weight = 1) {
+    assert(size <= this->size);
+    for (int x = 0; x < size; ++x) {
+      pixels[x] += RGB32(colors[x]) * weight;
+    }
   }
 
-  RGB8 get(size_t x, unsigned int k)
-  {
-    assert(x < size);
-    return pixels[x].get(k);
+  void get(RGB8* p, size_t size, unsigned int k) {
+    assert(size <= this->size);
+    for (int x = 0; x < size; ++x) {
+      p[x] = pixels[x].get(k);
+    }
   }
 };
 
@@ -88,7 +84,7 @@ public:
   static const auto MAX_SAMPLES = 64;
 
   Rasterizer(int w = 500, int h = 500)
-  : pixels(new RGB8[w * h]), width(w), height(h) {
+    : pixels(new RGB8[w * h]), width(w), height(h) {
     clear();
   }
 

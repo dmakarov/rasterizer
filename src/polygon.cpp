@@ -65,12 +65,11 @@ RGB8 Polygon::get_vertices(const float frame, std::vector<Point>& vertices)
   } else { // here we do the interpolation
     auto& next_keyframe_vertices = next_frame->vertices;
     auto percent = (frame - prev_keyframe) / (next_keyframe - prev_keyframe);
-    for (std::vector<Point>::size_type i = 0;
-         i < get_num_vertices(); ++i) {
+    for (std::vector<Point>::size_type i = 0; i < get_num_vertices(); ++i) {
       auto x = (1 - percent) * prev_keyframe_vertices[i].x
-      + percent  * next_keyframe_vertices[i].x;
+                  + percent  * next_keyframe_vertices[i].x;
       auto y = (1 - percent) * prev_keyframe_vertices[i].y
-      + percent  * next_keyframe_vertices[i].y;
+                  + percent  * next_keyframe_vertices[i].y;
       vertices.emplace_back(Point{x, y});
     }
   }

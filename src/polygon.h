@@ -124,8 +124,8 @@ struct Polygon {
   RGB8 get_color() const
   {
     return (0xff0000 & ((0xff & b) << 16)) |
-    (0x00ff00 & ((0xff & g) <<  8)) |
-    (0xff & r);
+           (0x00ff00 & ((0xff & g) <<  8)) |
+                        (0xff & r);
   }
 
   void set_color(unsigned int R, unsigned int G, unsigned int B)
@@ -174,7 +174,7 @@ struct Polygon {
    linearly and give you the correct values.
    */
   RGB8 get_vertices(const float frame, std::vector<Point>& vertices);
-  
+
 };
 
 std::ostream& operator<<(std::ostream& os, const Polygon& obj);

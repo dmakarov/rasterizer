@@ -15,38 +15,24 @@
 #include <sstream>
 #include <string>
 
-static SHIFT_MODE_TYPE shift_mode = RANDOM;
-static WEIGHT_FUNC_TYPE weight_mode = BOX;
+static SHIFT_MODE shift_mode = SHIFT_MODE::RANDOM;
+static WEIGHT_FUN weight_fun = WEIGHT_FUN::BOX;
 static std::uniform_real_distribution<float> urf(-0.5f, 0.5f);
 static std::default_random_engine e;
-
-#ifdef DEBUG_RASTERIZER
-bool validate_aet(std::list<edge_type>& el)
-{
-  if (0 == el.size())
-    return true;
-  auto prev = el.begin()->xx;
-  for (auto li = el.begin() + 1; li != el.end(); ++li) {
-    auto curr = li->xx;
-    if (prev > curr)
-      return false;
-    prev = curr;
-  }
-  return true;
-} // validate_aet
-#endif
 
 // Bartlett filter implementation:
 inline int filter(int sample, int total)
 {
-  if (BOX == weight_mode || (sample == total / 2 && 0 == total % 2))
+  if (WEIGHT_FUN::BOX == weight_fun ||
+      (sample == total / 2 && 0 == total % 2)) {
     return 0;
+  }
   return (sample < total / 2 + total % 2) ? 1 : - 1;
 } // bartlett
 
-static float shift_function(int mode)
+static float shift_function(SHIFT_MODE mode)
 {
-  return (RANDOM == mode) ? urf(e) : 0.0f;
+  return (SHIFT_MODE::RANDOM == mode) ? urf(e) : 0.0f;
 } // shift_function
 
 // Build a table of coordinate shifts within a pixel boundaries.
@@ -60,12 +46,12 @@ static void precompute_shifts(Point data[8][8], int dim)
   }
 
   if (dim > 8) dim = 8;
-  float shift = 1.0 / (float)dim;
-  float start = shift / 2.0 - 0.5;
+  auto shift = 1.0 / static_cast<float>(dim);
+  auto start = shift / 2.0 - 0.5;
+  auto incell = shift_function(shift_mode);
 
   for (int ii = 0; ii < dim; ++ii) {
     for (int jj = 0; jj < dim; ++jj) {
-      float incell = shift_function(shift_mode);
       data[ii][jj].x = start + ii * shift + incell * shift;
       data[ii][jj].y = start + jj * shift + incell * shift;
     }
@@ -79,30 +65,27 @@ static void precompute_shifts(Point data[8][8], int dim)
 static void parse_aafilter_func(const std::string& expr)
 {
   if (std::string::npos != expr.find("rand")) {
-    shift_mode = RANDOM;
-  }
-  if (std::string::npos != expr.find("grid")) {
-    shift_mode = GRID;
-  }
-  if (std::string::npos != expr.find("bart")) {
-    weight_mode = BARTLETT;
-  }
-  if (std::string::npos != expr.find("box")) {
-    weight_mode = BOX;
+    shift_mode = SHIFT_MODE::RANDOM;
+  } else if (std::string::npos != expr.find("grid")) {
+    shift_mode = SHIFT_MODE::GRID;
+  } else if (std::string::npos != expr.find("bart")) {
+    weight_fun = WEIGHT_FUN::BARTLETT;
+  } else if (std::string::npos != expr.find("box")) {
+    weight_fun = WEIGHT_FUN::BOX;
   }
 }
 
 static void add_edge(std::unique_ptr<std::list<Edge>[]>& et,
-                     Point* lo, Point* hi, int bias)
+                     const Point& lo, const Point& hi, const int bias)
 {
-  float slope = (hi->x - lo->x) / (hi->y - lo->y);
-  float ymin = ceilf(lo->y);
-  float xmin = lo->x + slope * (ymin - lo->y);
-  if ((slope < 0.0f && xmin < hi->x) || (slope > 0.0f && xmin > hi->x)) {
-    xmin = hi->x;
+  float slope = (hi.x - lo.x) / (hi.y - lo.y);
+  float ymin = ceilf(lo.y);
+  float xmin = lo.x + slope * (ymin - lo.y);
+  if ((slope < 0.0f && xmin < hi.x) || (slope > 0.0f && xmin > hi.x)) {
+    xmin = hi.x;
   }
   int bucket = ymin - bias;
-  et[bucket].emplace_back(Edge(hi->y, xmin, slope));
+  et[bucket].emplace_back(Edge(hi.y, xmin, slope));
 } // add_edge
 
 /**
@@ -147,24 +130,19 @@ void Rasterizer::run(const std::vector<std::shared_ptr<Polygon>>& polygons,
   int yyfilt = 1;
   int scans = 0;
 
-  for (int jj = 0; jj < tiles; ++jj)
-  {
+  for (int jj = 0; jj < tiles; ++jj) {
     int xxfilt = 1;
-    for (int ii = 0; ii < tiles; ++ii)
-    {
+    for (int ii = 0; ii < tiles; ++ii) {
       int aafilt = yyfilt * xxfilt;
       int mbfilt = 1;
-      for (int mov = 0; mov < num_mb_samples; ++mov)
-      {
+      for (int mov = 0; mov < num_mb_samples; ++mov) {
         float frame = (float)frame_num + frame_offset + frame_shift * mov;
-        if (frame < 1.0)
-        {
+        if (frame < 1.0) {
           mbfilt += filter(mov + 1, num_mb_samples);
           continue;
         }
         pad.clear();
-        for (auto& p : polygons)
-        {
+        for (auto& p : polygons) {
           // make sure it hasn't gone beyond the last frame
           float max_frame = (p->keyframes.end() - 1)->number;
           float adj_frame = (frame > max_frame) ? max_frame : frame;
@@ -180,9 +158,7 @@ void Rasterizer::run(const std::vector<std::shared_ptr<Polygon>>& polygons,
           ++scans;
         }
         // accumulate:
-        for (int x = 0; x < height * width; ++x) {
-          abuf.add(x, pad.pixels[x], mbfilt * aafilt);
-        }
+        abuf.add(pad.pixels.get(), width * height, mbfilt * aafilt);
         // done with another sample:
         samples += mbfilt * aafilt;
         mbfilt += filter(mov + 1, num_mb_samples);
@@ -196,38 +172,22 @@ void Rasterizer::run(const std::vector<std::shared_ptr<Polygon>>& polygons,
 
   clear();
   // convert accumulation buffer to RGB8 and copy to the render canvas.
-  for (int x = 0; x < height * width; ++x) {
-    pixels[x] = abuf.get(x, samples);
-  }
-} // Rasterize
+  abuf.get(pixels.get(), height * width, samples);
+}
 
 void Rasterizer::scanConvert(std::vector<Point>& vertex, RGB8 color) const
 {
-  auto vertno = vertex.size();
-
-#ifdef DEBUG_RASTERIZER
-  std::cout << "color " << color << std::endl;
-  for (int ii = 0; ii < vertno; ++ii)
-  {
-    printf( "  VERTEX #%2d: <%g, %g>\n", ii, vertex[ii].x, vertex[ii].y );
-    //
-    SET_RED(Pixels[vertex[ii].x-1 + (int)vertex[ii].y * Width], 255);
-    SET_RED(Pixels[vertex[ii].x+0 + (int)vertex[ii].y * Width], 255);
-    SET_RED(Pixels[vertex[ii].x+1 + (int)vertex[ii].y * Width], 255);
-  }
-#endif
-
+  // NO VERTICES TO SCAN
   if (vertex.empty()) {
-    //std::cout << "NO VERTICES TO SCAN %d" << vertno << std::endl;
     return;
   }
 
   // find the range of y coordinates:
-  float ymax = vertex[0].y;
-  float ymin = ymax;
+  auto ymax = vertex[0].y;
+  auto ymin = ymax;
 
-  for (decltype(vertno) ii = 1; ii < vertno; ++ii)
-  {
+  auto vertno = vertex.size();
+  for (decltype(vertno) ii = 1; ii < vertno; ++ii) {
     if (ymax < vertex[ii].y) ymax = vertex[ii].y;
     if (ymin > vertex[ii].y) ymin = vertex[ii].y;
   }
@@ -235,115 +195,58 @@ void Rasterizer::scanConvert(std::vector<Point>& vertex, RGB8 color) const
   int bias = (int)ceilf(ymin);
   int range = (int)ceilf(ymax) - bias + 1;
 
-  //printf("THE EDGE TABLE [%f,%f] size %d, bias %d\n", ymin, ymax, range, bias);
-
   // build the edge table
   std::unique_ptr<std::list<Edge>[]> edge_table(new std::list<Edge>[range]);
 
-  for (decltype(vertno) ii = 0; ii < vertno; ++ii)
-  {
+  for (decltype(vertno) ii = 0; ii < vertno; ++ii) {
     // do not add horizontal edges to the edge table.
     auto jj = (ii + 1) % vertno;
-    if (vertex[ii].y < vertex[jj].y)
-    {
-      add_edge(edge_table, &vertex[ii], &vertex[jj], bias);
-    }
-    else if (vertex[ii].y > vertex[jj].y)
-    {
-      add_edge(edge_table, &vertex[jj], &vertex[ii], bias);
+    if (vertex[ii].y < vertex[jj].y) {
+      add_edge(edge_table, vertex[ii], vertex[jj], bias);
+    } else if (vertex[ii].y > vertex[jj].y) {
+      add_edge(edge_table, vertex[jj], vertex[ii], bias);
     }
   }
 
-#ifdef DEBUG_RASTERIZER
-  print_et( edge_table, range, bias );
-#endif
-
   // initialize active edge table
-
   std::list<Edge> aet;
 
   // while not empty AET and ET
-
-  for (int jj = 0; jj < range; ++jj)
-  {
+  for (int jj = 0; jj < range; ++jj) {
     int line = jj + bias;
 
     // move from ET to AET y_min == y edges
-
-    std::list<Edge>::iterator li;
-    for (li = edge_table[jj].begin(); li != edge_table[jj].end(); ++li)
-    {
-      aet.push_back(*li);
+    for (auto& li : edge_table[jj]) {
+      aet.push_back(li);
     }
-
-#ifdef DEBUG_RASTERIZER
-    if (edge_table[jj].begin() != edge_table[jj].end())
-    {
-      DOUT(( "AET @ %3d after adding:", line ));
-      print_edge_list( aet );
-    }
-    li = std::find_if( aet.begin(), aet.end(), edge_ymax_le( line ) );
-#endif
 
     // delete from AET y_max == y edges
-
     aet.remove_if(edge_ymax_le(line));
-
-#ifdef DEBUG_RASTERIZER
-    if ( li != aet.end() )
-    {
-      DOUT(( "AET @ %3d after remove:", line ));
-      print_edge_list( aet );
-    }
-#endif
-    if (1 == aet.size())
-    {
-      std::cerr << "INTERNAL ERROR: INVALID AET\n";
-    }
-
+    assert(aet.size() != 1);
     aet.sort();
 
-#ifdef DEBUG_RASTERIZER
-    if ( !validate_aet( aet ) )
-    {
-      DOUT(( "AET is invalid after sorting.\n" ));
-    }
-#endif
     // fill in scan line by going through AET
+    auto parity = true;
 
-    bool parity = true;
-
-    for (li = aet.begin(); li != aet.end(); ++li)
-    {
-      if (parity)
-      {
+    for (auto li = aet.begin(), E = aet.end(); li != E; ++li) {
+      if (parity) {
         // scissor
-        if (0 <= line && line < height)
-        {
-          std::list<Edge>::iterator lj = li;
+        if (0 <= line && line < height) {
+          auto lj = li;
           ++lj;
 
-          //DOUT(("SPAN %3d: %d <-> %d\n",
-          //      line, (int)ceilf(li->xx), (int)lj->xx));
-
-          for (int xx = (int)ceilf(li->xx); xx <= lj->xx; ++xx)
-          {
+          for (int xx = (int)ceilf(li->xx); xx <= lj->xx; ++xx) {
             // scissor
-            if (0 <= xx && xx < width)
-            {
+            if (0 <= xx && xx < width) {
               pixels[xx + line * width] = color;
             }
           }
         }
         parity = false;
-      }
-      else
-      {
+      } else {
         parity = true;
       }
-
       // for each edge in AET update x for the new y.
-
       li->xx += li->kk;
     }
   }
