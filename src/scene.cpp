@@ -307,26 +307,18 @@ void Scene::rotate(const int frame, const long x, const long y)
 {
   assert(selected);
   Point m{static_cast<float>(x) - center.x, static_cast<float>(y) - center.y};
-  if (previous % m < 10) {
+  auto fi = atan2f(m.y, m.x) - atan2f(previous.y, previous.x);
+  // if less than 2 degrees, don't do anything yet
+  if (fabsf(fi) < M_PI / 90.0f) {
     return;
   }
-  if ((m.x < 0 && previous.x > 0) || (m.x > 0 && previous.y < 0)) {
-    previous = m;
-    return;
-  }
-  auto ro = sqrtf(m.x * m.x + m.y * m.y);
-  auto al = asinf(m.y / ro);
-  ro = sqrtf(previous.x * previous.x + previous.y * previous.y);
-  auto be = asinf(previous.y / ro);
-  auto sign = ((al > be && m.x > 0) || (al < be && m.x < 0)) ? 1.0f : -1.0f;
-  auto te = sign * 3.14159f / 18.0f;
-  auto sn = sinf(te);
-  auto cs = cosf(te);
   for (auto& v : selected->findKeyframe(frame)->vertices) {
-    v.x -= center.x;
-    v.y -= center.y;
-    v.x = cs * v.x - sn * v.y + center.x;
-    v.y = sn * v.x + cs * v.y + center.y;
+    auto vx = v.x - center.x;
+    auto vy = v.y - center.y;
+    auto vr = sqrtf(vx * vx + vy * vy);
+    auto vf = atan2f(vy, vx)+ fi;
+    v.x = center.x + vr * cosf(vf);
+    v.y = center.y + vr * sinf(vf);
   }
   previous = m;
 }
