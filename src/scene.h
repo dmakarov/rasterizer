@@ -134,6 +134,7 @@ public:
   void save(const std::string& filename) const;
   void renderToFile(const std::vector<std::string>& args);
 
+  void setRotationOrScalingCenter(long x, long y);
   void startDrawing(long x, long y);
   void startRotating(long x, long y);
   void startScaling(long x, long y);

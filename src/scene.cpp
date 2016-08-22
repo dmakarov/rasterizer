@@ -212,18 +212,21 @@ void Scene::startDrawing(long x, long y)
                                                 static_cast<float>(y)});
 }
 
+void Scene::setRotationOrScalingCenter(long x, long y)
+{
+  center = Point{static_cast<float>(x), static_cast<float>(y)};
+}
+
 void Scene::startRotating(long x, long y)
 {
   std::cout << "start rotating at " << x << ", " << y << '\n';
-  center.x = (float) x;
-  center.y = (float) y;
+  previous = Point{static_cast<float>(x), static_cast<float>(y)};
 }
 
 void Scene::startScaling(long x, long y)
 {
   std::cout << "start scaling at " << x << ", " << y << '\n';
-  center.x = (float) x;
-  center.y = (float) y;
+  previous = Point{static_cast<float>(x), static_cast<float>(y)};
 }
 
 void Scene::continueDrawing(long x, long y)
