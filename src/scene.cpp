@@ -220,13 +220,15 @@ void Scene::setRotationOrScalingCenter(long x, long y)
 void Scene::startRotating(long x, long y)
 {
   std::cout << "start rotating at " << x << ", " << y << '\n';
-  previous = Point{static_cast<float>(x), static_cast<float>(y)};
+  previous = Point{static_cast<float>(x) - center.x,
+                   static_cast<float>(y) - center.y};
 }
 
 void Scene::startScaling(long x, long y)
 {
   std::cout << "start scaling at " << x << ", " << y << '\n';
-  previous = Point{static_cast<float>(x), static_cast<float>(y)};
+  previous = Point{static_cast<float>(x) - center.x,
+                   static_cast<float>(y) - center.y};
 }
 
 void Scene::continueDrawing(long x, long y)
