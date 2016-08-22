@@ -8,6 +8,7 @@
 #ifndef polygon_h
 #define polygon_h
 
+#include <algorithm>
 #include <cmath>
 #include <vector>
 

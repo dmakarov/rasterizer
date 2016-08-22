@@ -55,14 +55,14 @@ struct Abuffer {
 
   void add(const RGB8* colors, size_t size, unsigned int weight = 1) {
     assert(size <= this->size);
-    for (int x = 0; x < size; ++x) {
+    for (size_t x = 0; x < size; ++x) {
       pixels[x] += RGB32(colors[x]) * weight;
     }
   }
 
   void get(RGB8* p, size_t size, unsigned int k) {
     assert(size <= this->size);
-    for (int x = 0; x < size; ++x) {
+    for (size_t x = 0; x < size; ++x) {
       p[x] = pixels[x].get(k);
     }
   }
