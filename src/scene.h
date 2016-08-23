@@ -134,21 +134,15 @@ public:
   void save(const std::string& filename) const;
   void renderToFile(const std::vector<std::string>& args);
 
-  void setRotationOrScalingCenter(long x, long y);
-  void startDrawing(long x, long y);
-  void startRotating(long x, long y);
-  void startScaling(long x, long y);
-  void continueDrawing(long x, long y);
-  void continueRotating(int frame, long x, long y);
-  void continueScaling(int frame, long x, long y);
-  void finishDrawing(long x, long y);
-  void finishRotating(long x, long y);
-  void finishScaling(long x, long y);
-
+  void setRotationOrScalingCenter(const long x, const long y);
+  void startRotatingOrScaling(const long x, const long y);
+  void startDrawing(const long x, const long y);
+  void finishDrawing(const long x, const long y);
   void select(const int frame, const long x, const long y);
   void rotate(const int frame, const long x, const long y);
   void scale(const int frame, const long x, const long y);
   void move(const int frame, const long x, const long y);
+  void draw(const long x, const long y);
 
 };
 

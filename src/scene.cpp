@@ -201,7 +201,19 @@ void Scene::renderToFile(const std::vector<std::string>& args)
   }
 }
 
-void Scene::startDrawing(long x, long y)
+void Scene::setRotationOrScalingCenter(const long x, const long y)
+{
+  center = Point{static_cast<float>(x), static_cast<float>(y)};
+}
+
+void Scene::startRotatingOrScaling(const long x, const long y)
+{
+  std::cout << "start rotating or scaling at " << x << ", " << y << '\n';
+  previous = Point{static_cast<float>(x) - center.x,
+                   static_cast<float>(y) - center.y};
+}
+
+void Scene::startDrawing(const long x, const long y)
 {
   std::cout << "start drawing at " << x << ", " << y << '\n';
   active = std::make_shared<Polygon>();
@@ -209,52 +221,10 @@ void Scene::startDrawing(long x, long y)
   active->keyframes[0].number = 1;
   active->setColor(255, 255, 255);
   active->keyframes[0].vertices.push_back(Point{static_cast<float>(x),
-                                                static_cast<float>(y)});
+    static_cast<float>(y)});
 }
 
-void Scene::setRotationOrScalingCenter(long x, long y)
-{
-  center = Point{static_cast<float>(x), static_cast<float>(y)};
-}
-
-void Scene::startRotating(long x, long y)
-{
-  std::cout << "start rotating at " << x << ", " << y << '\n';
-  previous = Point{static_cast<float>(x) - center.x,
-                   static_cast<float>(y) - center.y};
-}
-
-void Scene::startScaling(long x, long y)
-{
-  std::cout << "start scaling at " << x << ", " << y << '\n';
-  previous = Point{static_cast<float>(x) - center.x,
-                   static_cast<float>(y) - center.y};
-}
-
-void Scene::continueDrawing(long x, long y)
-{
-  Point m{static_cast<float>(x), static_cast<float>(y)};
-  auto p = active->keyframes[0].vertices.back();
-  // sqrt((px-mx)*(px-mx) + (py-my)*(py-my)) > 5)
-  if (p % m > 7) {
-    std::cout << "continue drawing at " << m << '\n';
-    active->keyframes[0].vertices.push_back(m);
-  }
-}
-
-void Scene::continueRotating(int frame, long x, long y)
-{
-  std::cout << "continue rotating at " << x << ", " << y << '\n';
-  rotate(frame, x, y);
-}
-
-void Scene::continueScaling(int frame, long x, long y)
-{
-  std::cout << "continue scaling at " << x << ", " << y << '\n';
-  scale(frame, x, y);
-}
-
-void Scene::finishDrawing(long x, long y)
+void Scene::finishDrawing(const long x, const long y)
 {
   std::cout << "finish drawing at " << x << ", " << y << '\n';
   // if we're in the middle of drawing something, then end it
@@ -267,16 +237,6 @@ void Scene::finishDrawing(long x, long y)
     }
     active = nullptr;
   }
-}
-
-void Scene::finishRotating(long x, long y)
-{
-  std::cout << "finish rotating at " << x << ", " << y << '\n';
-}
-
-void Scene::finishScaling(long x, long y)
-{
-  std::cout << "finish scaling at " << x << ", " << y << '\n';
 }
 
 void Scene::select(const int frame, const long x, const long y)
@@ -377,4 +337,13 @@ void Scene::move(const int frame, const long x, const long y)
   }
   previous.x = x;
   previous.y = y;
+}
+
+void Scene::draw(const long x, const long y)
+{
+  Point m{static_cast<float>(x), static_cast<float>(y)};
+  auto p = active->keyframes[0].vertices.back();
+  if (p % m > 7) {
+    active->keyframes[0].vertices.push_back(m);
+  }
 }
