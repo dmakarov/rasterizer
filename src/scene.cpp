@@ -272,7 +272,9 @@ void Scene::rotate(const int frame, const long x, const long y)
   if (fabsf(fi) < M_PI / 90.0f) {
     return;
   }
-  for (auto& v : selected->findKeyframe(frame)->vertices) {
+  auto kf = selected->findKeyframe(frame);
+  assert(kf != selected->keyframes.end());
+  for (auto& v : kf->vertices) {
     auto vx = v.x - center.x;
     auto vy = v.y - center.y;
     auto vr = sqrtf(vx * vx + vy * vy);
@@ -290,11 +292,13 @@ void Scene::scale(const int frame, const long x, const long y)
   if (previous % m < 10) {
     return;
   }
+  auto kf = selected->findKeyframe(frame);
+  assert(kf != selected->keyframes.end());
   auto dm = sqrt(m.x * m.x + m.y * m.y);
   auto dp = sqrt(previous.x * previous.x + previous.y * previous.y);
   auto sx = (dm > dp) ? 1.2f : 0.8f;
   auto sy = (dm > dp) ? 1.2f : 0.8f;
-  for (auto& v : selected->findKeyframe(frame)->vertices) {
+  for (auto& v : kf->vertices) {
     v.x -= center.x;
     v.y -= center.y;
     v.x = sx * v.x + center.x;
