@@ -19,8 +19,7 @@ bool Scene::load(const std::string& filename)
 {
   // check if there's something in the filename field
   std::ifstream infile(filename);
-  if (!infile)
-  {
+  if (!infile) {
     std::cerr << "Can't load file " << filename << "\n";
     return false;
   }
@@ -32,8 +31,7 @@ bool Scene::load(const std::string& filename)
   std::istringstream iss(line.substr(line.find_last_of(":") + 1));
   iss >> num_of_objects;
 
-  for (int i = 0; i < num_of_objects; ++i)
-  {
+  for (int i = 0; i < num_of_objects; ++i) {
     int num_vertices;
     unsigned int r, g, b;
     auto obj = std::make_shared<Polygon>();
@@ -134,10 +132,9 @@ void Scene::renderToFile(const std::vector<std::string>& args)
   bool mb_enabled = false;
   std::istringstream iss;
 
-  if (args.size() < 4 || args[0] == "-help")
-  {
+  if (args.size() < 4 || args[0] == "-help") {
     std::cout << "Usage: rasterizer [-a<#samples>] [-m<#samples>]"
-    << " <first frame> <last frame> <infile> <outfile>\n";
+              << " <first frame> <last frame> <infile> <outfile>\n";
     return;
   }
 
@@ -149,8 +146,7 @@ void Scene::renderToFile(const std::vector<std::string>& args)
   iss.clear();
   iss.str(*arg++);
   iss >> first_frame;
-  if (first_frame == 0 || final_frame == 0)
-  {
+  if (first_frame == 0 || final_frame == 0) {
     std::cerr << "Incorrect arguments. Type 'rasterizer -help' for more info\n";
     return;
   }
@@ -190,8 +186,7 @@ void Scene::renderToFile(const std::vector<std::string>& args)
   std::ofstream listfile(outfile + ".list");
   assert(listfile);
 
-  for (auto frame = first_frame; frame <= final_frame; ++frame)
-  {
+  for (auto frame = first_frame; frame <= final_frame; ++frame) {
     rasterizer.run(polygons, frame, aa_enabled, num_aa_samples,
                    mb_enabled, num_mb_samples, "");
     std::ostringstream oss;
@@ -221,7 +216,7 @@ void Scene::startDrawing(const long x, const long y)
   active->keyframes[0].number = 1;
   active->setColor(255, 255, 255);
   active->keyframes[0].vertices.push_back(Point{static_cast<float>(x),
-    static_cast<float>(y)});
+                                                static_cast<float>(y)});
 }
 
 void Scene::finishDrawing(const long x, const long y)
@@ -321,16 +316,12 @@ void Scene::move(const int frame, const long x, const long y)
     for (insertLoc = 0; insertLoc < selected->getNumKeyframes(); ++insertLoc)
       if (frame < selected->keyframes[insertLoc].number)
         break;
-
     selected->keyframes.push_back(selected->keyframes.back());
+    auto B = selected->keyframes.begin();
     for (auto i = selected->getNumKeyframes() - 2; i >= insertLoc; --i)
-      std::copy(selected->keyframes.begin() + i,
-                selected->keyframes.begin() + i + 1,
-                selected->keyframes.begin() + i + 1);
-
+      std::copy(B + i, B + i + 1, B + i + 1);
     std::copy(vertices.begin(), vertices.end(),
               selected->keyframes[insertLoc].vertices.begin());
-
     selected->keyframes[insertLoc].number = frame;
     keyframe = selected->findKeyframe(frame);
     assert(keyframe != selected->keyframes.end());
