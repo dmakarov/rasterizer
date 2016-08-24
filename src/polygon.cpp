@@ -75,3 +75,30 @@ RGB8 Polygon::getVertices(const float frame, std::vector<Point>& vertices)
   }
   return getColor();
 }
+
+/**
+   \brief Look for a keyframe at <frame>.  If we don't find it, then create a
+          new one in the right place.
+ */
+std::vector<Frame>::iterator Polygon::findOrCreateKeyframe(const int frame)
+{
+  auto kf = findKeyframe(frame);
+  if (kf != keyframes.end()) {
+    return kf;
+  }
+  std::vector<Point> v;
+  getVertices(frame, v);
+  std::vector<Frame>::size_type insertLoc = 0;
+  for (; insertLoc < keyframes.size(); ++insertLoc)
+    if (frame < keyframes[insertLoc].number)
+      break;
+  keyframes.push_back(keyframes.back());
+  auto B = keyframes.begin();
+  for (auto i = keyframes.size() - 2; i >= insertLoc; --i)
+    std::copy(B + i, B + i + 1, B + i + 1);
+  std::copy(v.begin(), v.end(), keyframes[insertLoc].vertices.begin());
+  keyframes[insertLoc].number = frame;
+  kf = findKeyframe(frame);
+  assert(kf != keyframes.end());
+  return kf;
+}

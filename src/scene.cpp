@@ -267,9 +267,7 @@ void Scene::rotate(const int frame, const long x, const long y)
   if (fabsf(fi) < M_PI / 90.0f) {
     return;
   }
-  auto kf = selected->findKeyframe(frame);
-  assert(kf != selected->keyframes.end());
-  for (auto& v : kf->vertices) {
+  for (auto& v : selected->findOrCreateKeyframe(frame)->vertices) {
     auto vx = v.x - center.x;
     auto vy = v.y - center.y;
     auto vr = sqrtf(vx * vx + vy * vy);
@@ -287,13 +285,11 @@ void Scene::scale(const int frame, const long x, const long y)
   if (previous % m < 10) {
     return;
   }
-  auto kf = selected->findKeyframe(frame);
-  assert(kf != selected->keyframes.end());
   auto dm = sqrt(m.x * m.x + m.y * m.y);
   auto dp = sqrt(previous.x * previous.x + previous.y * previous.y);
   auto sx = (dm > dp) ? 1.2f : 0.8f;
   auto sy = (dm > dp) ? 1.2f : 0.8f;
-  for (auto& v : kf->vertices) {
+  for (auto& v : selected->findOrCreateKeyframe(frame)->vertices) {
     v.x -= center.x;
     v.y -= center.y;
     v.x = sx * v.x + center.x;
@@ -305,28 +301,7 @@ void Scene::scale(const int frame, const long x, const long y)
 void Scene::move(const int frame, const long x, const long y)
 {
   assert(selected);
-  // look for a keyframe at this frame
-  // if we don't find it, then create a new one in the right place
-  auto keyframe = selected->findKeyframe(frame);
-  if (keyframe == selected->keyframes.end()) {
-    std::vector<Point> vertices;
-    selected->getVertices(frame, vertices);
-
-    decltype(selected->getNumKeyframes()) insertLoc;
-    for (insertLoc = 0; insertLoc < selected->getNumKeyframes(); ++insertLoc)
-      if (frame < selected->keyframes[insertLoc].number)
-        break;
-    selected->keyframes.push_back(selected->keyframes.back());
-    auto B = selected->keyframes.begin();
-    for (auto i = selected->getNumKeyframes() - 2; i >= insertLoc; --i)
-      std::copy(B + i, B + i + 1, B + i + 1);
-    std::copy(vertices.begin(), vertices.end(),
-              selected->keyframes[insertLoc].vertices.begin());
-    selected->keyframes[insertLoc].number = frame;
-    keyframe = selected->findKeyframe(frame);
-    assert(keyframe != selected->keyframes.end());
-  }
-  for (auto& v : keyframe->vertices) {
+  for (auto& v : selected->findOrCreateKeyframe(frame)->vertices) {
     v.x += (x - previous.x);
     v.y += (y - previous.y);
   }

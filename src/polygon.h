@@ -152,6 +152,7 @@ struct Polygon {
             linearly and give you the correct values.
    */
   RGB8 getVertices(const float frame, std::vector<Point>& vertices);
+  std::vector<Frame>::iterator findOrCreateKeyframe(int frame);
 
 };
 
