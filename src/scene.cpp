@@ -309,6 +309,16 @@ void Scene::move(const int frame, const long x, const long y)
   previous.y = y;
 }
 
+void Scene::drag(const int frame, const long x, const long y)
+{
+  assert(selected);
+  auto& v = selected->findOrCreateKeyframe(frame)->vertices;
+  v[selectedVertex].x += (x - previous.x);
+  v[selectedVertex].y += (y - previous.y);
+  previous.x = x;
+  previous.y = y;
+}
+
 void Scene::draw(const long x, const long y)
 {
   Point m{static_cast<float>(x), static_cast<float>(y)};

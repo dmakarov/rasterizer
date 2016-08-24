@@ -205,8 +205,10 @@ void EditorCanvas::OnMouse(wxMouseEvent& event)
     if (event.ButtonDown(wxMOUSE_BTN_LEFT)) {
       switch (event.GetModifiers()) {
       case wxMOD_SHIFT:
-        scene.startDrawing(x, y);
-        state = State::DRAW;
+        if (frame == 1) {
+          scene.startDrawing(x, y);
+          state = State::DRAW;
+        }
         break;
       case wxMOD_CONTROL:
         if (state == State::ROTATE) {

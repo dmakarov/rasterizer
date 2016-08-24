@@ -142,6 +142,7 @@ public:
   void rotate(const int frame, const long x, const long y);
   void scale(const int frame, const long x, const long y);
   void move(const int frame, const long x, const long y);
+  void drag(const int frame, const long x, const long y);
   void draw(const long x, const long y);
 };
 
