@@ -256,7 +256,8 @@ void EditorCanvas::OnMouse(wxMouseEvent& event)
     case State::SCALE:
       scene.scale(frame, x, y);
       break;
-    default:;
+    default:
+      scene.drag(frame, x, y);
     }
   } else if (event.RightIsDown()) {
     switch (state) {
