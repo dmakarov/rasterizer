@@ -42,7 +42,7 @@ std::ostream& operator<<(std::ostream& os, const Polygon& p)
 RGB8 Polygon::getVertices(const float frame, std::vector<Point>& vertices)
 {
   assert(frame >= 1.0f);
-  auto kE = keyframes.end();
+  auto kE = keyframes.cend();
   auto prevIt = kE, nextIt = kE;
   auto prevNum = 1.0f, nextNum = 1.0f;
   // there should always be a keyframe at frame 1
@@ -58,8 +58,8 @@ RGB8 Polygon::getVertices(const float frame, std::vector<Point>& vertices)
       break;
     }
   }
-  auto p = prevIt->vertices.begin();
-  auto E = prevIt->vertices.end();
+  auto p = prevIt->vertices.cbegin();
+  auto E = prevIt->vertices.cend();
   auto s = prevIt->vertices.size();
   // if frame is a keyframe or there are no more keyframes, go with the last one
   if (frame == prevNum || nextIt == kE) {
@@ -69,7 +69,7 @@ RGB8 Polygon::getVertices(const float frame, std::vector<Point>& vertices)
     auto r = (frame - prevNum) / (nextNum - prevNum);
     auto q = 1.0f - r;
     vertices.reserve(s);
-    for (auto n = nextIt->vertices.begin(); p != E; ++p, (void)++n) {
+    for (auto n = nextIt->vertices.cbegin(); p != E; ++p, (void)++n) {
       vertices.emplace_back(Point{q * p->x + r * n->x, q * p->y + r * n->y});
     }
   }

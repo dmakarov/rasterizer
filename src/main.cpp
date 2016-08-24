@@ -12,8 +12,7 @@
 #include <vector>
 
 /// \class MainFrame is the main application frame
-class MainFrame : public wxFrame
-{
+class MainFrame : public wxFrame {
 public:
   MainFrame(wxFrame* frame, const wxString& title,
             const wxPoint& pos, const wxSize& size)
@@ -23,17 +22,15 @@ public:
 
   virtual ~MainFrame() {}
 
-  void OnCloseWindow(wxCloseEvent& event)
-  {
+  void OnCloseWindow(wxCloseEvent& event) {
     static bool destroyed = false;
     if (destroyed) return;
     destroyed = true;
-    this->Destroy();
+    Destroy();
   }
 
-  void OnExit(wxCommandEvent& event)
-  {
-    this->Destroy();
+  void OnExit(wxCommandEvent& event) {
+    Destroy();
   }
 
   wxDECLARE_EVENT_TABLE();
@@ -45,16 +42,18 @@ wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
 wxEND_EVENT_TABLE()
 
 /// \class Application is a new application type
-class Application : public wxApp
-{
+class Application : public wxApp {
+
+  using vs = std::vector<std::string>;
+
 public:
-  bool OnInit()
-  {
+
+  bool OnInit() {
     // command-line arguments are set for batch mode, don't show the GUI
     if (argc > 1) {
       Scene s;
-      s.renderToFile(std::vector<std::string>(static_cast<char**>(argv) + 1,
-                                              static_cast<char**>(argv) + argc));
+      s.renderToFile(vs(static_cast<char**>(argv) + 1,
+                        static_cast<char**>(argv) + argc));
       return true;
     }
     compute_window_positions();
@@ -71,8 +70,7 @@ private:
   wxPoint editor_position;
   wxPoint viewer_position;
 
-  void compute_window_positions()
-  {
+  void compute_window_positions() {
     auto area = wxGetClientDisplayRect();
     control_position.x = area.x + 10;
     control_position.y = area.y + 5;

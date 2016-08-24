@@ -88,7 +88,7 @@ public:
     if (selected == nullptr) {
       return;
     }
-    polygons.erase(polygons.begin() + selectedID);
+    polygons.erase(polygons.cbegin() + selectedID);
     selected = nullptr;
     notify();
   }
@@ -97,8 +97,8 @@ public:
    \returns false if no object has keyframe at <frame> and true otherwise.
    */
   bool anyKeyframe(int frame) const {
-    auto E = polygons.end();
-    return E != std::find_if(polygons.begin(), E, [frame](const PolySP& a)
+    auto E = polygons.cend();
+    return E != std::find_if(polygons.cbegin(), E, [frame](const PolySP& a)
                 { return a->findKeyframe(frame) != a->keyframes.end(); });
   }
 
