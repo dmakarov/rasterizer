@@ -161,6 +161,7 @@ void EditorCanvas::OnMouseLeftDown(wxMouseEvent& event)
     }
     break;
   default:
+    // if there's a vertex in the area, select it
     scene.select(frame, x, y);
     if (scene.isSelected()) {
       state = State::DRAG;
@@ -200,23 +201,18 @@ void EditorCanvas::OnMouseLeftUp(wxMouseEvent& event)
     default:
       state = State::NONE;
     }
-    // if there's a vertex in the area, select it
   }
   paint();
 }
 
 void EditorCanvas::OnMouseRightDown(wxMouseEvent& event)
 {
-  long x, y;
-  event.GetPosition(&x, &y);
-  paint();
+  event.Skip();
 }
 
 void EditorCanvas::OnMouseRightUp(wxMouseEvent& event)
 {
-  long x, y;
-  event.GetPosition(&x, &y);
-  paint();
+  event.Skip();
 }
 
 void EditorCanvas::OnMouseMotion(wxMouseEvent& event)
