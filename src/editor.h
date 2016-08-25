@@ -44,7 +44,7 @@ public:
 
 private:
 
-  enum class State {NONE, DRAW, ROTATE, SCALE, MOVE, DRAG};
+  enum class State {NONE, DRAG, DRAW, MOVE, ROTATE, SCALE};
 
   std::unique_ptr<wxGLContext> context;
   EditorFrame* parent;
@@ -102,7 +102,7 @@ private:
   }
 
   wxDECLARE_EVENT_TABLE();
-  
+
 };
 
 #endif /* editor_h */

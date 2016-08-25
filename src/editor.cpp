@@ -144,27 +144,27 @@ void EditorCanvas::OnMouseLeftDown(wxMouseEvent& event)
   long x, y;
   event.GetPosition(&x, &y);
   switch (event.GetModifiers()) {
-    case wxMOD_SHIFT:
-      if (frame == 1) {
-        scene.startDrawing(x, y);
-        state = State::DRAW;
-      }
-      break;
-    case wxMOD_CONTROL:
-      if (state == State::ROTATE) {
-        scene.startRotatingOrScaling(x, y);
-      }
-      break;
-    case wxMOD_CONTROL | wxMOD_SHIFT:
-      if (state == State::SCALE) {
-        scene.startRotatingOrScaling(x, y);
-      }
-      break;
-    default:
-      scene.select(frame, x, y);
-      if (scene.isSelected()) {
-        state = State::DRAG;
-      }
+  case wxMOD_SHIFT:
+    if (frame == 1) {
+      scene.startDrawing(x, y);
+      state = State::DRAW;
+    }
+    break;
+  case wxMOD_CONTROL:
+    if (state == State::ROTATE) {
+      scene.startRotatingOrScaling(x, y);
+    }
+    break;
+  case wxMOD_CONTROL | wxMOD_SHIFT:
+    if (state == State::SCALE) {
+      scene.startRotatingOrScaling(x, y);
+    }
+    break;
+  default:
+    scene.select(frame, x, y);
+    if (scene.isSelected()) {
+      state = State::DRAG;
+    }
   }
   paint();
   event.Skip();
@@ -175,32 +175,32 @@ void EditorCanvas::OnMouseLeftUp(wxMouseEvent& event)
   long x, y;
   event.GetPosition(&x, &y);
   switch (state) {
-    case State::DRAW:
-      scene.finishDrawing(x, y);
-    case State::ROTATE:
-    case State::SCALE:
-    case State::DRAG:
-      std::cout << "finish drawing or rotating or scaling or dragging at " << x << ", " << y << '\n';
-      state = State::NONE;
+  case State::DRAW:
+    scene.finishDrawing(x, y);
+  case State::ROTATE:
+  case State::SCALE:
+  case State::DRAG:
+    std::cout << "finish drawing or rotating or scaling or dragging at " << x << ", " << y << '\n';
+    state = State::NONE;
+    break;
+  default:
+    switch (event.GetModifiers()) {
+    case wxMOD_CONTROL:
+      if (scene.isSelected()) {
+        scene.setRotationOrScalingCenter(x, y);
+        state = State::ROTATE;
+      }
+      break;
+    case wxMOD_CONTROL | wxMOD_SHIFT:
+      if (scene.isSelected()) {
+        scene.setRotationOrScalingCenter(x, y);
+        state = State::SCALE;
+      }
       break;
     default:
-      switch (event.GetModifiers()) {
-        case wxMOD_CONTROL:
-          if (scene.isSelected()) {
-            scene.setRotationOrScalingCenter(x, y);
-            state = State::ROTATE;
-          }
-          break;
-        case wxMOD_CONTROL | wxMOD_SHIFT:
-          if (scene.isSelected()) {
-            scene.setRotationOrScalingCenter(x, y);
-            state = State::SCALE;
-          }
-          break;
-        default:
-          state = State::NONE;
-      }
-      // if there's a vertex in the area, select it
+      state = State::NONE;
+    }
+    // if there's a vertex in the area, select it
   }
   paint();
 }
@@ -221,33 +221,28 @@ void EditorCanvas::OnMouseRightUp(wxMouseEvent& event)
 
 void EditorCanvas::OnMouseMotion(wxMouseEvent& event)
 {
-  long x, y;
-  event.GetPosition(&x, &y);
-
   if (event.LeftIsDown()) {
+    long x, y;
+    event.GetPosition(&x, &y);
     switch (state) {
+    case State::DRAG:
+      scene.drag(frame, x, y);
+      break;
     case State::DRAW:
       scene.draw(x, y);
       break;
+    case State::MOVE:
+      scene.move(frame, x, y);
+      break;
     case State::ROTATE:
       scene.rotate(frame, x, y);
       break;
     case State::SCALE:
       scene.scale(frame, x, y);
       break;
-    default:
-      scene.drag(frame, x, y);
+    default: // nothing changed, do not paint
+      return;
     }
-  } else if (event.RightIsDown()) {
-    switch (state) {
-    case State::ROTATE:
-      scene.rotate(frame, x, y);
-      break;
-    case State::SCALE:
-      scene.scale(frame, x, y);
-      break;
-    default:;
-    }
+    paint();
   }
-  paint();
 }

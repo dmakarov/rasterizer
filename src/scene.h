@@ -134,16 +134,17 @@ public:
   void save(const std::string& filename) const;
   void renderToFile(const std::vector<std::string>& args);
 
+  void drag(const int frame, const long x, const long y);
+  void draw(const long x, const long y);
+  void move(const int frame, const long x, const long y);
+  void rotate(const int frame, const long x, const long y);
+  void scale(const int frame, const long x, const long y);
+  void select(const int frame, const long x, const long y);
+
   void setRotationOrScalingCenter(const long x, const long y);
   void startRotatingOrScaling(const long x, const long y);
   void startDrawing(const long x, const long y);
   void finishDrawing(const long x, const long y);
-  void select(const int frame, const long x, const long y);
-  void rotate(const int frame, const long x, const long y);
-  void scale(const int frame, const long x, const long y);
-  void move(const int frame, const long x, const long y);
-  void drag(const int frame, const long x, const long y);
-  void draw(const long x, const long y);
 };
 
 #endif /* scene_h */
