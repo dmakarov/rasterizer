@@ -55,7 +55,11 @@ private:
   void paint();
 
   void OnChar(wxKeyEvent& event);
-  void OnMouse(wxMouseEvent& event);
+  void OnMouseLeftDown(wxMouseEvent& event);
+  void OnMouseLeftUp(wxMouseEvent& event);
+  void OnMouseRightDown(wxMouseEvent& event);
+  void OnMouseRightUp(wxMouseEvent& event);
+  void OnMouseMotion(wxMouseEvent& event);
 
   void OnPaint(wxPaintEvent& event) {
     paint();
