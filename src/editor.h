@@ -54,17 +54,17 @@ private:
 
   void paint();
 
+  void OnPaint(wxPaintEvent& event) {
+    paint();
+    event.Skip();
+  }
+
   void OnChar(wxKeyEvent& event);
   void OnMouseLeftDown(wxMouseEvent& event);
   void OnMouseLeftUp(wxMouseEvent& event);
   void OnMouseRightDown(wxMouseEvent& event);
   void OnMouseRightUp(wxMouseEvent& event);
   void OnMouseMotion(wxMouseEvent& event);
-
-  void OnPaint(wxPaintEvent& event) {
-    paint();
-    event.Skip();
-  }
 
   wxDECLARE_EVENT_TABLE();
 

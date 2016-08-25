@@ -209,21 +209,6 @@ void EditorCanvas::OnMouseRightDown(wxMouseEvent& event)
 {
   long x, y;
   event.GetPosition(&x, &y);
-  switch (event.GetModifiers()) {
-    case wxMOD_RAW_CONTROL:
-      if (state == State::ROTATE) {
-        scene.startRotatingOrScaling(x, y);
-      }
-      break;
-    case wxMOD_RAW_CONTROL | wxMOD_SHIFT:
-      if (state == State::SCALE) {
-        scene.startRotatingOrScaling(x, y);
-      }
-      break;
-    default:
-      event.Skip();
-      return;
-  }
   paint();
 }
 
@@ -231,29 +216,6 @@ void EditorCanvas::OnMouseRightUp(wxMouseEvent& event)
 {
   long x, y;
   event.GetPosition(&x, &y);
-  switch (state) {
-    case State::ROTATE:
-    case State::SCALE:
-      std::cout << "finish rotating or scaling at " << x << ", " << y << '\n';
-      state = State::NONE;
-      break;
-    default:
-      switch (event.GetModifiers()) {
-        case wxMOD_RAW_CONTROL:
-          if (scene.isSelected()) {
-            scene.setRotationOrScalingCenter(x, y);
-            state = State::ROTATE;
-          }
-          break;
-        case wxMOD_RAW_CONTROL | wxMOD_SHIFT:
-          if (scene.isSelected()) {
-            scene.setRotationOrScalingCenter(x, y);
-            state = State::SCALE;
-          }
-          break;
-        default:;
-      }
-  }
   paint();
 }
 
