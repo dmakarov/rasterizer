@@ -44,7 +44,7 @@ public:
 
 private:
 
-  enum class State {NONE, DRAG, DRAW, MOVE, ROTATE, SCALE};
+  enum class State {NONE, CENTER, DRAG, DRAW, MOVE, ROTATE, SCALE, SELECTED};
 
   std::unique_ptr<wxGLContext> context;
   EditorFrame* parent;

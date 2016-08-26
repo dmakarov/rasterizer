@@ -151,18 +151,35 @@ void EditorCanvas::OnMouseLeftDown(wxMouseEvent& event)
     }
     break;
   case wxMOD_CONTROL:
-    if (state == State::ROTATE) {
+    if (state == State::CENTER) {
+      state = State::ROTATE;
       scene.startRotatingOrScaling(x, y);
+    } else if (scene.isSelected()) {
+      state = State::CENTER;
+      scene.setRotationOrScalingCenter(x, y);
     }
     break;
   case wxMOD_CONTROL | wxMOD_SHIFT:
-    if (state == State::SCALE) {
+    if (state == State::CENTER) {
+      state = State::SCALE;
       scene.startRotatingOrScaling(x, y);
+    } else if (scene.isSelected()) {
+      state = State::CENTER;
+      scene.setRotationOrScalingCenter(x, y);
     }
     break;
   default:
-    if (state == State::DRAG) {
+    if (state == State::SELECTED) {
+      state = State::DRAG;
       scene.startDragging(x, y);
+    } else {
+      // if there's a vertex in the area, select it
+      scene.select(frame, x, y);
+      if (scene.isSelected()) {
+        state = State::SELECTED;
+      } else {
+        state = State::NONE;
+      }
     }
   }
   paint();
@@ -176,37 +193,16 @@ void EditorCanvas::OnMouseLeftUp(wxMouseEvent& event)
   switch (state) {
   case State::DRAW:
     scene.finishDrawing(x, y);
+  case State::DRAG:
+  case State::MOVE:
   case State::ROTATE:
   case State::SCALE:
-  case State::DRAG:
-    std::cout << "finish drawing or rotating or scaling or dragging at " << x << ", " << y << '\n';
-    state = State::NONE;
+    std::cout << "finish drawing, dragging, moving, rotation, or scaling at " << x << ", " << y << '\n';
+    state = State::SELECTED;
+    paint();
     break;
-  default:
-    switch (event.GetModifiers()) {
-    case wxMOD_CONTROL:
-      if (scene.isSelected()) {
-        scene.setRotationOrScalingCenter(x, y);
-        state = State::ROTATE;
-      }
-      break;
-    case wxMOD_CONTROL | wxMOD_SHIFT:
-      if (scene.isSelected()) {
-        scene.setRotationOrScalingCenter(x, y);
-        state = State::SCALE;
-      }
-      break;
-    default:
-      // if there's a vertex in the area, select it
-      scene.select(frame, x, y);
-      if (scene.isSelected()) {
-        state = State::DRAG;
-      } else {
-        state = State::NONE;
-      }
-    }
+  default:;
   }
-  paint();
 }
 
 void EditorCanvas::OnMouseRightDown(wxMouseEvent& event)
