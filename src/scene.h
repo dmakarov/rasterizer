@@ -143,6 +143,7 @@ public:
 
   void setRotationOrScalingCenter(const long x, const long y);
   void startRotatingOrScaling(const long x, const long y);
+  void startDragging(const long x, const long y);
   void startDrawing(const long x, const long y);
   void finishDrawing(const long x, const long y);
 };

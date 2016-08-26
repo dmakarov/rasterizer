@@ -161,10 +161,8 @@ void EditorCanvas::OnMouseLeftDown(wxMouseEvent& event)
     }
     break;
   default:
-    // if there's a vertex in the area, select it
-    scene.select(frame, x, y);
-    if (scene.isSelected()) {
-      state = State::DRAG;
+    if (state == State::DRAG) {
+      scene.startDragging(x, y);
     }
   }
   paint();
@@ -199,7 +197,13 @@ void EditorCanvas::OnMouseLeftUp(wxMouseEvent& event)
       }
       break;
     default:
-      state = State::NONE;
+      // if there's a vertex in the area, select it
+      scene.select(frame, x, y);
+      if (scene.isSelected()) {
+        state = State::DRAG;
+      } else {
+        state = State::NONE;
+      }
     }
   }
   paint();

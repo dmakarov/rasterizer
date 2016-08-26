@@ -208,6 +208,12 @@ void Scene::startRotatingOrScaling(const long x, const long y)
                    static_cast<float>(y) - center.y};
 }
 
+void Scene::startDragging(const long x, const long y)
+{
+  std::cout << "start dragging at " << x << ", " << y << '\n';
+  previous = Point{static_cast<float>(x), static_cast<float>(y)};
+}
+
 void Scene::startDrawing(const long x, const long y)
 {
   std::cout << "start drawing at " << x << ", " << y << '\n';
