@@ -203,20 +203,17 @@ void Scene::setRotationOrScalingCenter(const long x, const long y)
 
 void Scene::startRotatingOrScaling(const long x, const long y)
 {
-  std::cout << "start rotating or scaling at " << x << ", " << y << '\n';
   previous = Point{static_cast<float>(x) - center.x,
                    static_cast<float>(y) - center.y};
 }
 
 void Scene::startDragging(const long x, const long y)
 {
-  std::cout << "start dragging at " << x << ", " << y << '\n';
   previous = Point{static_cast<float>(x), static_cast<float>(y)};
 }
 
 void Scene::startDrawing(const long x, const long y)
 {
-  std::cout << "start drawing at " << x << ", " << y << '\n';
   active = std::make_shared<Polygon>();
   active->keyframes.push_back(Frame());
   active->keyframes[0].number = 1;
@@ -227,7 +224,6 @@ void Scene::startDrawing(const long x, const long y)
 
 void Scene::finishDrawing(const long x, const long y)
 {
-  std::cout << "finish drawing at " << x << ", " << y << '\n';
   // if we're in the middle of drawing something, then end it
   if (active) {
     // if we don't have a polygon

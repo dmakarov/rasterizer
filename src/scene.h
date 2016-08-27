@@ -130,6 +130,17 @@ public:
     }
   }
 
+  bool isCloseToSelectedVertex(const int frame, const long x, const long y) {
+    if (!selected) {
+      return false;
+    }
+    Point p{static_cast<float>(x), static_cast<float>(y)};
+    if (selected->keyframes[frame].vertices[selectedVertex] % p < 5.0f) {
+      return true;
+    }
+    return false;
+  }
+
   bool load(const std::string& filename);
   void save(const std::string& filename) const;
   void renderToFile(const std::vector<std::string>& args);

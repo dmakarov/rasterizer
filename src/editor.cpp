@@ -21,6 +21,22 @@ wxBEGIN_EVENT_TABLE(EditorCanvas, wxWindow)
   EVT_MOTION(EditorCanvas::OnMouseMotion)
 wxEND_EVENT_TABLE()
 
+std::ostream& operator<<(std::ostream& os, const EditorCanvas::State& s)
+{
+  switch(s) {
+  case EditorCanvas::State::NONE:     os << "NONE";     break;
+  case EditorCanvas::State::CENTER:   os << "CENTER";   break;
+  case EditorCanvas::State::DRAG:     os << "DRAG";     break;
+  case EditorCanvas::State::DRAW:     os << "DRAW";     break;
+  case EditorCanvas::State::MOVE:     os << "MOVE";     break;
+  case EditorCanvas::State::ROTATE:   os << "ROTATE";   break;
+  case EditorCanvas::State::SCALE:    os << "SCALE";    break;
+  case EditorCanvas::State::SELECTED: os << "SELECTED"; break;
+  default: os << "IMPOSSIBLE";
+  }
+  return os;
+}
+
 void EditorCanvas::paint()
 {
   auto status = SetCurrent(*context);
@@ -81,7 +97,9 @@ void EditorCanvas::paint()
     }
   }
 
-  if (state == State::ROTATE || state == State::SCALE) {
+  if (state == State::CENTER ||
+      state == State::ROTATE ||
+      state == State::SCALE) {
     glBegin(GL_LINES);
     {
       glColor3d(0.5, 0.5, 0.5);
@@ -141,6 +159,7 @@ void EditorCanvas::OnChar(wxKeyEvent& event)
 
 void EditorCanvas::OnMouseLeftDown(wxMouseEvent& event)
 {
+  std::cout << "Mouse down, state " << state;
   long x, y;
   event.GetPosition(&x, &y);
   switch (event.GetModifiers()) {
@@ -169,7 +188,8 @@ void EditorCanvas::OnMouseLeftDown(wxMouseEvent& event)
     }
     break;
   default:
-    if (state == State::SELECTED) {
+    if (state == State::SELECTED &&
+        scene.isCloseToSelectedVertex(frame, x, y)) {
       state = State::DRAG;
       scene.startDragging(x, y);
     } else {
@@ -182,12 +202,14 @@ void EditorCanvas::OnMouseLeftDown(wxMouseEvent& event)
       }
     }
   }
+  std::cout << " -> " << state << '\n';
   paint();
   event.Skip();
 }
 
 void EditorCanvas::OnMouseLeftUp(wxMouseEvent& event)
 {
+  std::cout << "Mouse up, state " << state;
   long x, y;
   event.GetPosition(&x, &y);
   switch (state) {
@@ -197,12 +219,12 @@ void EditorCanvas::OnMouseLeftUp(wxMouseEvent& event)
   case State::MOVE:
   case State::ROTATE:
   case State::SCALE:
-    std::cout << "finish drawing, dragging, moving, rotation, or scaling at " << x << ", " << y << '\n';
     state = State::SELECTED;
     paint();
     break;
   default:;
   }
+  std::cout << " -> " << state << '\n';
 }
 
 void EditorCanvas::OnMouseRightDown(wxMouseEvent& event)

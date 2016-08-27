@@ -16,6 +16,7 @@
 class EditorFrame;
 
 class EditorCanvas : public wxGLCanvas {
+
 public:
 
   EditorCanvas(Scene& scene,
@@ -45,6 +46,8 @@ public:
 private:
 
   enum class State {NONE, CENTER, DRAG, DRAW, MOVE, ROTATE, SCALE, SELECTED};
+
+  friend std::ostream& operator<<(std::ostream&, const State&);
 
   std::unique_ptr<wxGLContext> context;
   EditorFrame* parent;
