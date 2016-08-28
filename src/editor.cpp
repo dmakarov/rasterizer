@@ -162,8 +162,20 @@ void EditorCanvas::OnMouseLeftDown(wxMouseEvent& event)
   long x, y;
   event.GetPosition(&x, &y);
   switch (event.GetModifiers()) {
+  case wxMOD_NONE:
+    if (state == State::DRAW) {
+      scene.finishDrawing();
+      state = State::NONE;
+    } else {
+      state = state == State::SELECTED
+              && scene.isCloseToSelectedVertex(frame, x, y) ? State::DRAG
+              : scene.select(frame, x, y) ? State::SELECTED : State::NONE;
+    }
+    break;
   case wxMOD_SHIFT:
-    if (frame == 1) {
+    if (state == State::DRAW) {
+      scene.draw(x, y);
+    } else if (frame == 1) {
       scene.startDrawing(x, y);
       state = State::DRAW;
     }
@@ -187,9 +199,8 @@ void EditorCanvas::OnMouseLeftDown(wxMouseEvent& event)
     }
     break;
   default:
-    state = state == State::SELECTED
-            && scene.isCloseToSelectedVertex(frame, x, y) ? State::DRAG
-            : scene.select(frame, x, y) ? State::SELECTED : State::NONE;
+    event.Skip();
+    return;
   }
   paint();
   event.Skip();
@@ -197,14 +208,7 @@ void EditorCanvas::OnMouseLeftDown(wxMouseEvent& event)
 
 void EditorCanvas::OnMouseLeftUp(wxMouseEvent& event)
 {
-  long x, y;
-  event.GetPosition(&x, &y);
   switch (state) {
-  case State::DRAW:
-    scene.finishDrawing(x, y);
-    state = State::NONE;
-    paint();
-    break;
   case State::DRAG:
   case State::MOVE:
   case State::ROTATE:
@@ -213,15 +217,34 @@ void EditorCanvas::OnMouseLeftUp(wxMouseEvent& event)
     break;
   default:;
   }
+  event.Skip();
 }
 
 void EditorCanvas::OnMouseRightDown(wxMouseEvent& event)
 {
+  long x, y;
+  event.GetPosition(&x, &y);
+  switch (event.GetModifiers()) {
+  case wxMOD_NONE:
+  case wxMOD_RAW_CONTROL:
+    if (state == State::SELECTED &&
+        scene.isCloseToSelectedVertex(frame, x, y)) {
+      state = State::MOVE;
+    }
+    break;
+  default:;
+  }
   event.Skip();
 }
 
 void EditorCanvas::OnMouseRightUp(wxMouseEvent& event)
 {
+  switch (state) {
+    case State::MOVE:
+      state = State::SELECTED;
+      break;
+    default:;
+  }
   event.Skip();
 }
 
@@ -237,9 +260,6 @@ void EditorCanvas::OnMouseMotion(wxMouseEvent& event)
     case State::DRAW:
       scene.draw(x, y);
       break;
-    case State::MOVE:
-      scene.move(frame, x, y);
-      break;
     case State::ROTATE:
       scene.rotate(frame, x, y);
       break;
@@ -253,6 +273,17 @@ void EditorCanvas::OnMouseMotion(wxMouseEvent& event)
       }
       break;
     default: // nothing changed, do not paint
+      return;
+    }
+    paint();
+  } else if (event.RightIsDown()) {
+    long x, y;
+    event.GetPosition(&x, &y);
+    switch (state) {
+    case State::MOVE:
+      scene.move(frame, x, y);
+      break;
+    default:
       return;
     }
     paint();

@@ -154,7 +154,7 @@ public:
   void setRotationOrScalingCenter(const long x, const long y);
   void startRotatingOrScaling(const long x, const long y);
   void startDrawing(const long x, const long y);
-  void finishDrawing(const long x, const long y);
+  void finishDrawing(void);
 };
 
 #endif /* scene_h */

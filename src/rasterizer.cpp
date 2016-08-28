@@ -91,8 +91,7 @@ static void add_edge(std::unique_ptr<std::list<Edge>[]>& et,
 /**
    \brief drive the rasterization of a frame
  */
-void Rasterizer::run(const std::vector<std::shared_ptr<Polygon>>& polygons,
-                     int frame_num,
+void Rasterizer::run(const VP& polygons, int frame_num,
                      bool aa_enabled, int num_aa_samples,
                      bool mb_enabled, int num_mb_samples,
                      const std::string& aa_filter) const

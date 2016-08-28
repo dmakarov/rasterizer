@@ -124,13 +124,13 @@ void Scene::renderToFile(const std::vector<std::string>& args)
   std::string infile;
   std::string outfile;
   std::string basename{"basename"};
-  unsigned int first_frame;
-  unsigned int final_frame;
-  unsigned int num_aa_samples = 0;
-  unsigned int num_mb_samples = 0;
-  bool aa_enabled = false;
-  bool mb_enabled = false;
   std::istringstream iss;
+  auto num_aa_samples = 1;
+  auto num_mb_samples = 1;
+  auto aa_enabled = false;
+  auto mb_enabled = false;
+  auto first_frame = 0;
+  auto final_frame = 0;
 
   if (args.size() < 4 || args[0] == "-help") {
     std::cout << "Usage: rasterizer [-a<#samples>] [-m<#samples>]"
@@ -146,43 +146,53 @@ void Scene::renderToFile(const std::vector<std::string>& args)
   iss.clear();
   iss.str(*arg++);
   iss >> first_frame;
-  if (first_frame == 0 || final_frame == 0) {
-    std::cerr << "Incorrect arguments. Type 'rasterizer -help' for more info\n";
+  if (first_frame < 1 || final_frame < 1) {
+    std::cerr << "Incorrect arguments: first or last frame < 1.\n"
+              << "Type 'rasterizer -help' for more info\n";
     return;
   }
-  /*
-   if (oss.str().substr(0, 2) == "-a")
-   {
-   aa_enabled = true;
-   std::istringstream iss(oss.str().substr(2));
-   iss >> num_aa_samples;
-   if (num_aa_samples == 0)
-   {
-   std::cerr << "Incorrect arguments. Type 'rasterizer -help' for more info\n";
-   }
-   ++i;
-   }
-
-   if (strncmp(argv[i], "-m", 2) == 0)
-   {
-   mb_enabled = true;
-   if (sscanf(argv[i], "-m%d", &num_mb_samples) == 0)
-   {
-   std::cerr << "Incorrect arguments. Type 'rasterizer -help' for more info\n";
-   }
-   ++i;
-   }
-
-   //there should be four more arguments after the optional switches
-   if (i != argc - 4)
-   {
-   std::cerr << "Incorrect number of arguments."
-   << " Type 'rasterizer -help' for more info\n";
-   return;
-   }
-   */
+  if (arg != args.crend()) {
+    std::string s = *arg++;
+    if (s.substr(0, 2) == "-m") {
+      iss.clear();
+      iss.str(s.substr(2));
+      iss >> num_mb_samples;
+      if (num_mb_samples < 1) {
+        std::cerr << "Incorrect arguments: number of motion blur samples < 1.\n"
+                  << "Type 'rasterizer -help' for more info\n";
+        return;
+      } else {
+        mb_enabled = true;
+      }
+    } else if (s.substr(0, 2) == "-a") {
+      iss.clear();
+      iss.str(s.substr(2));
+      iss >> num_aa_samples;
+      if (num_aa_samples < 1) {
+        std::cerr << "Incorrect arguments: number of antialiasing samples < 1.\n"
+                  << "Type 'rasterizer -help' for more info\n";
+        return;
+      } else {
+        aa_enabled = true;
+      }
+    }
+  }
+  if (arg != args.crend()) {
+    std::string s = *arg++;
+    if (s.substr(0, 2) == "-a") {
+      iss.clear();
+      iss.str(s.substr(2));
+      iss >> num_aa_samples;
+      if (num_aa_samples < 1) {
+        std::cerr << "Incorrect arguments: number of antialiasing samples < 1.\n"
+                  << "Type 'rasterizer -help' for more info\n";
+        return;
+      } else {
+        aa_enabled = true;
+      }
+    }
+  }
   load(infile);
-  //ParseFilename(outputFile, pathless);
   std::ofstream listfile(outfile + ".list");
   assert(listfile);
 
@@ -209,6 +219,8 @@ void Scene::startRotatingOrScaling(const long x, const long y)
 
 void Scene::startDrawing(const long x, const long y)
 {
+  selected = nullptr;
+  notify();
   active = std::make_shared<Polygon>();
   active->keyframes.push_back(Frame());
   active->keyframes[0].number = 1;
@@ -217,7 +229,7 @@ void Scene::startDrawing(const long x, const long y)
                                                 static_cast<float>(y)});
 }
 
-void Scene::finishDrawing(const long x, const long y)
+void Scene::finishDrawing(void)
 {
   // if we're in the middle of drawing something, then end it
   if (active) {
@@ -312,8 +324,9 @@ void Scene::drag(const int frame, const long x, const long y)
 {
   assert(selected);
   auto& v = selected->findOrCreateKeyframe(frame)->vertices;
-  v[selectedVertex].x = x;
-  v[selectedVertex].y = y;
+  Point m{static_cast<float>(x), static_cast<float>(y)};
+  v[selectedVertex] = m;
+  previous = m;
 }
 
 void Scene::draw(const long x, const long y)

@@ -73,6 +73,8 @@ struct Abuffer {
 */
 class Rasterizer {
 
+  using VP = std::vector<std::shared_ptr<Polygon>>;
+
   std::unique_ptr<RGB8[]> pixels;
   int width;
   int height;
@@ -104,7 +106,7 @@ public:
      \brief takes a frame number, and a bunch of arguments showing how the frame
             should be rasterized.
   */
-  void run(const std::vector<std::shared_ptr<Polygon>>& polygons,
+  void run(const VP& polygons,
            int frame,
            bool aa_enabled, int num_aa_samples,
            bool mb_enabled, int num_mb_samples,
