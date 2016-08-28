@@ -231,7 +231,7 @@ void Scene::finishDrawing(const long x, const long y)
   }
 }
 
-void Scene::select(const int frame, const long x, const long y)
+bool Scene::select(const int frame, const long x, const long y)
 {
   selected = nullptr;
   auto found = false;
@@ -254,6 +254,7 @@ void Scene::select(const int frame, const long x, const long y)
     vertices.clear();
   }
   notify();
+  return found;
 }
 
 void Scene::rotate(const int frame, const long x, const long y)

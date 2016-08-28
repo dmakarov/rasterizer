@@ -149,7 +149,7 @@ public:
   void move(const int frame, const long x, const long y);
   void rotate(const int frame, const long x, const long y);
   void scale(const int frame, const long x, const long y);
-  void select(const int frame, const long x, const long y);
+  bool select(const int frame, const long x, const long y);
 
   void setRotationOrScalingCenter(const long x, const long y);
   void startRotatingOrScaling(const long x, const long y);

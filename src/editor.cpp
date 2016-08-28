@@ -187,18 +187,9 @@ void EditorCanvas::OnMouseLeftDown(wxMouseEvent& event)
     }
     break;
   default:
-    if (state == State::SELECTED &&
-        scene.isCloseToSelectedVertex(frame, x, y)) {
-      state = State::DRAG;
-    } else {
-      // if there's a vertex in the area, select it
-      scene.select(frame, x, y);
-      if (scene.isSelected()) {
-        state = State::SELECTED;
-      } else {
-        state = State::NONE;
-      }
-    }
+    state = state == State::SELECTED
+            && scene.isCloseToSelectedVertex(frame, x, y) ? State::DRAG
+            : scene.select(frame, x, y) ? State::SELECTED : State::NONE;
   }
   paint();
   event.Skip();
@@ -211,12 +202,14 @@ void EditorCanvas::OnMouseLeftUp(wxMouseEvent& event)
   switch (state) {
   case State::DRAW:
     scene.finishDrawing(x, y);
+    state = State::NONE;
+    paint();
+    break;
   case State::DRAG:
   case State::MOVE:
   case State::ROTATE:
   case State::SCALE:
     state = State::SELECTED;
-    paint();
     break;
   default:;
   }
