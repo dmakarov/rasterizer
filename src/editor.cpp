@@ -159,7 +159,6 @@ void EditorCanvas::OnChar(wxKeyEvent& event)
 
 void EditorCanvas::OnMouseLeftDown(wxMouseEvent& event)
 {
-  std::cout << "Mouse down, state " << state;
   long x, y;
   event.GetPosition(&x, &y);
   switch (event.GetModifiers()) {
@@ -191,7 +190,6 @@ void EditorCanvas::OnMouseLeftDown(wxMouseEvent& event)
     if (state == State::SELECTED &&
         scene.isCloseToSelectedVertex(frame, x, y)) {
       state = State::DRAG;
-      scene.startDragging(x, y);
     } else {
       // if there's a vertex in the area, select it
       scene.select(frame, x, y);
@@ -202,14 +200,12 @@ void EditorCanvas::OnMouseLeftDown(wxMouseEvent& event)
       }
     }
   }
-  std::cout << " -> " << state << '\n';
   paint();
   event.Skip();
 }
 
 void EditorCanvas::OnMouseLeftUp(wxMouseEvent& event)
 {
-  std::cout << "Mouse up, state " << state;
   long x, y;
   event.GetPosition(&x, &y);
   switch (state) {
@@ -224,7 +220,6 @@ void EditorCanvas::OnMouseLeftUp(wxMouseEvent& event)
     break;
   default:;
   }
-  std::cout << " -> " << state << '\n';
 }
 
 void EditorCanvas::OnMouseRightDown(wxMouseEvent& event)
@@ -257,6 +252,12 @@ void EditorCanvas::OnMouseMotion(wxMouseEvent& event)
       break;
     case State::SCALE:
       scene.scale(frame, x, y);
+      break;
+    case State::SELECTED:
+      if (scene.isCloseToSelectedVertex(frame, x, y)) {
+        state = State::DRAG;
+        scene.drag(frame, x, y);
+      }
       break;
     default: // nothing changed, do not paint
       return;

@@ -134,11 +134,10 @@ public:
     if (!selected) {
       return false;
     }
-    Point p{static_cast<float>(x), static_cast<float>(y)};
-    if (selected->keyframes[frame].vertices[selectedVertex] % p < 5.0f) {
-      return true;
-    }
-    return false;
+    std::vector<Point> vertices;
+    selected->getVertices(frame, vertices);
+    return vertices[selectedVertex] %
+           Point{static_cast<float>(x), static_cast<float>(y)} < 5.0f;
   }
 
   bool load(const std::string& filename);
@@ -154,7 +153,6 @@ public:
 
   void setRotationOrScalingCenter(const long x, const long y);
   void startRotatingOrScaling(const long x, const long y);
-  void startDragging(const long x, const long y);
   void startDrawing(const long x, const long y);
   void finishDrawing(const long x, const long y);
 };

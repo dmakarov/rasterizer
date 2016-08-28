@@ -207,11 +207,6 @@ void Scene::startRotatingOrScaling(const long x, const long y)
                    static_cast<float>(y) - center.y};
 }
 
-void Scene::startDragging(const long x, const long y)
-{
-  previous = Point{static_cast<float>(x), static_cast<float>(y)};
-}
-
 void Scene::startDrawing(const long x, const long y)
 {
   active = std::make_shared<Polygon>();
@@ -248,6 +243,7 @@ void Scene::select(const int frame, const long x, const long y)
     for (auto& v : vertices) {
       // check for proximity
       if (v % p < 5.0f) {
+        previous = v;
         selected = polygons[i];
         selectedID = i;
         found = true;
@@ -315,10 +311,8 @@ void Scene::drag(const int frame, const long x, const long y)
 {
   assert(selected);
   auto& v = selected->findOrCreateKeyframe(frame)->vertices;
-  v[selectedVertex].x += (x - previous.x);
-  v[selectedVertex].y += (y - previous.y);
-  previous.x = x;
-  previous.y = y;
+  v[selectedVertex].x = x;
+  v[selectedVertex].y = y;
 }
 
 void Scene::draw(const long x, const long y)
