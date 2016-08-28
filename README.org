@@ -78,21 +78,31 @@
     Describes how to add vertex points, how to render and save images, and how
     to create animations and view them.  You should definitely read this!
 
-  - ~/src/main.cpp~ : The main module of the program that creates the GUI and
-    sets up the editing and rendering canvases. You won't have to change this
-    file unless you want to change the interface, which is not required for this
-    assignment.
-
-  - ~/src/canvas.cpp~, ~canvas.hpp~ : Provides you with functions that modify and read
-    values from the rendering canvas.  The heart of the rendering functions for the
-    program.  This is where the Rasterize() function lives, where most of your
-    work will be focused.  Read the .hpp file for a detailed description of the
-    provided functions.
-
-  - ~/examples/README.samples~ : Check out this file for information on the sample
+  - ~examples/README.samples~ : Check out this file for information on the sample
     .obs files and example results.
 
-  - ~/docs~ : Documentation on the GLUI toolkit, if you need it.
+  - ~src/main.cpp~ : The main module of the program that creates the GUI and
+    sets up the editing and rendering canvases.
+
+  - ~src/polygon.cpp~, ~polygon.h~ : Implementation of data structures that
+    represent objects on a canvas.
+
+  - ~src/rasterizer.cpp~, ~rasterizer.h~ : Provides functions that modify and read
+    values from the rendering canvas.  The heart of the rendering functions for the
+    program.
+
+  - ~src/scene.cpp~, ~scene.h~ : Data structure that represent the entire scene of
+    polygons to be rasterized and rendered.
+
+  - ~src/observer.h~ : Helper class that implements Observer pattern to enable
+    notification of GUI windows about the changes to the underlying data
+    structures.
+
+  - ~src/control.cpp~, ~control.h~ : GUI control window.
+
+  - ~src/editor.cpp~, ~editor.h~ : GUI scene editor window.
+
+  - ~src/viewer.h~ : GUI rendered image viewer window.
 
 * BUILDING THE PROGRAM
 
@@ -127,26 +137,10 @@
   ctest.
 
 * How to use the GUI
+
 ** Command Line Arguments
 
-   Start up the GUI by typing in "bin/rasterizer", located in the "bin"
-   directory, with no command-line parameters.  You should be presented with an
-   amazingly elegant, yet mind-blowingly functional GUI where you can specify
-   polygons and how they change over time.
-
-   One of the things that sucks about the GUI is that, in most cases, you
-   won't be able to use an emulator from your dorm room or whatnot to work on
-   it, because it displays OpenGL windows that most emulators don't
-   support. Not to worry! If the Sweet Hall labs are crowded, or if you are
-   just plain lazy, we have provided an alternative way for you to test your
-   rasterizer. For this, you will need:
-
-   one (1) .obs file
-
-   That's it! Once you have your .obs file (we'll provide you with some, or you
-   can create one with the GUI), invoke the animgui with the following
-   arguments:
-
+   Invoke the rasterizer with the following command-line arguments:
    #+BEGIN_EXAMPLE
      $ rasterizer [-a<# of samples>] [-m<# of samples>] <start frame> <end frame> <input OBS file> <output label>
    #+END_EXAMPLE
@@ -161,12 +155,13 @@
    (4 samples) and motion blurring on (6 samples), and export the lot to
    tdevil.1.ppm, tdevil.2.ppm, etc. It will also generate a tdevil.list file
    (which I'll get to in a bit).
+
    #+BEGIN_SRC sh
      $ rasterizer 5 5 tdevil.obs tdevil
    #+END_SRC
-
    Same as above, but with no antialiasing or motion blurring, and only
    rendering frame 5.
+
 ** Specifying polygons
 
    Shift-click on the main canvas (the Edit Window) to begin defining your
@@ -268,7 +263,7 @@
 
 ** Support Utilities
 
-   OK, so now you have the .ppms and a .list file, so what do you do with it?
+   OK, so now you have the .list and .ppm and files, what do you do with it?
    Well, in the /usr/class/cs248/support/bin/i386-linux directory, there are
    two utilities: ppm2fli and xanim. Grab them both.
 
@@ -289,4 +284,4 @@
 
 * Screenshots
 
-  [[./docs/sample9.png]]
+  [[./docs/sample1.png]]
